@@ -41,7 +41,10 @@ def save_profile_table(table=None, filename=None, overwrite=False):
         
             menc3D_sph:         Mass enclosed within a sphere of radius r
             vcirc:              Circular velocity profile at r
-        
+            
+            rho:                Density at m=r
+            dlnrho_dlnr:        Derivative of ln(rho) wrt ln(r) at m=r.
+            
             menc3D_sph_Reff:    Mass enclosed within a sphere of radius r=Reff
             vcirc_Reff:         Circular velocity profile at r=Reff
             
@@ -60,9 +63,11 @@ def save_profile_table(table=None, filename=None, overwrite=False):
     fmt_flt = 'D'
     
     
-    key_list = ['r', 'invq', 'q', 'n', 'total_mass', 'Reff', 'menc3D_sph', 'menc3D_ellipsoid', 'vcirc', 
+    key_list = ['r', 'invq', 'q', 'n', 'total_mass', 'Reff', 
+                'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr', 'vcirc', 
                 'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff', 'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
-    fmt_list = [fmt_arr, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_arr, fmt_arr, fmt_arr, 
+    fmt_list = [fmt_arr, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt, 
+                fmt_arr, fmt_arr, fmt_arr, fmt_arr, fmt_arr, 
                 fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt]
     
     col_stack = []

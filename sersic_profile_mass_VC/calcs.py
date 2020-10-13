@@ -7,6 +7,7 @@
 
 import numpy as np
 import scipy.integrate as scp_integrate
+import scipy.misc as scp_misc
 import scipy.special as scp_spec
 import scipy.interpolate as scp_interp
 import astropy.constants as apy_con
@@ -152,7 +153,7 @@ def rho_m_integral(m, Reff=1., n=1., Ie=1.):
     intgrl, abserr = scp_integrate.quad(rho_m_integrand, m, np.inf, args=(m, n, Ie, Reff))
     return intgrl
 
-def rho_m(m, n=1., Ie=1., Reff=1., q=0.4, i=90.):
+def rho_m(m, n=1., Ie=1., Reff=1., q=0.4, i=90., Upsilon = 1.):
     """
     Evalutation of Sersic density profile at radius m.
         
@@ -173,7 +174,6 @@ def rho_m(m, n=1., Ie=1., Reff=1., q=0.4, i=90.):
     Output:     rho(m)  -- 3D density of Sersic profile at radius m.
     """
     # uses rho_m_integrand
-    Upsilon = 1.
     qobstoqint = np.sqrt(np.sin(i*deg2rad)**2 + 1./q**2 * np.cos(i*deg2rad)**2 )
     rhom = -(Upsilon/np.pi)*( qobstoqint ) * rho_m_integral(m, Reff=Reff, n=n, Ie=Ie)
     return rhom
@@ -401,7 +401,7 @@ def total_mass3D_integral(r, rinner=0., q=0.4, n=1., Reff=1., Ie=1., i=90.):
     return 2*np.pi*intgrl
     
     
-def get_Ie(total_mass=1., q=0.4, n=1., Reff=1., i=90.):
+def get_Ie(total_mass=1., q=0.4, n=1., Reff=1., i=90., Upsilon = 1.):
     """
     Evalutation of Ie, normalization of the Sersic intensity profile at kap = Reff, 
         using the total mass (to infinity) and assuming a constant M/L ratio Upsilon.
@@ -424,7 +424,6 @@ def get_Ie(total_mass=1., q=0.4, n=1., Reff=1., i=90.):
     qobs = qobs_func(q=q, i=i)
     
     # This is Ie, using Upsilon = 1 [cnst M/L].
-    Upsilon = 1. 
     Ie = (total_mass * np.power(bn, 2.*n)) / ( Upsilon * 2.*np.pi* qobs * Reff**2 * n * np.exp(bn) * scp_spec.gamma(2.*n) )
     
     return Ie
@@ -494,8 +493,71 @@ def qobs_func(q=None, i=None):
     
     return np.sqrt(q**2 + (1-q**2)*np.cos(i*deg2rad)**2)
 
+####################
 
+def lnrho_m(lnm, Ie, q, Reff, n, i):
+    rhom = rho_m(np.exp(lnm), q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+    return np.log(rhom)
+    
+def dlnrhom_dlnr(lnm, Ie=1., q=0.4, Reff=1., n=1., i=90., dx=1.e-5, order=3):
+    deriv = scp_misc.derivative(lnrho_m, lnm, args=(Ie, q, Reff, n, i), dx=dx, n=1, order=order)
+    
+    return deriv
+    
+def dlnrho_dlnr(r, total_mass=1., q=0.4, Reff=1., n=1., i=90.):
+    
+    lnr = np.log(r)
+    
+    Ie = get_Ie(total_mass=total_mass, q=q, n=n, Reff=Reff, i=i)  
+    
+    try:
+        if len(r) > 0:
+            dlnrho_dlnr_arr = np.zeros(len(r))
+            for j in range(len(r)):
+                dlnrho_dlnr_arr[j] = dlnrhom_dlnr(lnr[j], q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+        else:
+            dlnrho_dlnr_arr = dlnrhom_dlnr(lnr[0], q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+    except:
+        dlnrho_dlnr_arr = dlnrhom_dlnr(lnr, q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+    
+    return dlnrho_dlnr_arr
 # +++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+def rho(r, total_mass=1., q=0.4, Reff=1., n=1., i=90.):
+    """
+    Evalutation of the density profile (at distance r=m) of a Sersic mass distribution with intrinsic axis ratio q.
+    
+    Usage:  rho_arr = rho(r, total_mass=total_mass, q=q, Reff=Reff, n=n, i=i)
+    
+    Input:
+        r:              Midplane radius at which to evaluate the circular velocity [kpc]
+    
+    Keyword input:
+        total_mass:     Total mass of the component [Msun]
+        q:              Intrinsic axis ratio of Sersic profile
+        Reff:           Effective radius of Sersic profile [kpc]
+        n:              Sersic index
+        i:              Inclination of system [deg]
+        
+        
+    Output:     rho_arr  (density profile at r=m)  [Msun / kpc^3]
+    """
+    
+    Ie = get_Ie(total_mass=total_mass, q=q, n=n, Reff=Reff, i=i)  
+    
+    try:
+        if len(r) > 0:
+            rho_arr = np.zeros(len(r))
+            for j in range(len(r)):
+                rho_arr[j] = rho_m(r[j], q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+        else:
+            rho_arr = rho_m(r[0], q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+    except:
+        rho_arr = rho_m(r, q=q, Reff=Reff, Ie=Ie, n=n, i=i)
+    
+    return rho_arr
 
 def v_circ(r, total_mass=1., q=0.4, Reff=1., n=1.,i=90.):
     """
@@ -905,6 +967,159 @@ def menc_spherical_symmetry(r=None, vcirc=None):
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 # Interpolation functions:
 
+
+def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., invq=5., path=None, 
+        filename_base=None, filename=None, table=None):
+    """
+    Determine the Rho(r) profile at arbitrary radii r, for arbitrary Mtot and Reff.
+    
+    Uses the saved table of rho(r) values for a given Sersic index n and invq, 
+        and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
+        (by mapping the radius using r' = (r/Reff * table_Reff) )
+    
+    Usage:  rho_interp = interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff, n=n, invq=invq, path=path)
+    
+    Keyword input:
+        r:              Radius at which to interpolate Menc3D_sphere [kpc]
+        total_mass:     Total mass of the component [Msun]
+        Reff:           Effective radius of Sersic profile [kpc]
+        
+        n:              Sersic index
+        invq:           Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q
+        path:           Path to directory containing the saved Sersic profile tables.
+        
+    Optional input:
+        filename_base:      Base filename to use, when combined with default naming convention:
+                                <path>/<filename_base>_nX.X_invqX.XX.fits
+    
+        filename:           Option to override the default filename convention and 
+                                instead directly specify the file location.
+                                
+        table:              Option to pass the table, if already loaded
+                            
+    Output:     menc_interp = Menc3D_sphere(r)
+    """
+    if table is None:
+        table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
+    
+    table_rho =     table['rho']
+    table_rad =     table['r'] 
+    table_Reff =    table['Reff'] 
+    table_mass =    table['total_mass']
+    
+    # Clean up values inside rmin:  Add the value at r=0: menc=0
+    if table['r'][0] > 0.:
+        try:
+            table_rad = np.append(r.min() * table_Reff/Reff, table_rad)
+            table_rho = np.append(rho(r.min()* table_Reff/Reff, n=n, total_mass=table_mass, Reff=table_Reff, q=table['q']), table_rho)
+        except:
+            pass
+            
+    r_interp = scp_interp.interp1d(table_rad, table_rho, fill_value=np.NaN, bounds_error=False, kind='cubic')
+    r_interp_extrap = scp_interp.interp1d(table_rad, table_rho, fill_value='extrapolate', kind='linear')
+    
+    # Ensure it's an array:
+    if isinstance(r*1., float):
+        rarr = np.array([r])
+    else:
+        rarr = np.array(r)
+    # Ensure all radii are 0. or positive:
+    rarr = np.abs(rarr)
+        
+    rho_interp = np.zeros(len(rarr))
+    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
+    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    rho_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) * (total_mass / table_mass) * (table_Reff / Reff)**3 )
+    rho_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) * (total_mass / table_mass) * (table_Reff / Reff)**3 )
+    
+    if (len(rarr) > 1):
+        return rho_interp
+    else:
+        if isinstance(r*1., float):
+            # Float input
+            return rho_interp[0]
+        else:
+            # Length 1 array input
+            return rho_interp
+            
+            
+#
+
+def interpolate_sersic_profile_dlnrho_dlnr(r=None, total_mass=None, Reff=None, n=1., invq=5., path=None, 
+        filename_base=None, filename=None, table=None):
+    """
+    Determine the dlnrho/dlnr profile at arbitrary radii r, for arbitrary Mtot and Reff.
+    
+    Uses the saved table of rho(r) values for a given Sersic index n and invq, 
+        and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
+        (by mapping the radius using r' = (r/Reff * table_Reff) )
+    
+    Usage:  rho_interp = interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff, n=n, invq=invq, path=path)
+    
+    Keyword input:
+        r:              Radius at which to interpolate Menc3D_sphere [kpc]
+        total_mass:     Total mass of the component [Msun]
+        Reff:           Effective radius of Sersic profile [kpc]
+        
+        n:              Sersic index
+        invq:           Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q
+        path:           Path to directory containing the saved Sersic profile tables.
+        
+    Optional input:
+        filename_base:      Base filename to use, when combined with default naming convention:
+                                <path>/<filename_base>_nX.X_invqX.XX.fits
+    
+        filename:           Option to override the default filename convention and 
+                                instead directly specify the file location.
+                                
+        table:              Option to pass the table, if already loaded
+                            
+    Output:     menc_interp = Menc3D_sphere(r)
+    """
+    if table is None:
+        table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
+    
+    table_dlnrho_dlnr =     table['dlnrho_dlnr']
+    table_rad =     table['r'] 
+    table_Reff =    table['Reff'] 
+    table_mass =    table['total_mass']
+    
+    # Clean up values inside rmin:  Add the value at r=0: menc=0
+    if table['r'][0] > 0.:
+        try:
+            table_rad = np.append(r.min() * table_Reff/Reff, table_rad)
+            table_dlnrho_dlnr = np.append(dlnrho_dlnr(r.min()* table_Reff/Reff, n=n, total_mass=table_mass, Reff=table_Reff, q=table['q']), table_dlnrho_dlnr)
+        except:
+            pass
+            
+    r_interp = scp_interp.interp1d(table_rad, table_dlnrho_dlnr, fill_value=np.NaN, bounds_error=False, kind='cubic')
+    r_interp_extrap = scp_interp.interp1d(table_rad, table_dlnrho_dlnr, fill_value='extrapolate', kind='linear')
+    
+    # Ensure it's an array:
+    if isinstance(r*1., float):
+        rarr = np.array([r])
+    else:
+        rarr = np.array(r)
+    # Ensure all radii are 0. or positive:
+    rarr = np.abs(rarr)
+        
+    dlnrho_dlnr_interp = np.zeros(len(rarr))
+    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
+    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    dlnrho_dlnr_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) )
+    dlnrho_dlnr_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) )
+    
+    if (len(rarr) > 1):
+        return dlnrho_dlnr_interp
+    else:
+        if isinstance(r*1., float):
+            # Float input
+            return dlnrho_dlnr_interp[0]
+        else:
+            # Length 1 array input
+            return dlnrho_dlnr_interp
+            
+            
 def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., invq=5., path=None, 
         filename_base=None, filename=None, table=None):
     """

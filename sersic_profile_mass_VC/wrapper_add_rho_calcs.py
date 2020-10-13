@@ -34,6 +34,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
 
+
 # def check_for_inf(n=1., invq=5., 
 #     fileout=None, fileout_base=None, orig_path=None):
 #     
@@ -62,10 +63,9 @@ def check_for_inf(table=None):
         if not np.isfinite(table['vcirc'][i]): status += 1
         if not np.isfinite(table['menc3D_sph'][i]): status += 1
         if not np.isfinite(table['menc3D_ellipsoid'][i]): status += 1
+        if not np.isfinite(table['table_dlnrho_dlnr'][i]): status += 1
     
     return status
-
-
     
 # ----------------------------------------------------------------------------------------------------    
 # ----------------------------------------------------------------------------------------------------
@@ -73,7 +73,9 @@ def check_for_inf(table=None):
 
 def calculate_sersic_profile_table(n=1., invq=5., 
         Reff=1., total_mass=5.e10, 
-        fileout=None, fileout_base=None, output_path=None, overwrite=False, 
+        fileout=None, fileout_base=None, 
+        input_path=None, 
+        output_path=None, overwrite=False, 
         logr_min = -2., logr_max = 2., nSteps=101, i=90.,
         cumulative=None):
     """
@@ -121,10 +123,13 @@ def calculate_sersic_profile_table(n=1., invq=5.,
         
         # Ensure output path ends in trailing slash:
         if (output_path[-1] != '/'): output_path += '/'
+        if (input_path[-1] != '/'):  input_path += '/'
         
         if fileout_base is None: fileout_base = 'mass_VC_profile_sersic'
         fileout = output_path+fileout_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
-    
+        
+        filein =  input_path+fileout_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
+        
     
     if cumulative is None:
         if n >= 2.:
@@ -133,24 +138,18 @@ def calculate_sersic_profile_table(n=1., invq=5.,
             cumulative = False
     
     # ---------------------
-    # Define q:
-    q = 1./invq
+    # Read table:
     
-    # Catch a few special cases:
-    # Rounded to 2 decimal places values of invq, and the corresponding exact q:
-    special_invq =  np.array([3.33, 1.67, 1.43, 1.11, 0.67])     
-    special_q =     np.array([0.3,  0.6,  0.7,  0.9,  1.5])
-    wh_match = np.where(np.abs(special_invq-invq))[0]
-    if len(wh_match) == 1:
-        q = special_q[wh_match[0]]
+    
+    tabin = table_io.read_profile_table(path=input_path, n=n, invq=invq)
+    
+    q = tabin['q']
+    Reff = tabin['Reff']
+    total_mass = tabin['total_mass']
+    rarr = tabin['r']
     
     # ---------------------
     # Calculate profiles:
-    rarr = np.logspace(logr_min, logr_max, num=nSteps)*Reff
-    
-    vcirc =         calcs.v_circ(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
-    menc3D_sph =    calcs.M_encl_3D(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
-    menc3D_ellip =  calcs.M_encl_3D_ellip(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
     
     rho =           calcs.rho(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
     
@@ -160,9 +159,6 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # ---------------------
     # Setup table:
     table    = { 'r':                   rarr, 
-                 'vcirc':               vcirc, 
-                 'menc3D_sph':          menc3D_sph, 
-                 'menc3D_ellipsoid':    menc3D_ellip, 
                  'rho':                 rho, 
                  'dlnrho_dlnr':         dlnrho_dlnr, 
                  'total_mass':          total_mass,
@@ -171,23 +167,16 @@ def calculate_sersic_profile_table(n=1., invq=5.,
                  'q':                   q, 
                  'n':                   n }
     
-    # ---------------------
-    # Calculate selected values at Reff:
-    wh_reff = np.where(table['r'] == table['Reff'])[0]
-    
-    table['menc3D_sph_Reff'] =          table['menc3D_sph'][wh_reff]
-    table['menc3D_ellipsoid_Reff'] =    table['menc3D_ellipsoid'][wh_reff]
-    table['vcirc_Reff'] =               table['vcirc'][wh_reff]
-    
-    table['ktot_Reff'] = (table['total_mass'] * Msun.cgs.value) * G.cgs.value / \
-                              (( table['Reff']*1.e3*pc.cgs.value ) * (table['vcirc_Reff']*1.e5)**2)
-    table['k3D_sph_Reff'] = (table['menc3D_sph_Reff'] * Msun.cgs.value) * G.cgs.value / \
-                              (( table['Reff']*1.e3*pc.cgs.value ) * (table['vcirc_Reff']*1.e5)**2)
     
     # ---------------------
-    # 3D Spherical half total_mass radius, for reference:
-    table['rhalf3D_sph'] = calcs.find_rhalf3D_sphere(r=table['r'], menc3D_sph=table['menc3D_sph'], 
-                                       total_mass=table['total_mass'])
+    # Get pre-calculated profiles:
+    keys_copy = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid', 
+                'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff', 
+                'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
+    for key in keys_copy:
+        table[key] = tabin[key]
+    
+    
     
     # ---------------------
     # Check that table calculated correctly:
@@ -199,11 +188,6 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # Save table:
     table_io.save_profile_table(table=table, filename=fileout, overwrite=overwrite)
     
-    # Save extra version if cumulative to clarify which were calculated this way:
-    if cumulative:
-        fileout_cumul = output_path+fileout_base+'_n{:0.1f}_invq{:0.2f}.cumulative.fits'.format(n, invq)
-        
-        table_io.save_profile_table(table=table, filename=fileout_cumul, overwrite=overwrite)
     
     
     return None
@@ -211,7 +195,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
 
 def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None, 
         Reff=1., total_mass=5.e10, 
-        fileout_base=None, output_path=None, overwrite=False, 
+        fileout_base=None, input_path=None, output_path=None, overwrite=False, 
         logr_min = -2., logr_max = 2., nSteps=101, i=90., 
         cumulative=None, 
         f_log=None):
@@ -279,7 +263,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             else:
                 calculate_sersic_profile_table(n=n, invq=invq, 
                     Reff=Reff, total_mass=total_mass, 
-                    fileout_base=fileout_base, output_path=output_path, overwrite=overwrite, 
+                    fileout_base=fileout_base, input_path=input_path, output_path=output_path, overwrite=overwrite, 
                     logr_min = logr_min, logr_max = logr_max, nSteps=nSteps, i=i, 
                     cumulative=cumulative)
                     
@@ -287,7 +271,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
     return None
     
     
-def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwrite=False, f_log=None,
+def wrapper_calculate_full_table_set(fileout_base=None, input_path=None, output_path=None, overwrite=False, f_log=None,
         indChunk=None, nChunk=None, invqstart=None, cumulative=None):
     """
     Wrapper function to calculate the full set of Sersic profile tables.
@@ -353,7 +337,7 @@ def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwr
     
     wrapper_calculate_sersic_profile_tables(n_arr=n_arr, invq_arr=invq_arr, 
             Reff=Reff, total_mass=total_mass, 
-            fileout_base=fileout_base, output_path=output_path, overwrite=overwrite, 
+            fileout_base=fileout_base, input_path=input_path, output_path=output_path, overwrite=overwrite, 
             logr_min=logr_min, logr_max=logr_max, nSteps=nSteps, i=i, 
             f_log=f_log, cumulative=cumulative)
     
@@ -367,7 +351,8 @@ if __name__ == "__main__":
     #   Input args: output_path
     #   Optional input:  f_log
     
-    output_path = sys.argv[1]
+    input_path = sys.argv[1]
+    output_path = sys.argv[2]
     
     f_log = None
     indChunk = None
@@ -375,34 +360,27 @@ if __name__ == "__main__":
     invqstart = None
     #cumulative = False
     
-    if len(sys.argv) == 3:
-        f_log = sys.argv[2]
-    elif len(sys.argv) == 4:
-        indChunk = np.int(sys.argv[2])
-        nChunk = np.int(sys.argv[3])
-    elif len(sys.argv) >= 5:
-        f_log = sys.argv[2]
+    if len(sys.argv) == 4:
+        f_log = sys.argv[3]
+    elif len(sys.argv) == 5:
         indChunk = np.int(sys.argv[3])
         nChunk = np.int(sys.argv[4])
+    elif len(sys.argv) >= 6:
+        f_log = sys.argv[3]
+        indChunk = np.int(sys.argv[4])
+        nChunk = np.int(sys.argv[5])
         
         try:
-            invqstart = np.float(sys.argv[5])
+            invqstart = np.float(sys.argv[6])
         except:
             invqstart = None
             
-        # try:
-        #     if sys.argv[6].lower().strip() == 'cumulative':
-        #         cumulative = True
-        #     else:
-        #         cumulative = False
-        # except:
-        #     cumulative = False
         
-    f_log_tmp = output_path+'sersic_table_calc_{}.log'.format(indChunk+1)
-    print("Starting chunk: indChunk={}, nChunk={}".format(indChunk, nChunk))
-    print("Logfile: {}".format(f_log_tmp))
+    #f_log_tmp = output_path+'sersic_table_calc_{}.log'.format(indChunk+1)
+    #print("Starting chunk: indChunk={}, nChunk={}".format(indChunk, nChunk))
+    #print("Logfile: {}".format(f_log_tmp))
         
-    wrapper_calculate_full_table_set(output_path=output_path, f_log=f_log, 
+    wrapper_calculate_full_table_set(input_path=input_path, output_path=output_path, f_log=f_log, 
                 indChunk=indChunk, nChunk=nChunk, invqstart=invqstart) #, cumulative=cumulative)
 
 
