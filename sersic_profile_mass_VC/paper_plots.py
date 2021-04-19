@@ -1,13 +1,15 @@
 ##################################################################################
 # sersic_profile_mass_VC/paper_plots.py                                          #
 #                                                                                #
-# Copyright 2018-2020 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
 import numpy as np
 
+import os
 import copy
+import dill as pickle
 
 import scipy.interpolate as scp_interp
 import scipy.optimize as scp_opt
@@ -21,6 +23,7 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter, FixedLocator,
 import matplotlib.markers as mks
 from matplotlib.legend_handler import HandlerLine2D
 import matplotlib.cm as cm
+from matplotlib.colors import ListedColormap
 from matplotlib import colorbar
 from matplotlib.patches import Rectangle
 
@@ -30,6 +33,7 @@ try:
 except:
     from . import table_io
     from . import calcs
+
 
 #__all__ = [ 'make_all_paper_plots', 'plot_compare_mencl', 'plot_virial_coeff' ]
 
@@ -55,7 +59,22 @@ fontsize_ann_lg = 11.
 fontsize_ann_latex_sm = 12.
 fontsize_ann_latex = 13.
 
-cmap_mass = cm.Oranges
+#cmap_mass = cm.Oranges
+cmap_mass = cm.YlOrRd
+cmap_mass = cm.OrRd
+# cmap_Bu = cm.Blues
+# cmap_Gn = cm.Greens
+# cmap_Pu = cm.Purples
+# cmap_Rd = cm.Reds
+# # cmap_mass = ListedColormap([cmap_Bu(0.9),
+# #         cmap_Pu(0.25), cmap_Pu(0.5), cmap_Pu(0.75), cmap_Pu(1.),
+# #         cmap_Rd(0.25), cmap_Rd(0.5), cmap_Rd(0.75), cmap_Rd(1.)])
+# cmap_mass = ListedColormap([cmap_Bu(0.7),
+#         cmap_Pu(0.2), cmap_Pu(0.45), cmap_Pu(0.65), cmap_Pu(0.75),
+#         cmap_Rd(0.1), cmap_Rd(0.35), cmap_Rd(0.6), cmap_Rd(0.8)])
+
+
+
 cmap_q = cm.magma_r
 cmap_n = cm.viridis_r
 cmapg = cm.Greys
@@ -147,11 +166,21 @@ def _invq_disk_lmstar_estimate(z=None, lmstar=None):
     #
     # For now, ignoring any possible stellar mass differences
 
-    z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2., 2.5])
-    invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4., 4.])
+    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2., 2.5])
+    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4., 4.])
+
+    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2.])#, 2.5])
+    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.])#, 4.])
+
+    ## adding z=1.8, qinv=4.2 point to smooth out curve....
+    z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 1.75, 2.])
+    invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.3, 4.])
+
+    fill_value= invq_arr_ROUGH[-1]
+    kind = 'quadratic' # 'linear'
 
     invq_interp_ROUGH = scp_interp.interp1d(z_arr_ROUGH, invq_arr_ROUGH,
-                    fill_value=invq_arr_ROUGH[-1], kind='linear', bounds_error=False)
+                    fill_value=fill_value, kind=kind, bounds_error=False)
 
     invq_disk =        invq_interp_ROUGH(z)
 
@@ -159,6 +188,21 @@ def _invq_disk_lmstar_estimate(z=None, lmstar=None):
         return np.float(invq_disk)
     else:
         return invq_disk
+
+    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2., 2.5])
+    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4., 4.])
+    # fill_value= invq_arr_ROUGH[-1]
+    #
+    # invq_interp_ROUGH = scp_interp.interp1d(z_arr_ROUGH, invq_arr_ROUGH,
+    #                 fill_value=fill_value, kind='linear', bounds_error=False)
+    #
+    # invq_disk =        invq_interp_ROUGH(z)
+    #
+    # if isinstance(z, float):
+    #     return np.float(invq_disk)
+    # else:
+    #     return invq_disk
+
 
 def _bt_lmstar_relation(z=None, lmstar=None, galtype='sf'):
     # Perform a *REDSHIFT INDEPENDENT* lmstar interpolation based on the results from
@@ -414,7 +458,7 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
     # ++++++++++++++++
     # plot 3D:
 
-    xlabel = r'$\log_{10}(r/R_E)$'
+    xlabel = r'$\log_{10}(r/R_e)$'
 
     types = []
     ylabels = []
@@ -433,7 +477,7 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
         vline_loc.append([0.,  np.log10(2.2/1.676)])
         vline_lss.append(['--', '-.'])
         if i == 0:
-            vline_labels.append([r'$r=R_E$', r'$r=1.3 R_E$'])
+            vline_labels.append([r'$r=R_e$', r'$r=1.3 R_e$'])
         else:
             vline_labels.append([None, None])
 
@@ -722,7 +766,7 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
     xlims = [xlim_plotq, xlim_plotn]
     ylims = [ylim_plotq, ylim_plotn]
     xlabels = [xlabel_plotq, xlabel_plotn]
-    ylabels = [r'$r_{1/2,\, \mathrm{mass,\,3D}}/R_E$', None]
+    ylabels = [r'$r_{1/2,\, \mathrm{mass,\,3D}}/R_e$', None]
     titles = [None, None]
 
 
@@ -972,8 +1016,8 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
                 titles2.append(None)
 
             if i == len(n_arr) - 1:
-                xlabels1.append(r'$\log_{10}(r/R_E)$')
-                xlabels2.append(r'$\log_{10}(r/R_E)$')
+                xlabels1.append(r'$\log_{10}(r/R_e)$')
+                xlabels2.append(r'$\log_{10}(r/R_e)$')
             else:
                 xlabels1.append(None)
                 xlabels2.append(None)
@@ -994,8 +1038,8 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
             vline_loc2.append([0.,  np.log10(2.2/1.676)])
             vline_lss2.append(['--', '-.'])
             if ((i == 0) & (j == 0)):
-                vline_labels1.append([r'$r=R_E$', r'$r=1.3 R_E$'])
-                vline_labels2.append([r'$r=R_E$', r'$r=1.3 R_E$'])
+                vline_labels1.append([r'$r=R_e$', r'$r=1.3 R_e$'])
+                vline_labels2.append([r'$r=R_e$', r'$r=1.3 R_e$'])
             else:
                 vline_labels1.append([None, None])
                 vline_labels2.append([None, None])
@@ -1344,16 +1388,16 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
 
     types = ['tot', '3D']
     xlabel = r'$n$'
-    ylabels = [r'$k_{\mathrm{tot}}(r=R_E)$',
-               r'$k_{\mathrm{3D}}(r=R_E)$']
+    ylabels = [r'$k_{\mathrm{tot}}(r=R_e)$',
+               r'$k_{\mathrm{3D}}(r=R_e)$']
     xlim = [0., 8.25]
     ylims = [[1.75, 5.5], [0.85, 1.15]]
 
     titles = [r'Total virial coefficient',
               r'Enclosed 3D virial coefficient' ]
 
-    ann_arr = [ r'$\displaystyle k_{\mathrm{tot}}(R_E) = \frac{M_{\mathrm{tot}} G }{v_c(R_E)^2 R_E}$',
-                r'$\displaystyle k_{\mathrm{3D}}(R_E) = \frac{M_{\mathrm{encl,3D}}(<R_E) G }{v_c(R_E)^2 R_E}$' ]
+    ann_arr = [ r'$\displaystyle k_{\mathrm{tot}}(R_e) = \frac{M_{\mathrm{tot}} G }{v_c(R_e)^2 R_e}$',
+                r'$\displaystyle k_{\mathrm{3D}}(R_e) = \frac{M_{\mathrm{encl,3D}}(<R_e) G }{v_c(R_e)^2 R_e}$' ]
     ann_arr_pos = ['upperright', 'lowerright']
 
     lw = 1.3 #1.25 #1.
@@ -2903,14 +2947,14 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 vline_loc.append([np.log10(Reff_disk),  np.log10(2.2/1.676 * Reff_disk), np.log10(calcs.halo_rvir(Mvirial=Mhalo, z=z))])
                 vline_lss.append(['--', '-.', ':'])
                 if ((i == 0) & (j == 1)):
-                    vline_labels.append([r'$r=R_{E,\mathrm{disk}}$', r'$r=1.3 R_{E,\mathrm{disk}}$', r'$r_{\mathrm{vir}}$'])
+                    vline_labels.append([r'$r=R_{e,\mathrm{disk}}$', r'$r=1.3 R_{e,\mathrm{disk}}$', r'$r_{\mathrm{vir}}$'])
                 else:
                     vline_labels.append([None, None, None])
             else:
                 vline_loc.append([Reff_disk,  (2.2/1.676 * Reff_disk)])
                 vline_lss.append(['--', '-.'])
                 if ((i == 0) & (j == 1)):
-                    vline_labels.append([r'$r=R_{E,\mathrm{disk}}$', r'$r=1.3 R_{E,\mathrm{disk}}$'])
+                    vline_labels.append([r'$r=R_{e,\mathrm{disk}}$', r'$r=1.3 R_{e,\mathrm{disk}}$'])
                 else:
                     vline_labels.append([None, None])
 
@@ -3268,9 +3312,9 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
         xlabels.append(r'$B/T$')
         if j == 0:
             if del_fDM:
-                ylabels.append(r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{E,\mathrm{disk}})$')
+                ylabels.append(r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$')
             else:
-                ylabels.append(r'$f_{\mathrm{DM}}^{v}(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{E,\mathrm{disk}})$')
+                ylabels.append(r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$')
         else:
             ylabels.append(None)
 
@@ -3425,7 +3469,7 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
                 xypos = (padx, 1.-pady)
                 va = 'top'
                 ha = 'left'
-                ann_str_cnst = r'$R_{E,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
                 ann_str_cnst += '\n'
                 ann_str_cnst += r'$n_{\mathrm{disk}}='+r'{:0.1f}$'.format(n_disk)
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
@@ -3434,7 +3478,7 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
 
                 pady = 0.04375
                 xdelt = 0.35
-                ann_str_cnst = r'$R_{E,\mathrm{bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
                 ann_str_cnst += '\n'
                 ann_str_cnst += r'$n_{\mathrm{bulge}}='+r'{:0.1f}$'.format(n_bulge)
                 ann_str_cnst += '\n'
@@ -3449,7 +3493,7 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
                 xypos = (padx, 1.-pady)
                 va = 'top'
                 ha = 'left'
-                ann_str_cnst = r'$R_{E,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
                         color='darkblue', fontsize=fontsize_ann)
 
@@ -3674,9 +3718,9 @@ def plot_fdm_calibration(Mstar_arr=None,
         xlabels.append(r'$B/T$')
         if j == 0:
             if del_fDM:
-                ylabels.append(r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{E,\mathrm{disk}})$')
+                ylabels.append(r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$')
             else:
-                ylabels.append(r'$f_{\mathrm{DM}}^{v}(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{E,\mathrm{disk}})$')
+                ylabels.append(r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$')
         else:
             ylabels.append(None)
 
@@ -3831,7 +3875,7 @@ def plot_fdm_calibration(Mstar_arr=None,
                 xypos = (padx, 1.-pady)
                 va = 'top'
                 ha = 'left'
-                ann_str_cnst = r'$R_{E,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
                 ann_str_cnst += '\n'
                 ann_str_cnst += r'$n_{\mathrm{disk}}='+r'{:0.1f}$'.format(n_disk)
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
@@ -3840,7 +3884,7 @@ def plot_fdm_calibration(Mstar_arr=None,
 
                 pady = 0.04375
                 xdelt = 0.35
-                ann_str_cnst = r'$R_{E,\mathrm{bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
                 ann_str_cnst += '\n'
                 ann_str_cnst += r'$n_{\mathrm{bulge}}='+r'{:0.1f}$'.format(n_bulge)
                 ann_str_cnst += '\n'
@@ -3855,7 +3899,7 @@ def plot_fdm_calibration(Mstar_arr=None,
                 xypos = (padx, 1.-pady)
                 va = 'top'
                 ha = 'left'
-                ann_str_cnst = r'$R_{E,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
+                ann_str_cnst = r'$R_{e,\mathrm{disk}}='+r'{:0.1f}'.format(Reff_disk)+r'\,\mathrm{kpc}$'
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
                         color='darkblue', fontsize=fontsize_ann)
 
@@ -3969,349 +4013,350 @@ def plot_fdm_calibration(Mstar_arr=None,
         plt.show()
 
 
-def plot_toy_impl_fDM_calibration_z_evol_1panel(lmstar_arr=None,
-            output_path=None, table_path=None, fileout=None,
-            n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-            del_fDM=False,
-            dict_stack=None):
-    """
-    Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
-        with redshift for SF, roughly MS galaxies, for different stellar masses
-
-
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
-
-    Optional Input:
-        z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
-        lmstar_arr:     Array of the log of the total stellar mass [logMsun]  [Default: [9.0, 9.5, 10., 10.5, 11.] logMsun]
-
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
-
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
-    """
-    if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
-    if table_path is None:      raise ValueError("Must set 'table_path' !")
-
-    if (fileout is None):
-        # Ensure trailing slash:
-        if output_path[-1] != '/':  output_path += '/'
-        fileout = output_path+'plot_toy_fdm_calibration_z_evol'
-        if del_fDM:     fileout += '_del_fDM'
-        fileout += '.pdf'
-
-    if lmstar_arr is None:
-        lm_step = 0.25
-        lmstar_arr = np.arange(9.0, 11.+lm_step, lm_step)
-
-    # Ensure it's an np array, not a list:
-    lmstar_arr = np.array(lmstar_arr)
-
-    # ++++++++++++++++
-    # plot:
-
-    zstep = 0.1
-    # SHORTCUT FOR NOW:
-    #zstep = 1.0
-    z_arr = np.arange(0., 3.+zstep, zstep)
-
-    color_arr = []
-    ls_arr = []
-    labels = []
-    lw_arr = []
-    for lmstar in lmstar_arr:
-        color_arr.append(cmap_mass( (lmstar-lmstar_arr.min())/(lmstar_arr.max()-lmstar_arr.min()) ) )
-        ls_arr.append('-')
-        lw_arr.append(1.25)
-        labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
-
-
-
-    title = 'NFW'
-    xlabel = r'$z$'
-    if del_fDM:
-        ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{E,\mathrm{disk}})$'
-    else:
-        ylabel = r'$f_{\mathrm{DM}}^{v}(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{E,\mathrm{disk}})$'
-    xlim = [0., 3.]
-    ylim = [0.9, 1.01]
-
-
-
-
-    ######################################
-    # Setup plot:
-    f = plt.figure()
-    scale = 4.25
-    n_cols = 1
-    n_rows = 1
-    fac = 1.02
-    f.set_size_inches(fac*scale*n_cols,scale*n_rows)
-
-
-    wspace = 0.025
-    hspace = wspace
-    gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
-    axes = []
-    for i in range(n_rows):
-        for j in range(n_cols):
-            axes.append(plt.subplot(gs[i,j]))
-
-
-    ######################
-    # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
-    tab_bulge_menc =    tab_bulge['menc3D_sph']
-    tab_bulge_vcirc =   tab_bulge['vcirc']
-    tab_bulge_rad =     tab_bulge['r']
-    tab_bulge_Reff =    tab_bulge['Reff']
-    tab_bulge_mass =    tab_bulge['total_mass']
-
-    # Clean up values inside rmin:  Add the value at r=0: menc=0
-    if tab_bulge['r'][0] > 0.:
-        tab_bulge_rad = np.append(0., tab_bulge_rad)
-        tab_bulge_menc = np.append(0., tab_bulge_menc)
-        tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
-
-    m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-    v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-
-
-    ######################
-
-    if dict_stack is None:
-        dict_stack = []
-        for mm, lmstar in enumerate(lmstar_arr):
-            val_dict = {'z_arr': z_arr,
-                        'lmstar': np.ones(len(z_arr)) * lmstar,
-                        'bt': np.ones(len(z_arr)) * -99.,
-                        'Reff_disk': np.ones(len(z_arr)) * -99.,
-                        'invq_disk': np.ones(len(z_arr)) * -99.,
-                        'invq_near': np.ones(len(z_arr)) * -99.,
-                        'fgas': np.ones(len(z_arr)) * -99.,
-                        'lMbar': np.ones(len(z_arr)) * -99.,
-                        'lMhalo': np.ones(len(z_arr)) * -99.,
-                        'Rvir': np.ones(len(z_arr)) * -99.,
-                        'halo_conc': np.ones(len(z_arr)) * -99.,
-
-                        'menc_disk': np.ones(len(z_arr)) * -99.,
-                        'menc_bulge': np.ones(len(z_arr)) * -99.,
-                        'menc_halo': np.ones(len(z_arr)) * -99.,
-                        'menc_bar': np.ones(len(z_arr)) * -99.,
-                        'menc_tot': np.ones(len(z_arr)) * -99.,
-                        'fdm_menc': np.ones(len(z_arr)) * -99.,
-                        'vcirc_disk': np.ones(len(z_arr)) * -99.,
-                        'vcirc_bulge': np.ones(len(z_arr)) * -99.,
-                        'vcirc_halo': np.ones(len(z_arr)) * -99.,
-                        'vcirc_bar': np.ones(len(z_arr)) * -99.,
-                        'vcirc_tot': np.ones(len(z_arr)) * -99.,
-                        'fdm_vsq': np.ones(len(z_arr)) * -99.,
-                        'fDM_comp': np.ones(len(z_arr)) * -99.
-                        }
-            for ll, z in enumerate(z_arr):
-                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-
-                invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
-
-                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
-
-                Mstar =     np.power(10., lmstar)
-                Mbaryon =   Mstar / (1.-fgas)
-                lMbar = np.log10(Mbaryon)
-
-                bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
-
-                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
-                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
-                lMhalo = np.log10(Mhalo)
-                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-
-                val_dict['bt'][ll] = bt
-                val_dict['Reff_disk'][ll] = Reff_disk
-                val_dict['invq_disk'][ll] = invq_disk
-                val_dict['fgas'][ll] = fgas
-                val_dict['lMbar'][ll] = lMbar
-                val_dict['lMhalo'][ll] = lMhalo
-                val_dict['Rvir'][ll] = Rvir
-                val_dict['halo_conc'][ll] = halo_conc
-
-
-                ######
-                nearest_n, nearest_invq = n_disk, invq_disk
-                try:
-                    menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-
-                except:
-                    menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-                    vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-
-                menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
-                vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
-
-                menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
-                menc_baryons = menc_disk + menc_bulge
-                menc_tot = menc_baryons + menc_halo
-                fdm_menc = menc_halo/menc_tot
-
-                vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
-                vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
-                vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
-                fdm_vsq = vcirc_halo**2/vcirc_tot**2
-
-                #fDM_compare_arr
-                if del_fDM:
-                    val_dict['fDM_comp'][ll] = (fdm_vsq-fdm_menc)/fdm_menc
-                else:
-                    val_dict['fDM_comp'][ll] = fdm_vsq/fdm_menc
-
-                ####
-
-                val_dict['menc_disk'][ll] = menc_disk
-                val_dict['menc_bulge'][ll] = menc_bulge
-                val_dict['menc_halo'][ll] = menc_halo
-                val_dict['menc_bar'][ll] = menc_baryons
-                val_dict['menc_tot'][ll] = menc_tot
-                val_dict['fdm_menc'][ll] = fdm_menc
-
-                val_dict['vcirc_disk'][ll] = vcirc_disk
-                val_dict['vcirc_bulge'][ll] = vcirc_bulge
-                val_dict['vcirc_halo'][ll] = vcirc_halo
-                val_dict['vcirc_bar'][ll] = vcirc_baryons
-                val_dict['vcirc_tot'][ll] = vcirc_tot
-                val_dict['fdm_vsq'][ll] = fdm_vsq
-
-                val_dict['invq_near'][ll] = nearest_invq
-
-            ##
-            dict_stack.append(val_dict)
-
-
-    ######################
-
-
-    for i in range(n_rows):
-        for j in range(n_cols):
-            k = i*n_cols + j
-
-            ax = axes[k]
-
-            plot_cnt_lmstar = 0
-            for mm, lmstar in enumerate(lmstar_arr):
-                ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm]['fDM_comp'], ls=ls_arr[mm],
-                           color=color_arr[mm], lw=lw_arr[mm], label=labels[mm])
-
-                plot_cnt_lmstar += 1
-
-            ######################
-            if ylim is None:        ylim = ax.get_ylim()
-
-            if del_fDM:
-                ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
-            else:
-                ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
-
-
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-
-
-
-            ########
-            ax.xaxis.set_minor_locator(MultipleLocator(0.2))
-            ax.xaxis.set_major_locator(MultipleLocator(1.))
-
-
-            ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-            ax.yaxis.set_major_locator(MultipleLocator(0.05))
-
-            if xlabel is not None:
-                ax.set_xlabel(xlabel, fontsize=fontsize_labels)
-            else:
-                #ax.tick_params(labelbottom='off')
-                ax.set_xticklabels([])
-
-            if ylabel is not None:
-                ax.set_ylabel(ylabel, fontsize=fontsize_labels)
-            else:
-                #ax.tick_params(labelleft='off')
-                ax.set_yticklabels([])
-
-            ax.tick_params(labelsize=fontsize_ticks)
-
-            if title is not None:
-                ax.set_title(title, fontsize=fontsize_title)
-
-            if k == 0:
-                handles, labels_leg = ax.get_legend_handles_labels()
-                neworder = range(plot_cnt_lmstar)
-                handles_arr = []
-                labels_arr = []
-                for ii in neworder:
-                    handles_arr.append(handles[ii])
-                    labels_arr.append(labels_leg[ii])
-
-                neworder2 = range(plot_cnt_lmstar, len(handles))
-                handles_arr2 = []
-                labels_arr2 = []
-                for ii in neworder2:
-                    handles_arr2.append(handles[ii])
-                    labels_arr2.append(labels_leg[ii])
-
-                frameon = True
-                framealpha = 1.
-                edgecolor = 'none'
-                borderpad = 0.25
-                fontsize_leg_tmp = fontsize_leg
-                labelspacing=0.15
-                handletextpad=0.25
-
-                legend1 = ax.legend(handles_arr, labels_arr,
-                    labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
-                    loc='lower right',
-                    numpoints=1, scatterpoints=1,
-                    frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
-                    fontsize=fontsize_leg_tmp)
-                ax.add_artist(legend1)
-                if len(handles_arr2) > 0:
-                    legend2 = ax.legend(handles_arr2, labels_arr2,
-                        labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
-                        loc='upper right',
-                        numpoints=1, scatterpoints=1,
-                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
-                        fontsize=fontsize_leg_tmp)
-                    ax.add_artist(legend2)
-
-
-
-    if fileout is not None:
-        plt.savefig(fileout, bbox_inches='tight', dpi=600)
-        plt.close()
-    else:
-        plt.show()
-
-    #return dict_stack
-    return None
+# def plot_toy_impl_fDM_calibration_z_evol_1panel(lmstar_arr=None,
+#             output_path=None, table_path=None, fileout=None,
+#             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
+#             del_fDM=False,
+#             dict_stack=None):
+#     """
+#     Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
+#         with redshift for SF, roughly MS galaxies, for different stellar masses
+#
+#
+#     Input:
+#         output_path:        Path to directory where the output plot will be saved.
+#         table_path:         Path to directory containing the Sersic profile tables.
+#
+#     Optional Input:
+#         z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
+#         lmstar_arr:     Array of the log of the total stellar mass [logMsun]  [Default: [9.0, 9.5, 10., 10.5, 11.] logMsun]
+#
+#         n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+#
+#         Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
+#         n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
+#         invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+#
+#
+#         fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+#
+#     Output:         PDF plot saved to file.
+#     """
+#     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+#     if table_path is None:      raise ValueError("Must set 'table_path' !")
+#
+#     if (fileout is None):
+#         # Ensure trailing slash:
+#         if output_path[-1] != '/':  output_path += '/'
+#         fileout = output_path+'plot_toy_fdm_calibration_z_evol'
+#         if del_fDM:     fileout += '_del_fDM'
+#         fileout += '.pdf'
+#
+#     if lmstar_arr is None:
+#         lm_step = 0.25
+#         lmstar_arr = np.arange(9.0, 11.+lm_step, lm_step)
+#
+#     # Ensure it's an np array, not a list:
+#     lmstar_arr = np.array(lmstar_arr)
+#
+#     # ++++++++++++++++
+#     # plot:
+#
+#     zstep = 0.1
+#     # SHORTCUT FOR NOW:
+#     #zstep = 1.0
+#     z_arr = np.arange(0., 3.+zstep, zstep)
+#
+#     color_arr = []
+#     ls_arr = []
+#     labels = []
+#     lw_arr = []
+#     for lmstar in lmstar_arr:
+#         color_arr.append(cmap_mass( (lmstar-lmstar_arr.min())/(lmstar_arr.max()-lmstar_arr.min()) ) )
+#         ls_arr.append('-')
+#         lw_arr.append(1.25)
+#         labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
+#
+#
+#
+#     title = 'NFW'
+#     xlabel = r'$z$'
+#     if del_fDM:
+#         ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$'
+#     else:
+#         ylabel = r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$'
+#     xlim = [0., 3.]
+#     ylim = [0.9, 1.01]
+#
+#
+#
+#
+#     ######################################
+#     # Setup plot:
+#     f = plt.figure()
+#     scale = 4.25
+#     n_cols = 1
+#     n_rows = 1
+#     fac = 1.02
+#     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
+#
+#
+#     wspace = 0.025
+#     hspace = wspace
+#     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
+#     axes = []
+#     for i in range(n_rows):
+#         for j in range(n_cols):
+#             axes.append(plt.subplot(gs[i,j]))
+#
+#
+#     ######################
+#     # Load bulge: n, invq don't change.
+#     tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+#     tab_bulge_menc =    tab_bulge['menc3D_sph']
+#     tab_bulge_vcirc =   tab_bulge['vcirc']
+#     tab_bulge_rad =     tab_bulge['r']
+#     tab_bulge_Reff =    tab_bulge['Reff']
+#     tab_bulge_mass =    tab_bulge['total_mass']
+#
+#     # Clean up values inside rmin:  Add the value at r=0: menc=0
+#     if tab_bulge['r'][0] > 0.:
+#         tab_bulge_rad = np.append(0., tab_bulge_rad)
+#         tab_bulge_menc = np.append(0., tab_bulge_menc)
+#         tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
+#
+#     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+#     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+#
+#
+#     ######################
+#
+#     if dict_stack is None:
+#         dict_stack = []
+#         for mm, lmstar in enumerate(lmstar_arr):
+#             val_dict = {'z_arr': z_arr,
+#                         'lmstar': np.ones(len(z_arr)) * lmstar,
+#                         'bt': np.ones(len(z_arr)) * -99.,
+#                         'Reff_disk': np.ones(len(z_arr)) * -99.,
+#                         'invq_disk': np.ones(len(z_arr)) * -99.,
+#                         'invq_near': np.ones(len(z_arr)) * -99.,
+#                         'fgas': np.ones(len(z_arr)) * -99.,
+#                         'lMbar': np.ones(len(z_arr)) * -99.,
+#                         'lMhalo': np.ones(len(z_arr)) * -99.,
+#                         'Rvir': np.ones(len(z_arr)) * -99.,
+#                         'halo_conc': np.ones(len(z_arr)) * -99.,
+#
+#                         'menc_disk': np.ones(len(z_arr)) * -99.,
+#                         'menc_bulge': np.ones(len(z_arr)) * -99.,
+#                         'menc_halo': np.ones(len(z_arr)) * -99.,
+#                         'menc_bar': np.ones(len(z_arr)) * -99.,
+#                         'menc_tot': np.ones(len(z_arr)) * -99.,
+#                         'fdm_menc': np.ones(len(z_arr)) * -99.,
+#                         'vcirc_disk': np.ones(len(z_arr)) * -99.,
+#                         'vcirc_bulge': np.ones(len(z_arr)) * -99.,
+#                         'vcirc_halo': np.ones(len(z_arr)) * -99.,
+#                         'vcirc_bar': np.ones(len(z_arr)) * -99.,
+#                         'vcirc_tot': np.ones(len(z_arr)) * -99.,
+#                         'fdm_vsq': np.ones(len(z_arr)) * -99.,
+#                         'fDM_comp': np.ones(len(z_arr)) * -99.
+#                         }
+#             for ll, z in enumerate(z_arr):
+#                 Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+#
+#                 invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+#
+#                 fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+#
+#                 Mstar =     np.power(10., lmstar)
+#                 Mbaryon =   Mstar / (1.-fgas)
+#                 lMbar = np.log10(Mbaryon)
+#
+#                 bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+#
+#                 Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+#                 Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+#                 lMhalo = np.log10(Mhalo)
+#                 halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+#
+#                 val_dict['bt'][ll] = bt
+#                 val_dict['Reff_disk'][ll] = Reff_disk
+#                 val_dict['invq_disk'][ll] = invq_disk
+#                 val_dict['fgas'][ll] = fgas
+#                 val_dict['lMbar'][ll] = lMbar
+#                 val_dict['lMhalo'][ll] = lMhalo
+#                 val_dict['Rvir'][ll] = Rvir
+#                 val_dict['halo_conc'][ll] = halo_conc
+#
+#
+#                 ######
+#                 nearest_n, nearest_invq = n_disk, invq_disk
+#                 try:
+#                     menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+#                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+#                     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+#                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+#
+#                 except:
+#                     menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
+#                                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+#                     vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
+#                                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+#
+#                 menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
+#                 vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+#
+#                 menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+#                 menc_baryons = menc_disk + menc_bulge
+#                 menc_tot = menc_baryons + menc_halo
+#                 fdm_menc = menc_halo/menc_tot
+#
+#                 vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+#                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
+#                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+#                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
+#
+#                 #fDM_compare_arr
+#                 if del_fDM:
+#                     val_dict['fDM_comp'][ll] = (fdm_vsq-fdm_menc)/fdm_menc
+#                 else:
+#                     val_dict['fDM_comp'][ll] = fdm_vsq/fdm_menc
+#
+#                 ####
+#
+#                 val_dict['menc_disk'][ll] = menc_disk
+#                 val_dict['menc_bulge'][ll] = menc_bulge
+#                 val_dict['menc_halo'][ll] = menc_halo
+#                 val_dict['menc_bar'][ll] = menc_baryons
+#                 val_dict['menc_tot'][ll] = menc_tot
+#                 val_dict['fdm_menc'][ll] = fdm_menc
+#
+#                 val_dict['vcirc_disk'][ll] = vcirc_disk
+#                 val_dict['vcirc_bulge'][ll] = vcirc_bulge
+#                 val_dict['vcirc_halo'][ll] = vcirc_halo
+#                 val_dict['vcirc_bar'][ll] = vcirc_baryons
+#                 val_dict['vcirc_tot'][ll] = vcirc_tot
+#                 val_dict['fdm_vsq'][ll] = fdm_vsq
+#
+#                 val_dict['invq_near'][ll] = nearest_invq
+#
+#             ##
+#             dict_stack.append(val_dict)
+#
+#
+#     ######################
+#
+#
+#     for i in range(n_rows):
+#         for j in range(n_cols):
+#             k = i*n_cols + j
+#
+#             ax = axes[k]
+#
+#             plot_cnt_lmstar = 0
+#             for mm, lmstar in enumerate(lmstar_arr):
+#                 ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm]['fDM_comp'], ls=ls_arr[mm],
+#                            color=color_arr[mm], lw=lw_arr[mm], label=labels[mm])
+#
+#                 plot_cnt_lmstar += 1
+#
+#             ######################
+#             if ylim is None:        ylim = ax.get_ylim()
+#
+#             if del_fDM:
+#                 ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
+#             else:
+#                 ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
+#
+#
+#             ax.set_xlim(xlim)
+#             ax.set_ylim(ylim)
+#
+#
+#
+#             ########
+#             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
+#             ax.xaxis.set_major_locator(MultipleLocator(1.))
+#
+#
+#             ax.yaxis.set_minor_locator(MultipleLocator(0.01))
+#             ax.yaxis.set_major_locator(MultipleLocator(0.05))
+#
+#             if xlabel is not None:
+#                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
+#             else:
+#                 #ax.tick_params(labelbottom='off')
+#                 ax.set_xticklabels([])
+#
+#             if ylabel is not None:
+#                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
+#             else:
+#                 #ax.tick_params(labelleft='off')
+#                 ax.set_yticklabels([])
+#
+#             ax.tick_params(labelsize=fontsize_ticks)
+#
+#             if title is not None:
+#                 ax.set_title(title, fontsize=fontsize_title)
+#
+#             if k == 0:
+#                 handles, labels_leg = ax.get_legend_handles_labels()
+#                 neworder = range(plot_cnt_lmstar)
+#                 handles_arr = []
+#                 labels_arr = []
+#                 for ii in neworder:
+#                     handles_arr.append(handles[ii])
+#                     labels_arr.append(labels_leg[ii])
+#
+#                 neworder2 = range(plot_cnt_lmstar, len(handles))
+#                 handles_arr2 = []
+#                 labels_arr2 = []
+#                 for ii in neworder2:
+#                     handles_arr2.append(handles[ii])
+#                     labels_arr2.append(labels_leg[ii])
+#
+#                 frameon = True
+#                 framealpha = 1.
+#                 edgecolor = 'none'
+#                 borderpad = 0.25
+#                 fontsize_leg_tmp = fontsize_leg
+#                 labelspacing=0.15
+#                 handletextpad=0.25
+#
+#                 legend1 = ax.legend(handles_arr, labels_arr,
+#                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+#                     loc='lower right',
+#                     numpoints=1, scatterpoints=1,
+#                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+#                     fontsize=fontsize_leg_tmp)
+#                 ax.add_artist(legend1)
+#                 if len(handles_arr2) > 0:
+#                     legend2 = ax.legend(handles_arr2, labels_arr2,
+#                         labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+#                         loc='upper right',
+#                         numpoints=1, scatterpoints=1,
+#                         frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+#                         fontsize=fontsize_leg_tmp)
+#                     ax.add_artist(legend2)
+#
+#
+#
+#     if fileout is not None:
+#         plt.savefig(fileout, bbox_inches='tight', dpi=600)
+#         plt.close()
+#     else:
+#         plt.show()
+#
+#     #return dict_stack
+#     return None
 
 #
 def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             output_path=None, table_path=None, fileout=None,
             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
             del_fDM=False,
-            dict_stack=None,
-            return_dict=False):
+            save_dict_stack=True,
+            overwrite_dict_stack=False,
+            include_toy_curves=True):
     """
     Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
         with redshift for SF, roughly MS galaxies, for different stellar masses
@@ -4332,15 +4377,15 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
         invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
 
 
+        include_toy_curves:  Include curves showing assumed interpolated / extrapolated parameters curves
+                                used to construct the toy MS model.
+
         fileout:    Override the default filename and explicitly choose the output filename (must include full path).
 
     Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
-
-    if dict_stack is not None:
-        return_dict = True
 
     if (fileout is None):
         # Ensure trailing slash:
@@ -4370,20 +4415,43 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     lw_arr = []
     for lmstar in lmstar_arr:
         color_arr.append(cmap_mass( (lmstar-lmstar_arr.min())/(lmstar_arr.max()-lmstar_arr.min()) ) )
-        ls_arr.append('-')
-        lw_arr.append(1.25)
-        labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
+        if ((lmstar % 1.) == 0):
+            lw_arr.append(2.) #1.75)
+            ls_arr.append('-')
+        # elif ((lmstar*2. % 1.) == 0):
+        #     lw_arr.append(1.25)
+        #     ls_arr.append((0, (10, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
+        # elif (((lmstar + 0.75) % 1.) == 0):
+        #     lw_arr.append(1.25)
+        #     ls_arr.append((0, (2, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
+        # else:
+        #     lw_arr.append(1.25)
+        #     ls_arr.append((0, (3, 1, 1, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
+        else:
+            lw_arr.append(1.)
+            ls_arr.append('-')
+
+        #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
+        if ((lmstar % 1.) == 0):
+            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.0f}$'.format(lmstar))
+            labels.append(r'${:2.0f}$'.format(lmstar))
+        elif ((lmstar*2. % 1.) == 0):
+            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar))
+            labels.append(r'${:2.1f}$'.format(lmstar))
+        else:
+            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
+            labels.append(r'${:2.2f}$'.format(lmstar))
 
 
 
     #title = 'NFW'
     xlabel = r'$z$'
     if del_fDM:
-        ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{E,\mathrm{disk}})$'
+        ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$'
     else:
-        ylabel = r'$f_{\mathrm{DM}}^{v}(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{E,\mathrm{disk}})$'
-    ylabels = [r'$f_{\mathrm{DM}}^{v}(R_{E,\mathrm{disk}})$',
-               r'$f_{\mathrm{DM}}^{m}(R_{E,\mathrm{disk}})$',
+        ylabel = r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$'
+    ylabels = [r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})$',
+               r'$f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$',
                ylabel]
     xlim = [0., 3.]
     ylim = [0.9, 1.01]
@@ -4391,24 +4459,90 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
     types = ['fdm_vsq', 'fdm_menc', 'fDM_comp']
 
+    if include_toy_curves:
+        keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
+        ylabels_toy = []
+        ylims_toy = []
+        ylocators_toy = []
+        for keyt in keys_toy:
+            if keyt == 'Reff_disk':
+                ylabels_toy.append(r'$R_{e,\mathrm{disk}}$ [kpc]')
+                ylims_toy.append([0., 12.]) #20.])
+                ylocators_toy.append([1.,5.])
+            elif keyt == 'invq_disk':
+                ylabels_toy.append(r'$1/q_{0,\mathrm{disk}}$')
+                ylims_toy.append([0., 12.]) # 20.])
+                ylocators_toy.append([1.,5.])
+            elif keyt == 'fgas':
+                ylabels_toy.append(r'$f_{\mathrm{gas}}$')
+                ylims_toy.append([0., 1.])
+                ylocators_toy.append([0.05, 0.5]) #[0.05,0.2])
+            elif keyt == 'lMbar':
+                ylabels_toy.append(r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})$')
+                ylims_toy.append([8.8, 11.6]) #[9., 13.])
+                ylocators_toy.append([0.2,1.])
+            elif keyt == 'bt':
+                ylabels_toy.append(r'$B/T$')
+                ylims_toy.append([0., 1.])
+                ylocators_toy.append([0.05, 0.5]) #[0.05,0.2])
+            elif keyt == 'lMhalo':
+                ylabels_toy.append(r'$\log_{10}(M_{\mathrm{halo}}/M_{\odot})$')
+                ylims_toy.append([10.8, 13.2]) #9., 15.])
+                ylocators_toy.append([0.2,1.])
+            elif keyt == 'halo_conc':
+                ylabels_toy.append(r'$c_{\mathrm{halo}}$')
+                ylims_toy.append([2., 12.]) #0., 20.])
+                ylocators_toy.append([1.,5.])
+            else:
+                raise ValueError
 
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 4.25
+    scale = 2.8 #3.25  #3.75 #4.25
     n_cols = len(types)
-    n_rows = 1
-    fac = 1.02
+    if include_toy_curves:
+        n_rows = 2
+        fac = 1.5 #1.725 #1.15*1.5
+    else:
+        n_rows = 1
+        fac = 1.15 #1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
 
-    wspace = 0.25 #0.025
-    hspace = wspace
-    gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
-    axes = []
-    for i in range(n_rows):
-        for j in range(n_cols):
-            axes.append(plt.subplot(gs[i,j]))
+    if include_toy_curves:
+        wspace = 0.25 #0.025
+        hspace = wspace
+        height_ratios=[0.4, 1.] # [0.5,1.]
+        gs_outer = gridspec.GridSpec(2, 1, wspace=wspace, hspace=hspace, height_ratios=height_ratios)
+
+
+        #keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
+        wspace = 0.35 #0.25 #0.025
+        hspace = wspace
+        gs0 = gridspec.GridSpecFromSubplotSpec(1, len(keys_toy),subplot_spec=gs_outer[0,0],
+                wspace=wspace, hspace=hspace )
+        axes_toy = []
+        for i in range(1):
+            for j in range(len(keys_toy)):
+                axes_toy.append(plt.subplot(gs0[i,j]))
+
+        wspace = 0.25 #0.025
+        hspace = wspace
+        gs = gridspec.GridSpecFromSubplotSpec(1, n_cols,subplot_spec=gs_outer[1,0],
+                wspace=wspace, hspace=hspace )
+        axes = []
+        for i in range(1):
+            for j in range(n_cols):
+                axes.append(plt.subplot(gs[i,j]))
+    else:
+        wspace = 0.25 #0.025
+        hspace = wspace
+        gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
+        axes = []
+        for i in range(n_rows):
+            for j in range(n_cols):
+                axes.append(plt.subplot(gs[i,j]))
 
 
     ######################
@@ -4431,6 +4565,19 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
 
     ######################
+
+    dict_stack = None
+    f_save = output_path+'toy_impl_fDM_calibration_z.pickle'
+    if save_dict_stack:
+        if (os.path.isfile(f_save)):
+            with open(f_save, 'rb') as f:
+                dict_stack = copy.deepcopy(pickle.load(f))
+
+
+            if overwrite_dict_stack:
+                raise ValueError("Really shouldn't do this!")
+                os.remove(f_save)
+                dict_stack = None
 
     if dict_stack is None:
         dict_stack = []
@@ -4546,8 +4693,85 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             dict_stack.append(val_dict)
 
 
-    ######################
+    if save_dict_stack:
+        # if (os.path.isfile(f_save)) & (not overwrite_dict_stack):
+        #     print("Not overwriting f_save!")
+        # else:
+        #     with open(f_save, 'wb') as f:
+        #         pickle.dump(dict_stack, f)
 
+        if not (os.path.isfile(f_save)):
+            with open(f_save, 'wb') as f:
+                pickle.dump(dict_stack, f)
+
+    ######################
+    # FOR TOY PLOTS
+    if include_toy_curves:
+        for i in range(1):
+            for j in range(len(keys_toy)):
+                k = i*n_cols + j
+
+                ax = axes_toy[k]
+                keyy = keys_toy[j]
+                ylim = ylims_toy[j]
+                ylabel = ylabels_toy[j]
+
+                plot_cnt_lmstar = 0
+                for mm, lmstar in enumerate(lmstar_arr):
+                    #if ((lmstar*2. % 1.) == 0):
+                    if True:
+                        ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm][keyy], ls=ls_arr[mm],
+                                   color=color_arr[mm], lw=lw_arr[mm], label=labels[mm],
+                                   zorder=-1.)
+
+                        plot_cnt_lmstar += 1
+
+                # if keyy == 'invq_disk':
+                #     # ytmp = _invq_disk_lmstar_estimate(z=dict_stack[mm]['z_arr'],
+                #     #             lmstar=10., kind='linear')
+                #     # ax.plot(dict_stack[mm]['z_arr'], ytmp, ls='-', color='tab:green',
+                #     #             lw=1,zorder=2.)
+                #
+                #     ## adding z=1.8, qinv=4.2 point to smooth out curve....
+                #     z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 1.75, 2.])
+                #     invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.3, 4.])
+                #     ax.scatter(z_arr_ROUGH, invq_arr_ROUGH, s=5,  marker='o', color='tab:green', label=None)
+
+                ######################
+                if ylim is None:        ylim = ax.get_ylim()
+
+                # if keyy == 'fDM_comp':
+                #     if del_fDM:
+                #         ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
+                #     else:
+                #         ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
+
+                ax.set_xlim(xlim)
+                ax.set_ylim(ylim)
+                ########
+                ax.xaxis.set_minor_locator(MultipleLocator(0.2))
+                ax.xaxis.set_major_locator(MultipleLocator(1.))
+
+                ax.yaxis.set_minor_locator(MultipleLocator(ylocators_toy[j][0]))
+                ax.yaxis.set_major_locator(MultipleLocator(ylocators_toy[j][1]))
+
+                if xlabel is not None:
+                    ax.set_xlabel(xlabel, fontsize=fontsize_labels_sm-2)
+                else:
+                    #ax.tick_params(labelbottom='off')
+                    ax.set_xticklabels([])
+
+                if ylabel is not None:
+                    ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=2)
+                else:
+                    #ax.tick_params(labelleft='off')
+                    ax.set_yticklabels([])
+
+                ax.tick_params(labelsize=fontsize_ticks_sm-2)
+
+    ######################
+    # FOR JUST THE fDM PLOTS!
+    n_rows = 1
 
     for i in range(n_rows):
         for j in range(n_cols):
@@ -4560,10 +4784,13 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
             plot_cnt_lmstar = 0
             for mm, lmstar in enumerate(lmstar_arr):
-                ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm][keyy], ls=ls_arr[mm],
-                           color=color_arr[mm], lw=lw_arr[mm], label=labels[mm])
+                #if ((lmstar*2. % 1.) == 0):
+                if True:
+                    ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm][keyy], ls=ls_arr[mm],
+                               color=color_arr[mm], lw=lw_arr[mm], label=labels[mm],
+                               zorder=-1.)
 
-                plot_cnt_lmstar += 1
+                    plot_cnt_lmstar += 1
 
             ######################
             if ylim is None:        ylim = ax.get_ylim()
@@ -4631,13 +4858,16 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 fontsize_leg_tmp = fontsize_leg
                 labelspacing=0.15
                 handletextpad=0.25
-
+                loc = 'upper right' #'lower right'
+                leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
+                fontsize_leg_title = fontsize_leg
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
-                    loc='lower right',
+                    loc=loc,
                     numpoints=1, scatterpoints=1,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
-                    fontsize=fontsize_leg_tmp)
+                    fontsize=fontsize_leg_tmp,
+                    title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     legend2 = ax.legend(handles_arr2, labels_arr2,
@@ -4656,10 +4886,13 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     else:
         plt.show()
 
-    if return_dict:
-        return dict_stack
-    else:
-        return None
+    # if return_dict:
+    #     return dict_stack
+    # else:
+    #     return None
+
+    return None
+
 
 def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
             q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.],
@@ -4823,7 +5056,7 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
 
 
         #
-        #ax.axvline(x=ks_dict['Reff'], ls='--', color='lightgrey', zorder=-20., label=r'$R_{E}$')
+        #ax.axvline(x=ks_dict['Reff'], ls='--', color='lightgrey', zorder=-20., label=r'$R_{e}$')
         ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
 
         ax.set_xlim(xlim)
@@ -5124,7 +5357,7 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                         if (k == 0) & (mm == (len(lMstar_arr)-1)):
                             xdelt = (xlim[1]-xlim[0])*0.035
                             xypos = (Reff_disk + xdelt, (ylim[1]-ylim[0])*0.045 + ylim[0])
-                            ax.annotate(r'$R_{E,\,\mathrm{disk}}$', xy=xypos, ha='left', va='center', color=color_arr[mm], fontsize=fontsize_ann)
+                            ax.annotate(r'$R_{e,\,\mathrm{disk}}$', xy=xypos, ha='left', va='center', color=color_arr[mm], fontsize=fontsize_ann)
 
 
             ax.axhline(y=1., ls=':', color='lightgrey', zorder=-20.)
@@ -5334,11 +5567,11 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
 
             if k == 0:
                 if typ == 'NFW':
-                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{E,\mathrm{disk}})$, NFW')
+                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{e,\mathrm{disk}})$, NFW')
                 elif typ == 'TPH0.0':
-                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{E,\mathrm{disk}})$, TPH, $\alpha=0$')
+                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{e,\mathrm{disk}})$, TPH, $\alpha=0$')
                 elif typ == 'TPH':
-                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{E,\mathrm{disk}})$, TPH')
+                    ylabels.append(r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{e,\mathrm{disk}})$, TPH')
             else:
                 ylabels.append(None)
 
@@ -5350,7 +5583,7 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                 ylims.append([0.85, 1.1])
 
             if i == len(types) - 1:
-                xlabels.append(r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})$')
+                xlabels.append(r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})$')
             else:
                 xlabels.append(None)
 
@@ -5641,8 +5874,8 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
     # plot:
 
     keys = [ 'fDMvReff', 'BT', 'Reff_disk', 'q_disk', 'n_disk' ]
-    labels = [r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})$',
-              r'$B/T$', r'$R_{E,\mathrm{disk}}$',
+    labels = [r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})$',
+              r'$B/T$', r'$R_{e,\mathrm{disk}}$',
               r'$q_{0,\mathrm{disk}}$', r'$n_{\mathrm{disk}}$']
     #
     cmap = cmap_im
@@ -5657,7 +5890,7 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
     lims = [ [0.0, 1.0], [0.0, 1.0], [1.0, 15.0], [0.0, 1.0], [0.5, 2.0] ]
 
     keyc = 'fDM_comp'
-    label_c = r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{E,\mathrm{disk}})$'
+    label_c = r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^m(R_{e,\mathrm{disk}})$'
     vmin_c = 0.885
     vmax_c = 1.0001
 
@@ -5874,7 +6107,7 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                     ann_str += '\n'
                     ann_str += r'$\mathrm{conc}_{\mathrm{halo}}='+r'{:0.1f}$'.format(halo_conc)
                     ann_str += '\n'
-                    ann_str += r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})='+r'{:0.1f}$'.format(fDMvReff_0)
+                    ann_str += r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})='+r'{:0.1f}$'.format(fDMvReff_0)
 
                     ax.annotate(ann_str, xy=(0.1, 0.5),
                                 xycoords='axes fraction', va='center',
@@ -5885,14 +6118,14 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                     ann_str += '\n'
                     ann_str += r'$B/T={:0.2f}$'.format(BT_0)
                     ann_str += '\n'
-                    ann_str += r'$R_{E,\mathrm{disk}}'+r'={:0.1f}$'.format(Reff_disk_0)
+                    ann_str += r'$R_{e,\mathrm{disk}}'+r'={:0.1f}$'.format(Reff_disk_0)
                     ann_str += '\n'
                     ann_str += r'$q_{0,\mathrm{disk}}'+r'={:0.2f}$'.format(1./invq_disk_0)
                     ann_str += '\n'
                     ann_str += r'$n_{\mathrm{disk}}'+r'={:0.1f}$'.format(n_disk_0)
                     ann_str += '\n'
                     ###
-                    ann_str += r'$R_{E,\mathrm{bulge}}'+r'={:0.1f}$'.format(Reff_bulge)
+                    ann_str += r'$R_{e,\mathrm{bulge}}'+r'={:0.1f}$'.format(Reff_bulge)
                     ann_str += '\n'
                     ann_str += r'$q_{0,\mathrm{bulge}}'+r'={:0.2f}$'.format(1./invq_bulge)
                     ann_str += '\n'
@@ -6110,8 +6343,8 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
 
     keys = [ 'lmass', 'fDMvReff', 'BT', 'Reff_disk', 'q_disk', 'n_disk' ]
     labels = [r'$\log_{10}(M_*/M_{\odot})$',
-              r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})$',
-              r'$B/T$', r'$R_{E,\mathrm{disk}}$',
+              r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})$',
+              r'$B/T$', r'$R_{e,\mathrm{disk}}$',
               r'$q_{0,\mathrm{disk}}$', r'$n_{\mathrm{disk}}$']
     #
     cmap = cmap_im2
@@ -6126,7 +6359,7 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
     lims = [ [9., 11.5], [0.0, 1.0], [0.0, 1.0], [1.0, 15.0], [0.0, 1.0], [0.5, 2.0] ]
 
     keyc = 'fDM_comp'
-    label_c = r'$k_{\mathrm{tot,\, estimated}}(R_{E,\mathrm{disk}})$'
+    label_c = r'$k_{\mathrm{tot,\, estimated}}(R_{e,\mathrm{disk}})$'
     vmin_c = 1.9
     vmax_c = 2.5
 
@@ -6359,7 +6592,7 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     ann_str += '\n'
                     ann_str += r'$\mathrm{conc}_{\mathrm{halo}}='+r'{:0.1f}$'.format(halo_conc)
                     ann_str += '\n'
-                    ann_str += r'$f_{\mathrm{DM}}^v(R_{E,\mathrm{disk}})='+r'{:0.1f}$'.format(fDMvReff_0)
+                    ann_str += r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})='+r'{:0.1f}$'.format(fDMvReff_0)
 
                     ax.annotate(ann_str, xy=(0.1, 0.5),
                                 xycoords='axes fraction', va='center',
@@ -6370,14 +6603,14 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     ann_str += '\n'
                     ann_str += r'$B/T={:0.2f}$'.format(BT_0)
                     ann_str += '\n'
-                    ann_str += r'$R_{E,\mathrm{disk}}'+r'={:0.1f}$'.format(Reff_disk_0)
+                    ann_str += r'$R_{e,\mathrm{disk}}'+r'={:0.1f}$'.format(Reff_disk_0)
                     ann_str += '\n'
                     ann_str += r'$q_{0,\mathrm{disk}}'+r'={:0.2f}$'.format(1./invq_disk_0)
                     ann_str += '\n'
                     ann_str += r'$n_{\mathrm{disk}}'+r'={:0.1f}$'.format(n_disk_0)
                     ann_str += '\n'
                     ###
-                    ann_str += r'$R_{E,\mathrm{bulge}}'+r'={:0.1f}$'.format(Reff_bulge)
+                    ann_str += r'$R_{e,\mathrm{bulge}}'+r'={:0.1f}$'.format(Reff_bulge)
                     ann_str += '\n'
                     ann_str += r'$q_{0,\mathrm{bulge}}'+r'={:0.2f}$'.format(1./invq_bulge)
                     ann_str += '\n'
@@ -6580,8 +6813,7 @@ def make_all_paper_plots(output_path=None, table_path=None):
     # Figure 7
     plot_toy_impl_fDM_calibration_z_evol(output_path=output_path, table_path=table_path,
                 n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-                del_fDM=False,
-                dict_stack=None, return_dict=False)
+                del_fDM=False)
 
     # Figure 8
     plot_alpha_vs_r(output_path=output_path, table_path=table_path,
