@@ -13,6 +13,7 @@ import dill as pickle
 
 import scipy.interpolate as scp_interp
 import scipy.optimize as scp_opt
+import scipy.special as scp_special
 
 import astropy.cosmology as apy_cosmo
 
@@ -363,6 +364,453 @@ def _minfunc_lmstar_fgas_mbar(lmstar_test, z, lmbar_targ):
     lmbar_test = lmstar_test - np.log10(1.-fgas)
 
     return lmbar_test - lmbar_targ
+
+
+
+def _tomczak14_SMF_total_coeffs():
+
+    z_bounds = np.array([0.2, 0.5, 0.75, 1., 1.25, 1.5, 2., 2.5, 3.])
+    z_mid = 0.5*(z_bounds[:-1]+z_bounds[1:])
+
+    # logMstar = np.array([10.78, 10.7, 10.66, 10.54, 10.61, 10.74, 10.69, 10.74])
+
+    # alpha1 = np.array([-0.98, -0.39, -0.37, 0.3, -0.12, 0.04, 1.03, 1.62])
+    # logphistar1 = np.array([-2.54, -2.55, -2.56, -2.72, -2.78, -3.05, -3.80, -4.54])
+    #
+    # alpha2 = np.array([-1.90, -1.53, -1.61, -1.45, -1.56, -1.49, -1.33, -1.57])
+    # logphistar2 = np.array([-4.29, -3.15, -3.39, -3.17, -3.43, -3.38, -3.26, -3.69])
+
+    # Use SINGLE SCHECHTER FIT above z>2
+    logMstar = np.array([10.78, 10.7, 10.66, 10.54, 10.61, 10.74, 11.13, 11.35])
+
+    alpha1 = np.array([-0.98, -0.39, -0.37, 0.3, -0.12, 0.04, -1.43, -1.74])
+    logphistar1 = np.array([-2.54, -2.55, -2.56, -2.72, -2.78, -3.05, -3.59, -4.36])
+
+    alpha2 = np.array([-1.90, -1.53, -1.61, -1.45, -1.56, -1.49, -99., -99.])
+    logphistar2 = np.array([-4.29, -3.15, -3.39, -3.17, -3.43, -3.38, -np.inf, -np.inf])
+
+
+
+    dict_t14 = {'z_mid':   z_mid,
+               'logMstar': logMstar,
+               'alpha1': alpha1,
+               'alpha2': alpha2,
+               'logphistar1': logphistar1,
+               'logphistar2': logphistar2}
+
+    return dict_t14
+
+
+
+def _tomczak14_SMF_total_coeffs_interp(z, kind='nearest'):
+    dict_t14 = _tomczak14_SMF_total_coeffs()
+
+    logMstar_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['logMstar'],
+                        fill_value='extrapolate', bounds_error=False, kind=kind)
+
+    alpha1_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['alpha1'],
+                        fill_value='extrapolate', bounds_error=False, kind=kind)
+
+    logphistar1_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['logphistar1'],
+                        fill_value='extrapolate', bounds_error=False, kind=kind)
+
+    alpha2_func = scp_interp.interp1d(dict_t14['z_mid'][:-2], dict_t14['alpha2'][:-2],
+                        fill_value='extrapolate', bounds_error=False, kind=kind)
+
+    logphistar2_func = scp_interp.interp1d(dict_t14['z_mid'][:-2], dict_t14['logphistar2'][:-2],
+                        fill_value='extrapolate', bounds_error=False, kind=kind)
+
+    d_t14_int = {'z': z,
+                'logMstar': logMstar_func(z),
+                'alpha1':  alpha1_func(z),
+                'alpha2':  alpha2_func(z),
+                'logphistar1':  logphistar1_func(z),
+                'logphistar2':  logphistar2_func(z)}
+
+    if (z >= 2.):
+        d_t14_int['alpha2'] = -99.
+        d_t14_int['logphistar2'] = -np.inf
+
+    return d_t14_int
+
+
+def _single_schecter_func(logM, logMstar, logphistar, alpha):
+    return _double_schecter_func(logM, logMstar,
+                logphistar, alpha,
+                -np.inf, -99.)
+
+def _double_schecter_func(logM, logMstar,
+            logphistar1, alpha1,
+            logphistar2, alpha2):
+    #
+    phistar1 = np.power(10,logphistar1)
+    phistar2 = np.power(10,logphistar2)
+    if ~np.isfinite(logphistar2):
+        phistar2 = 0.
+    phi = np.log(10.)*\
+        np.exp(-np.power(10.,(logM-logMstar)))*\
+        np.power(10.,(logM-logMstar))*\
+        (phistar1*np.power(10.,((logM-logMstar)*(alpha1))) +\
+         phistar2*np.power(10.,((logM-logMstar)*(alpha2))) )
+    return np.log10(phi)
+
+def test_t14_SMF():
+    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+    dict_t14 = _tomczak14_SMF_total_coeffs()
+    dlmass = 0.05
+    lmass_lims = [7.6, 12]
+    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+    for i in range(len(dict_t14['z_mid'])):
+        dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
+                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+        plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
+
+    plt.gca().set_xlim([7.6, 12.])
+    plt.gca().set_ylim([-5.4,-1.])
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+    plt.gcf().set_size_inches((6., 6.))
+    plt.show()
+
+    return None
+
+def test_t14_SMF_decomp():
+    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+    dict_t14 = _tomczak14_SMF_total_coeffs()
+    dlmass = 0.05
+    lmass_lims = [7.6, 12]
+    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+    #for i in range(len(dict_t14['z_mid'])):
+    for i in range(1):
+        dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
+                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+        plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
+
+        sch1 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i])
+        sch2 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+
+        plt.plot(lmass_arr, sch1, color=colors[i], ls='--', lw=2)
+        plt.plot(lmass_arr, sch2, color=colors[i], ls=':', lw=2)
+
+    plt.gca().set_xlim([7.6, 12.])
+    plt.gca().set_ylim([-5.4,-1.])
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+    plt.gcf().set_size_inches((6., 6.))
+    plt.show()
+
+    return None
+
+def test_t14_CMF_decomp():
+    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+    dict_t14 = _tomczak14_SMF_total_coeffs()
+    dlmass = 0.05
+    lmass_lims = [9., 12.]
+    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+    for i in range(1):
+        cmf = _num_density_double_schechter_func(lmass_arr,
+                    dict_t14['logMstar'][i], dict_t14['alpha1'][i], dict_t14['logphistar1'][i],
+                    dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
+
+        plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
+
+        cmf1 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['alpha1'][i], dict_t14['logphistar1'][i])
+        cmf2 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
+                    dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
+
+        plt.plot(lmass_arr, cmf1, color=colors[i], ls='--', lw=2)
+        plt.plot(lmass_arr, cmf2, color=colors[i], ls=':', lw=2)
+
+    plt.gca().set_xlim([9., 12.])
+    plt.gca().set_ylim([8.e-5, 3.e-2])
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+
+    #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+    #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+    plt.gca().set_yscale('log')
+    plt.gcf().set_size_inches((6., 6.))
+    plt.show()
+
+    #raise ValueError
+    return None
+
+
+
+def test_t14_CMF():
+    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+    dict_t14 = _tomczak14_SMF_total_coeffs()
+    dlmass = 0.05
+    lmass_lims = [9., 12.]
+    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+    for i in range(len(dict_t14['z_mid'])):
+        cmf = _num_density_tomczak14_double_schechter_interp(dict_t14['z_mid'][i],
+                lmass_arr, kind='nearest')
+        plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
+
+    plt.gca().set_xlim([9., 12.])
+    plt.gca().set_ylim([8.e-5, 3.e-2])
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+
+    #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+    #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+    plt.gca().set_yscale('log')
+    plt.gcf().set_size_inches((6., 6.))
+    plt.show()
+
+    return None
+
+def test_p15_CMF():
+    dp15 = _papovich15_values_MW_M31()
+
+    zstep = 0.1
+    z_arr = np.arange(0., 3.+zstep, zstep)
+
+    colors = ['black', 'grey']
+    lss = ['--', '-']
+    markers = ['s', 'o']
+    names = ['MW', 'M31']
+    ln0_arr = [-2.9, -3.4]
+    n_evol='const'
+    cmf_source='papovich15'
+    for name, ln0, color, ls, m in zip(names, ln0_arr, colors, lss, markers):
+        lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
+                n_evol=n_evol, cmf_source=cmf_source)
+        plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
+
+        plt.scatter(dp15[name]['z'], dp15[name]['lmass'], marker=m, color=color, s=30,
+                        facecolor='None')
+
+
+    plt.gca().set_ylim([9., 11.5])
+    plt.gca().set_xlim([0., 3.])
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().xaxis.set_major_locator(MultipleLocator(0.5))
+
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+    plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
+    plt.gcf().set_size_inches((6., 6.))
+    plt.show()
+
+    return None
+
+def _num_density_single_schechter_func(lmass_arr, logMstar, alpha, logphistar):
+    phistar = np.power(10,logphistar)
+    if ~np.isfinite(logphistar):
+        phistar = 0.
+
+
+    x = np.power(10.,((lmass_arr-logMstar)))
+
+    if phistar == 0.:
+        narr = lmass_arr * 0.
+    else:
+        if (alpha+1.) >= 0.:
+            narr = phistar*scp_special.gammaincc(alpha+1, x)* scp_special.gamma(alpha+1)
+        else:
+            gammainc = 1./(alpha+1.) * ( scp_special.gammaincc(alpha+2., x)*scp_special.gamma(alpha+2.) \
+                                            - np.power(x , alpha+1.)*np.exp(-x) )
+
+            narr = phistar*gammainc
+
+    return narr
+
+
+def _num_density_double_schechter_func(lmass_arr, logMstar,
+                alpha1, logphistar1, alpha2, logphistar2):
+    phistar1 = np.power(10,logphistar1)
+    phistar2 = np.power(10,logphistar2)
+
+    if ~np.isfinite(logphistar1):
+        phistar1 = 0.
+    if ~np.isfinite(logphistar2):
+        phistar2 = 0.
+
+
+    x = np.power(10.,((lmass_arr-logMstar)))
+    #narr1 = phistar1*scp_special.gammaincc(alpha1+1,x)* scp_special.gamma(alpha1+1)
+
+    if phistar1 == 0.:
+        narr1 = lmass_arr * 0.
+    else:
+        if (alpha1+1.) >= 0.:
+            narr1 = phistar1*scp_special.gammaincc(alpha1+1, x)* scp_special.gamma(alpha1+1)
+        else:
+            gammainc1 = 1./(alpha1+1.) * ( scp_special.gammaincc(alpha1+2, x)*scp_special.gamma(alpha1+2) \
+                                            - np.power(x , alpha1+1.)*np.exp(-x) )
+
+            narr1 = phistar1*gammainc1
+
+    if phistar2 == 0.:
+        narr2 = lmass_arr * 0.
+    else:
+        if (alpha2+1.) >= 0.:
+            narr2 = phistar2*scp_special.gammaincc(alpha2+1, x)* scp_special.gamma(alpha2+1)
+        else:
+            gammainc2 = 1./(alpha2+1.) * ( scp_special.gammaincc(alpha2+2, x)*scp_special.gamma(alpha2+2) \
+                                            - np.power(x , alpha2+1.)*np.exp(-x) )
+
+            narr2 = phistar2*gammainc2
+
+    narr =  narr1 + narr2
+
+    return narr
+
+
+def _num_density_tomczak14_double_schechter_interp(z, lmass_arr, kind='nearest'):
+
+    d_t14_int = _tomczak14_SMF_total_coeffs_interp(z, kind=kind)
+
+    n_t14_interp = _num_density_double_schechter_func(lmass_arr,
+                d_t14_int['logMstar'], d_t14_int['alpha1'], d_t14_int['logphistar1'],
+                d_t14_int['alpha2'], d_t14_int['logphistar2'])
+
+    return n_t14_interp
+
+def _interp_mass_from_tomczak14_num_density(lnz, z, kind_cmf_interp='nearest'):
+    dlmass = 0.05
+    lmass_lims = [9., 12]
+    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+
+    narr = _num_density_tomczak14_double_schechter_interp(z, lmass_arr, kind=kind_cmf_interp)
+
+    minterp_func = scp_interp.interp1d(np.log10(narr), lmass_arr, fill_value=np.NaN,  #'extrapolate',
+                        bounds_error=False, kind='cubic')
+    minterp = minterp_func(lnz)
+    return minterp
+
+# def _moster13_SMHM_func(M, M1, N, beta, gamma):
+#     x = M/M1
+#     mtoM = 2.*N / (np.power(x,-1.*beta) + np.power(x, gamma))
+#     return mtoM
+#
+# def _moster13_coeffs():
+#     dict_m13 = {'keys': ['M', 'N', 'beta', 'gamma'],
+#         'M10': 11.59,'M11': 1.195, 'N10': 0.0351, 'N11': -0.0247,
+#                 'beta10': 1.376, 'beta11', -0.826, 'gamma10': 0.608, 'gamma11': 0.329}
+#
+#     return dict_m13
+#
+# def _m13_z_helper_func(z, key):
+#     d13 = _moster13_coeffs()
+#     x = d13['{}10'.format(key)] + d13['{}11'.format(key)] * z/(1.+z)
+#     return x
+# def _moster13_SMHM_func_z(z, M):
+#
+#     M1z = np.power(10., _m13_z_helper_func(z, 'M'))
+#     Nz = _m13_z_helper_func(z, 'N')
+#     betaz = _m13_z_helper_func(z, 'beta')
+#     gammaz = _m13_z_helper_func(z, 'gamma')
+#
+#     return _moster13_SMHM_func(M, M1z, Nz, betaz, gammaz)
+#
+# def _SMF_moster13(z, lmhalo_arr, kind='nearest'):
+#
+#     lmstar_arr = np.log10(_moster13_SMHM_func_z(z, np.power(10., lmhalo_arr))) + lmhalo_arr
+#
+#     return lmstar_arr
+#
+# def _interp_mass_from_moster13_SMHM_z(nz, z, kind_cmf_interp='nearest'):
+#     dlmass = 0.05
+#     lmass_lims = [9., 12]
+#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+#
+#     raise ValueError
+#     narr = _num_density_moster13(z, lmass_arr, kind=kind_t14_interp)
+#
+#     minterp_func = scp_interp.interp1d(narr, lmass_arr, fill_value=np.NaN,  #'extrapolate',
+#                         bounds_error=False, kind='cubic')
+#     minterp = minterp_func(nz)
+#     return minterp
+def _papovich15_values_MW_M31():
+    # Fig 4: Values from the thick dashed/solid lines: inferenced from Moster+13 models
+    
+    dmw = {'ln0': -2.9,
+           'z': np.array([0., 0.25, 0.5, 0.75,
+                          1., 1.25, 1.5, 1.75,
+                          2., 2.25, 2.5, 2.75, 3.]),
+           'lmass': np.array([10.73,  10.7, 10.64, 10.54,
+                            10.405, 10.27, 10.125, 9.97,
+                            9.82, 9.66, 9.51, 9.37, 9.22])}
+
+    dm31 = {'ln0': -3.4,
+           'z': np.array([0., 0.25, 0.5, 0.75,
+                          1., 1.25, 1.5, 1.75,
+                          2., 2.25, 2.5, 2.75, 3.]),
+           'lmass': np.array([10.985, 10.975, 10.96, 10.93,
+                              10.87, 10.785, 10.69, 10.57,
+                              10.445, 10.32, 10.18, 10.05, 9.91])}
+
+    dp15 = {'MW': dmw, 'M31': dm31}
+
+    return dp15
+
+def _interp_mass_from_papovich15_z(ln0, zarr):
+    dp15 = _papovich15_values_MW_M31()
+
+    if ln0 == -2.9:
+        key = 'MW'
+    elif ln0 == -3.4:
+        key = 'M31'
+
+    minterp_func = scp_interp.interp1d(dp15[key]['z'], dp15[key]['lmass'], fill_value='extrapolate',
+                        bounds_error=False, kind='quadratic')
+    minterp = minterp_func(zarr)
+
+
+    return minterp
+
+def _mass_progenitor_num_density(ln0, zarr, n_evol=None, cmf_source=None, kind_cmf_interp='quadratic'):
+    cmf_sources = ['tomczak14', 'papovich15']
+    if cmf_source not in cmf_sources:
+        errmsg = '{} not reconized CMF reference! Must be one of: '
+        for i, cmf in enumerate(cmf_sources):
+            errmsg += '{}'.format(cmf)
+            if i < len(cmf_sources)-1:
+                errmsg += ", "
+        raise ValueError(errmsg)
+    n_evol_types = ['const', 'torrey17_backwards']
+    if n_evol not in n_evol_types:
+        errmsg = '{} not reconized evolution type for number density! Must be one of: '
+        for i, nev in enumerate(n_evol_types):
+            errmsg += '{}'.format(nev)
+            if i < len(n_evol_types)-1:
+                errmsg += ", "
+        raise ValueError(errmsg)
+
+    if n_evol == 'const':
+        lnzarr = np.ones(len(zarr)) * ln0
+    elif n_evol == 'torrey17_backwards':
+        # LOOK UP VALUES
+        lnzarr = BOB
+
+
+    lmass_arr = np.ones(len(zarr)) * -99.
+    for i in range(len(zarr)):
+        if cmf_source == 'tomczak14':
+            lmass_arr[i] = _interp_mass_from_tomczak14_num_density(lnzarr[i], zarr[i], kind_cmf_interp=kind_cmf_interp)
+        # elif cmf_source == 'moster13':
+        #     lmass_arr[i] = _interp_mass_from_moster13_SMHM_z(lnzarr[i], zarr[i], kind_cmf_interp=kind_cmf_interp)
+
+    if cmf_source == 'papovich15':
+        lmass_arr = _interp_mass_from_papovich15_z(ln0, zarr)
+
+    return lmass_arr
+
+
+
 
 
 # ---------------------
@@ -4394,12 +4842,16 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
         if del_fDM:     fileout += '_del_fDM'
         fileout += '.pdf'
 
+
+    mpl.rcParams['text.usetex'] = True
+
     if lmstar_arr is None:
         lm_step = 0.25
         lmstar_arr = np.arange(9.0, 11.+lm_step, lm_step)
 
     # Ensure it's an np array, not a list:
     lmstar_arr = np.array(lmstar_arr)
+
 
     # ++++++++++++++++
     # plot:
@@ -4458,6 +4910,12 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ylims = [[0.,1.],[0.,1.], [0.9, 1.01]]
 
     types = ['fdm_vsq', 'fdm_menc', 'fDM_comp']
+
+
+    ann_arr = [ r'$\displaystyle f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}}) = \frac{v_{\mathrm{circ,DM}}^2(R_{e,\mathrm{disk}})}{v_{\mathrm{circ,tot}}^2(R_{e,\mathrm{disk}})}$',
+                r'$\displaystyle f_{\mathrm{DM}}^m(R_{e,\mathrm{disk}}) = \frac{M_{\mathrm{DM,sph}}(<r=R_{e,\mathrm{disk}})}{M_{\mathrm{tot,sph}}(<r=R_{e,\mathrm{disk}})}$',
+                None]
+    ann_arr_pos = ['upperleft', 'upperright', None]
 
     if include_toy_curves:
         keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
@@ -4579,6 +5037,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 os.remove(f_save)
                 dict_stack = None
 
+
     if dict_stack is None:
         dict_stack = []
         for mm, lmstar in enumerate(lmstar_arr):
@@ -4693,16 +5152,153 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             dict_stack.append(val_dict)
 
 
-    if save_dict_stack:
-        # if (os.path.isfile(f_save)) & (not overwrite_dict_stack):
-        #     print("Not overwriting f_save!")
-        # else:
-        #     with open(f_save, 'wb') as f:
-        #         pickle.dump(dict_stack, f)
+#
 
+    dict_toy = None
+    f_save_toy = output_path+'toy_impl_fDM_calibration_z_MW_M31.pickle'
+    if save_dict_stack:
+        if (os.path.isfile(f_save_toy)):
+            with open(f_save_toy, 'rb') as f:
+                dict_toy = copy.deepcopy(pickle.load(f))
+
+            if overwrite_dict_stack:
+                raise ValueError("Really shouldn't do this!")
+                os.remove(f_save_toy)
+                dict_toy = None
+    if dict_toy is None:
+        dict_toy = {}
+        z_arr_toy = z_arr
+        names = ['MW', 'M31']
+        ln0_arr = [-2.9, -3.4]
+        n_evol='const'
+        cmf_source='papovich15'
+        for name, ln0 in zip(names, ln0_arr):
+            print("Toy model: {}".format(name))
+            val_dict = {'z_arr': z_arr_toy,
+                        'lmstar': np.ones(len(z_arr_toy)) * -99,
+                        'bt': np.ones(len(z_arr_toy)) * -99.,
+                        'Reff_disk': np.ones(len(z_arr_toy)) * -99.,
+                        'invq_disk': np.ones(len(z_arr_toy)) * -99.,
+                        'invq_near': np.ones(len(z_arr_toy)) * -99.,
+                        'fgas': np.ones(len(z_arr_toy)) * -99.,
+                        'lMbar': np.ones(len(z_arr_toy)) * -99.,
+                        'lMhalo': np.ones(len(z_arr_toy)) * -99.,
+                        'Rvir': np.ones(len(z_arr_toy)) * -99.,
+                        'halo_conc': np.ones(len(z_arr_toy)) * -99.,
+
+                        'menc_disk': np.ones(len(z_arr_toy)) * -99.,
+                        'menc_bulge': np.ones(len(z_arr_toy)) * -99.,
+                        'menc_halo': np.ones(len(z_arr_toy)) * -99.,
+                        'menc_bar': np.ones(len(z_arr_toy)) * -99.,
+                        'menc_tot': np.ones(len(z_arr_toy)) * -99.,
+                        'fdm_menc': np.ones(len(z_arr_toy)) * -99.,
+                        'vcirc_disk': np.ones(len(z_arr_toy)) * -99.,
+                        'vcirc_bulge': np.ones(len(z_arr_toy)) * -99.,
+                        'vcirc_halo': np.ones(len(z_arr_toy)) * -99.,
+                        'vcirc_bar': np.ones(len(z_arr_toy)) * -99.,
+                        'vcirc_tot': np.ones(len(z_arr_toy)) * -99.,
+                        'fdm_vsq': np.ones(len(z_arr_toy)) * -99.,
+                        'fDM_comp': np.ones(len(z_arr_toy)) * -99.,
+                        'n_evol': n_evol,
+                        'cmf_source': cmf_source,
+                        'name': name,
+                        }
+            val_dict['lmstar'] = _mass_progenitor_num_density(ln0, z_arr_toy,
+                        n_evol=n_evol, cmf_source=cmf_source)
+            for ll, z in enumerate(z_arr_toy):
+                print("  z={}".format(z))
+
+                lmstar = val_dict['lmstar'][ll]
+                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+
+                invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+
+                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+
+                Mstar =     np.power(10., lmstar)
+                Mbaryon =   Mstar / (1.-fgas)
+                lMbar = np.log10(Mbaryon)
+
+                bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+
+                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+                lMhalo = np.log10(Mhalo)
+                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+
+                val_dict['bt'][ll] = bt
+                val_dict['Reff_disk'][ll] = Reff_disk
+                val_dict['invq_disk'][ll] = invq_disk
+                val_dict['fgas'][ll] = fgas
+                val_dict['lMbar'][ll] = lMbar
+                val_dict['lMhalo'][ll] = lMhalo
+                val_dict['Rvir'][ll] = Rvir
+                val_dict['halo_conc'][ll] = halo_conc
+
+
+                ######
+                nearest_n, nearest_invq = n_disk, invq_disk
+                try:
+                    menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+
+                except:
+                    menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+                    vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+
+                menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
+                vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+
+                menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                menc_baryons = menc_disk + menc_bulge
+                menc_tot = menc_baryons + menc_halo
+                fdm_menc = menc_halo/menc_tot
+
+                vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
+                vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+                fdm_vsq = vcirc_halo**2/vcirc_tot**2
+
+                #fDM_compare_arr
+                if del_fDM:
+                    val_dict['fDM_comp'][ll] = (fdm_vsq-fdm_menc)/fdm_menc
+                else:
+                    val_dict['fDM_comp'][ll] = fdm_vsq/fdm_menc
+
+                ####
+
+                val_dict['menc_disk'][ll] = menc_disk
+                val_dict['menc_bulge'][ll] = menc_bulge
+                val_dict['menc_halo'][ll] = menc_halo
+                val_dict['menc_bar'][ll] = menc_baryons
+                val_dict['menc_tot'][ll] = menc_tot
+                val_dict['fdm_menc'][ll] = fdm_menc
+
+                val_dict['vcirc_disk'][ll] = vcirc_disk
+                val_dict['vcirc_bulge'][ll] = vcirc_bulge
+                val_dict['vcirc_halo'][ll] = vcirc_halo
+                val_dict['vcirc_bar'][ll] = vcirc_baryons
+                val_dict['vcirc_tot'][ll] = vcirc_tot
+                val_dict['fdm_vsq'][ll] = fdm_vsq
+
+                val_dict['invq_near'][ll] = nearest_invq
+
+            ##
+            dict_toy[name] = val_dict
+
+    if save_dict_stack:
         if not (os.path.isfile(f_save)):
             with open(f_save, 'wb') as f:
                 pickle.dump(dict_stack, f)
+
+        if not (os.path.isfile(f_save_toy)):
+            with open(f_save_toy, 'wb') as f:
+                pickle.dump(dict_toy, f)
+
 
     ######################
     # FOR TOY PLOTS
@@ -4736,6 +5332,12 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 #     z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 1.75, 2.])
                 #     invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.3, 4.])
                 #     ax.scatter(z_arr_ROUGH, invq_arr_ROUGH, s=5,  marker='o', color='tab:green', label=None)
+
+                # MW, M31 toy:
+                for name, color, ls in zip(['MW', 'M31'], ['black', 'grey'], ['--', ':']):
+                    ax.plot(dict_toy[name]['z_arr'], dict_toy[name][keyy],
+                               color=color, lw=0.75, ls=ls, label=name,
+                               zorder=-0.5)
 
                 ######################
                 if ylim is None:        ylim = ax.get_ylim()
@@ -4792,6 +5394,14 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
                     plot_cnt_lmstar += 1
 
+            #####################
+            # MW, M31 toy:
+            for name, color, ls in zip(['MW', 'M31'], ['black', 'grey'], ['--', ':']):
+                ax.plot(dict_toy[name]['z_arr'], dict_toy[name][keyy],
+                           color=color, lw=1, ls=ls, label=name,
+                           zorder=-0.5)
+
+
             ######################
             if ylim is None:        ylim = ax.get_ylim()
 
@@ -4800,6 +5410,25 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                     ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
                 else:
                     ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
+
+            if ann_arr[j] is not None:
+                xydelt = 0.04
+                if ann_arr_pos[j] == 'lowerright':
+                    xy = (1.-xydelt, xydelt)
+                    va='bottom'
+                    ha='right'
+                elif ann_arr_pos[j] == 'upperright':
+                    xy = (1.-xydelt, 1.-xydelt)
+                    va='top'
+                    ha='right'
+                elif ann_arr_pos[j] == 'upperleft':
+                    xy = (xydelt, 1.-xydelt)
+                    va='top'
+                    ha='left'
+                ax.annotate(ann_arr[j], xy=xy,
+                        va=va, ha=ha, fontsize=fontsize_ann-0.5, #fontsize_ann_latex
+                        xycoords='axes fraction')
+
 
 
             ax.set_xlim(xlim)
@@ -4890,6 +5519,9 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     #     return dict_stack
     # else:
     #     return None
+
+
+    mpl.rcParams['text.usetex'] = True
 
     return None
 
