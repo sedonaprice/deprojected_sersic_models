@@ -997,7 +997,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
 
         table:              Option to pass the table, if already loaded
 
-    Output:     menc_interp = Menc3D_sphere(r)
+    Output:     rho_interp = interpolate_sersic_profile_rho(r)
     """
     if table is None:
         table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
@@ -1387,6 +1387,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
 
     return vcirc_interp_nearest
 
+
 def interpolate_sersic_profile_alpha_nearest(r=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=None, filename=None):
     """
@@ -1427,3 +1428,77 @@ def interpolate_sersic_profile_alpha_nearest(r=None, Reff=None, n=1., invq=5.,
                     path=path, filename_base=filename_base, filename=filename)
 
     return alpha_interp_nearest
+
+
+
+def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
+        BT=0.,  total_mass=1.e11,
+        Reff_disk=None, n_disk=1., invq_disk=5.,
+        Reff_bulge=1.,  n_bulge=4., invq_bulge=1.,
+        path=None, filename_base=None, filename=None):
+    """
+    Determine the alpha(r)=-dlnrho_g/dlnr profile at arbitrary radii r,
+        for a composite DISK+BULGE system.
+        Both disk and bulge can have arbitary Reff,
+         *** using the nearest values of n and invq that are included in
+             the Sersic profile table collection ***
+
+    Finds the nearest n, invq for the "default" table collection,
+        then returns alpha_interp_nearest for the total DISK+BULGE system.
+
+    Usage:  alpha_interp_nearest = interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r,
+                                BT=BT, total_mass=total_mass,
+                                Reff_disk=Reff_disk, n_disk=n_disk, invq_disk=invq_disk,
+                                Reff_bulge=Reff_bulge, n_bulge=n_bulge, invq_bulge=invq_bulge,
+                                path=path)
+
+    Keyword input:
+        r:              Radius at which to interpolate Menc3D_sphere [kpc]
+
+        total_mass:     Total mass of the component [Msun]    [Default: 10^11 Msun]
+        BT:             Bulge to total ratio (Total = Disk + Bulge)  [Default: 0.]
+
+        Reff_disk:      Effective radius of disk Sersic profile [kpc]
+        n_disk:         Sersic index of disk
+        invq_disk:      Inverse of the intrinsic axis ratio of disk Sersic profile, invq = 1/q
+
+        Reff_bulge:     Effective radius of bulge Sersic profile [kpc]. [Default: 1 kpc]
+        n_bulge:        Sersic index of bulge. [Default: 4]
+        invq_bulge:     Inverse of the intrinsic axis ratio of bulge Sersic profile, invq = 1/q
+                        [Default: 1.]
+
+        path:           Path to directory containing the saved Sersic profile tables.
+
+    Optional input:
+        filename_base:      Base filename to use, when combined with default naming convention:
+                                <path>/<filename_base>_nX.X_invqX.XX.fits
+
+        filename:           Option to override the default filename convention and
+                                instead directly specify the file location.
+
+    Output:     alpha_interp_nearest = alpha(r, n=nearest_n, q=1./nearest_invq)     [unitless]
+    """
+
+    Mbulge = total_mass * BT
+    Mdisk = total_mass * (1.-BT)
+
+    # Use the "typical" collection of table values:
+    rho_t = r * 0.
+    rhoalphasum = r * 0.
+    for n, invq, Reff, M in zip([n_disk, n_bulge], [invq_disk, invq_bulge],
+            [Reff_disk, Reff_bulge], [Mdisk, Mbulge]):
+        nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
+
+        alpha_interp_nearest = interpolate_sersic_profile_alpha(r=r, Reff=Reff,
+                    n=nearest_n, invq=nearest_invq,
+                    path=path, filename_base=filename_base, filename=filename)
+
+        rho_interp_nearest = interpolate_sersic_profile_rho(r=r, total_mass=M,
+                Reff=Reff, n=nearest_n, invq=nearest_invq, path=path,
+                filename_base=filename_base, filename=filename)
+        rho_t += rho_interp_nearest
+        rhoalphasum += rho_interp_nearest * alpha_interp_nearest
+
+    alpha_interp_total = 1./rho_t * rhoalphasum
+
+    return alpha_interp_total
