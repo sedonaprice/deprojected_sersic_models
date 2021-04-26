@@ -1499,6 +1499,6 @@ def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
         rho_t += rho_interp_nearest
         rhoalphasum += rho_interp_nearest * alpha_interp_nearest
 
-    alpha_interp_total = 1./rho_t * rhoalphasum
+    alpha_interp_total = (1./rho_t) * rhoalphasum
 
     return alpha_interp_total

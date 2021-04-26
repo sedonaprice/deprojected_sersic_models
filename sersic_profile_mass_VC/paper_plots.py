@@ -16,6 +16,7 @@ import scipy.optimize as scp_opt
 import scipy.special as scp_special
 
 import astropy.cosmology as apy_cosmo
+import astropy.constants as apy_con
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -38,6 +39,11 @@ except:
 
 #__all__ = [ 'make_all_paper_plots', 'plot_compare_mencl', 'plot_virial_coeff' ]
 
+
+# CONSTANTS
+G = apy_con.G
+Msun = apy_con.M_sun
+pc = apy_con.pc
 
 # ---------------------
 # Plot settings
@@ -486,166 +492,166 @@ def _double_schecter_func(logM, logMstar,
          phistar2*np.power(10.,((logM-logMstar)*(alpha2))) )
     return np.log10(phi)
 
-def test_t14_SMF():
-    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-    dict_t14 = _tomczak14_SMF_total_coeffs()
-    dlmass = 0.05
-    lmass_lims = [7.6, 12]
-    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-    for i in range(len(dict_t14['z_mid'])):
-        dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
-                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-        plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
-
-    plt.gca().set_xlim([7.6, 12.])
-    plt.gca().set_ylim([-5.4,-1.])
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-    plt.gcf().set_size_inches((6., 6.))
-    plt.show()
-
-    return None
-
-def test_t14_SMF_decomp():
-    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-    dict_t14 = _tomczak14_SMF_total_coeffs()
-    dlmass = 0.05
-    lmass_lims = [7.6, 12]
-    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-    #for i in range(len(dict_t14['z_mid'])):
-    for i in range(1):
-        dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
-                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-        plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
-
-        sch1 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['logphistar1'][i], dict_t14['alpha1'][i])
-        sch2 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-
-        plt.plot(lmass_arr, sch1, color=colors[i], ls='--', lw=2)
-        plt.plot(lmass_arr, sch2, color=colors[i], ls=':', lw=2)
-
-    plt.gca().set_xlim([7.6, 12.])
-    plt.gca().set_ylim([-5.4,-1.])
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-    plt.gcf().set_size_inches((6., 6.))
-    plt.show()
-
-    return None
-
-def test_t14_CMF_decomp():
-    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-    dict_t14 = _tomczak14_SMF_total_coeffs()
-    dlmass = 0.05
-    lmass_lims = [9., 12.]
-    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-    for i in range(1):
-        cmf = _num_density_double_schechter_func(lmass_arr,
-                    dict_t14['logMstar'][i], dict_t14['alpha1'][i], dict_t14['logphistar1'][i],
-                    dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
-
-        plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
-
-        cmf1 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['alpha1'][i], dict_t14['logphistar1'][i])
-        cmf2 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
-                    dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
-
-        plt.plot(lmass_arr, cmf1, color=colors[i], ls='--', lw=2)
-        plt.plot(lmass_arr, cmf2, color=colors[i], ls=':', lw=2)
-
-    plt.gca().set_xlim([9., 12.])
-    plt.gca().set_ylim([8.e-5, 3.e-2])
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-
-    #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-    #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-    plt.gca().set_yscale('log')
-    plt.gcf().set_size_inches((6., 6.))
-    plt.show()
-
-    #raise ValueError
-    return None
-
-
-
-def test_t14_CMF():
-    colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-    dict_t14 = _tomczak14_SMF_total_coeffs()
-    dlmass = 0.05
-    lmass_lims = [9., 12.]
-    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-    for i in range(len(dict_t14['z_mid'])):
-        cmf = _num_density_tomczak14_double_schechter_interp(dict_t14['z_mid'][i],
-                lmass_arr, kind='nearest')
-        plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
-
-    plt.gca().set_xlim([9., 12.])
-    plt.gca().set_ylim([8.e-5, 3.e-2])
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-
-    #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-    #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-    plt.gca().set_yscale('log')
-    plt.gcf().set_size_inches((6., 6.))
-    plt.show()
-
-    return None
-
-def test_t14_p15_MW_M31():
-    dp15 = _papovich15_values_MW_M31()
-
-    zstep = 0.1
-    z_arr = np.arange(0., 3.+zstep, zstep)
-
-    colors = ['black', 'grey']
-    lss = ['--', '-']
-    markers = ['s', 'o']
-    names = ['MW', 'M31']
-    ln0_arr = [-2.9, -3.4]
-    n_evol='const'
-    cmf_source='papovich15'
-    for name, ln0, color, ls, m in zip(names, ln0_arr, colors, lss, markers):
-        lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
-                n_evol=n_evol, cmf_source=cmf_source)
-        plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
-
-        plt.scatter(dp15[name]['z'], dp15[name]['lmass'], marker=m, color=color, s=30,
-                        facecolor='None')
-
-    colors = ['blue', 'red']
-    lss = ['--', '-']
-    n_evol='const'
-    cmf_source='tomczak14'
-    for name, ln0, color, ls in zip(names, ln0_arr, colors, lss):
-        lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
-                n_evol=n_evol, cmf_source=cmf_source)
-        plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
-
-
-    plt.gca().set_ylim([9., 11.5])
-    plt.gca().set_xlim([0., 3.])
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().xaxis.set_major_locator(MultipleLocator(0.5))
-
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
-    plt.gcf().set_size_inches((6., 6.))
-    plt.show()
-
-    return None
+# def test_t14_SMF():
+#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+#     dict_t14 = _tomczak14_SMF_total_coeffs()
+#     dlmass = 0.05
+#     lmass_lims = [7.6, 12]
+#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+#     for i in range(len(dict_t14['z_mid'])):
+#         dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
+#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+#         plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
+#
+#     plt.gca().set_xlim([7.6, 12.])
+#     plt.gca().set_ylim([-5.4,-1.])
+#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+#
+#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+#     plt.gcf().set_size_inches((6., 6.))
+#     plt.show()
+#
+#     return None
+#
+# def test_t14_SMF_decomp():
+#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+#     dict_t14 = _tomczak14_SMF_total_coeffs()
+#     dlmass = 0.05
+#     lmass_lims = [7.6, 12]
+#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+#     #for i in range(len(dict_t14['z_mid'])):
+#     for i in range(1):
+#         dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
+#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+#         plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
+#
+#         sch1 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i])
+#         sch2 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
+#
+#         plt.plot(lmass_arr, sch1, color=colors[i], ls='--', lw=2)
+#         plt.plot(lmass_arr, sch2, color=colors[i], ls=':', lw=2)
+#
+#     plt.gca().set_xlim([7.6, 12.])
+#     plt.gca().set_ylim([-5.4,-1.])
+#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+#
+#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+#     plt.gcf().set_size_inches((6., 6.))
+#     plt.show()
+#
+#     return None
+#
+# def test_t14_CMF_decomp():
+#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+#     dict_t14 = _tomczak14_SMF_total_coeffs()
+#     dlmass = 0.05
+#     lmass_lims = [9., 12.]
+#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+#     for i in range(1):
+#         cmf = _num_density_double_schechter_func(lmass_arr,
+#                     dict_t14['logMstar'][i], dict_t14['alpha1'][i], dict_t14['logphistar1'][i],
+#                     dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
+#
+#         plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
+#
+#         cmf1 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['alpha1'][i], dict_t14['logphistar1'][i])
+#         cmf2 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
+#                     dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
+#
+#         plt.plot(lmass_arr, cmf1, color=colors[i], ls='--', lw=2)
+#         plt.plot(lmass_arr, cmf2, color=colors[i], ls=':', lw=2)
+#
+#     plt.gca().set_xlim([9., 12.])
+#     plt.gca().set_ylim([8.e-5, 3.e-2])
+#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+#
+#     #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+#     #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+#     plt.gca().set_yscale('log')
+#     plt.gcf().set_size_inches((6., 6.))
+#     plt.show()
+#
+#     #raise ValueError
+#     return None
+#
+#
+#
+# def test_t14_CMF():
+#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
+#     dict_t14 = _tomczak14_SMF_total_coeffs()
+#     dlmass = 0.05
+#     lmass_lims = [9., 12.]
+#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
+#     for i in range(len(dict_t14['z_mid'])):
+#         cmf = _num_density_tomczak14_double_schechter_interp(dict_t14['z_mid'][i],
+#                 lmass_arr, kind='nearest')
+#         plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
+#
+#     plt.gca().set_xlim([9., 12.])
+#     plt.gca().set_ylim([8.e-5, 3.e-2])
+#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
+#
+#     #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+#     #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
+#     plt.gca().set_yscale('log')
+#     plt.gcf().set_size_inches((6., 6.))
+#     plt.show()
+#
+#     return None
+#
+# def test_t14_p15_MW_M31():
+#     dp15 = _papovich15_values_MW_M31()
+#
+#     zstep = 0.1
+#     z_arr = np.arange(0., 3.+zstep, zstep)
+#
+#     colors = ['black', 'grey']
+#     lss = ['--', '-']
+#     markers = ['s', 'o']
+#     names = ['MW', 'M31']
+#     ln0_arr = [-2.9, -3.4]
+#     n_evol='const'
+#     cmf_source='papovich15'
+#     for name, ln0, color, ls, m in zip(names, ln0_arr, colors, lss, markers):
+#         lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
+#                 n_evol=n_evol, cmf_source=cmf_source)
+#         plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
+#
+#         plt.scatter(dp15[name]['z'], dp15[name]['lmass'], marker=m, color=color, s=30,
+#                         facecolor='None')
+#
+#     colors = ['blue', 'red']
+#     lss = ['--', '-']
+#     n_evol='const'
+#     cmf_source='tomczak14'
+#     for name, ln0, color, ls in zip(names, ln0_arr, colors, lss):
+#         lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
+#                 n_evol=n_evol, cmf_source=cmf_source)
+#         plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
+#
+#
+#     plt.gca().set_ylim([9., 11.5])
+#     plt.gca().set_xlim([0., 3.])
+#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().xaxis.set_major_locator(MultipleLocator(0.5))
+#
+#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+#     plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
+#     plt.gcf().set_size_inches((6., 6.))
+#     plt.show()
+#
+#     return None
 
 def _num_density_single_schechter_func(lmass_arr, logMstar, alpha, logphistar):
     phistar = np.power(10,logphistar)
@@ -4981,7 +4987,8 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ann_arr_pos = ['upperleft', 'upperright', None]
 
     if include_toy_curves:
-        keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
+        #keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
+        keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'bt', 'lMhalo', 'halo_conc']
         ylabels_toy = []
         ylims_toy = []
         ylocators_toy = []
@@ -5024,7 +5031,11 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     n_cols = len(types)
     if include_toy_curves:
         n_rows = 2
-        fac = 1.5 #1.725 #1.15*1.5
+        #fac = 1.5 #1.725 #1.15*1.5
+        if len(keys_toy) == 7:
+            fac = 1.5 #1.725 #1.15*1.5
+        elif len(keys_toy) == 6:
+            fac = 1.45
     else:
         n_rows = 1
         fac = 1.15 #1.02
@@ -5034,7 +5045,14 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     if include_toy_curves:
         wspace = 0.25 #0.025
         hspace = wspace
-        height_ratios=[0.4, 1.] # [0.5,1.]
+        if len(keys_toy) == 7:
+            height_ratios=[0.4, 1.]
+        elif len(keys_toy) == 6:
+            height_ratios=[0.45, 1.]
+        else:
+            height_ratios=[len(types)/len(keys_toy), 1.]
+        #height_ratios=[len(types)/len(keys_toy), 1.]
+
         gs_outer = gridspec.GridSpec(2, 1, wspace=wspace, hspace=hspace, height_ratios=height_ratios)
 
 
@@ -5473,10 +5491,11 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             #                zorder=-0.5)
 
             for name, color, m, s,zord in zip(['MW', 'M31'], ['black', 'grey'],
-                                        ['*', 's'], [20, 15], [-0.5, -0.6]):
+                                        ['*', 's'], [30, 15], [-0.5, -0.6]):
                 whshow = np.where(((dict_toy[name]['z_arr'])%0.25 == 0))[0]
                 ax.scatter(dict_toy[name]['z_arr'][whshow], dict_toy[name][keyy][whshow],
-                           color=color, facecolor='none', marker=m, s=s, label=name,zorder=zord)
+                           color=color, facecolor='none', marker=m, s=s,
+                           lw=0.7, label=name,zorder=zord)
 
             ######################
             if ylim is None:        ylim = ax.get_ylim()
@@ -5591,26 +5610,18 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     else:
         plt.show()
 
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
 
-
-    mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['text.usetex'] = False
 
     return None
 
 
-def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
+def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             output_path=None, table_path=None, fileout=None,
             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
             save_dict_stack=True,
             overwrite_dict_stack=False):
     """
-    Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
-        with redshift for SF, roughly MS galaxies, for different stellar masses
-
 
     Input:
         output_path:        Path to directory where the output plot will be saved.
@@ -5638,12 +5649,12 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     if (fileout is None):
         # Ensure trailing slash:
         if output_path[-1] != '/':  output_path += '/'
-        fileout = output_path+'plot_toy_AD_corr_z'
-        if del_fDM:     fileout += '_del_fDM'
+        fileout = output_path+'plot_toy_AD_apply_z'
         fileout += '.pdf'
 
 
     #mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['text.usetex'] = False
 
     if lmstar is None:
         lmstar = 10.5
@@ -5680,21 +5691,22 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
 
 
-    ann_arr = [ None, None, None, None, None]
-    ann_arr_pos = [None, None, None, None, None]
-
+    # ann_arr = [ None, None, None, None, None]
+    # ann_arr_pos = [None, None, None, None, None]
+    ann_arr = [ r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None, None]
+    ann_arr_pos = ['upperright', None, None, None, None]
 
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 3.75 #4.25
-    n_cols = len(types)
+    scale = 2.75 #3.25 #3.75 #4.25
+    n_cols = len(z_arr)
     n_rows = 1
-    fac = 1.15 #1.02
+    fac = 1.05 #1.15 #1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
 
-    wspace = 0.1 #0.25 #0.025
+    wspace = 0.075 #0.1 #0.25 #0.025
     hspace = wspace
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
     axes = []
@@ -5725,7 +5737,7 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     ######################
 
     dict_stack = None
-    f_save = output_path+'toy_impl_AD_corr_z.pickle'
+    f_save = output_path+'toy_impl_AD_apply_z.pickle'
     if save_dict_stack:
         if (os.path.isfile(f_save)):
             with open(f_save, 'rb') as f:
@@ -5741,31 +5753,31 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
         dict_stack = []
         for mm, z in enumerate(z_arr):
             print("z={}".format(z))
-            val_dict = {'z': z,
-                        'r_arr': r_arr,
-                        'lmstar': lmstar,
-                        'bt':  -99.,
-                        'Reff_disk': -99.,
-                        'invq_disk': -99.,
-                        'invq_near': -99.,
-                        'fgas': -99.,
-                        'lMbar': -99.,
-                        'lMhalo':  -99.,
-                        'Rvir': -99.,
-                        'halo_conc': n -99.,
-                        'sigma0': -99.,
+            val_dict = {'z':            z,
+                        'r_arr':        r_arr,
+                        'lmstar':       lmstar,
+                        'bt':           -99.,
+                        'Reff_disk':    -99.,
+                        'invq_disk':    -99.,
+                        'invq_near':    -99.,
+                        'fgas':         -99.,
+                        'lMbar':        -99.,
+                        'lMhalo':       -99.,
+                        'Rvir':         -99.,
+                        'halo_conc':    -99.,
+                        'sigma0':       -99.,
 
-                        'vcirc_disk': np.ones(len(r_arr)) * -99.,
-                        'vcirc_bulge': np.ones(len(r_arr)) * -99.,
-                        'vcirc_halo': np.ones(len(r_arr)) * -99.,
-                        'vcirc_bar': np.ones(len(r_arr)) * -99.,
-                        'vcirc_tot': np.ones(len(r_arr)) * -99.,
+                        'vcirc_disk':   np.ones(len(r_arr)) * -99.,
+                        'vcirc_bulge':  np.ones(len(r_arr)) * -99.,
+                        'vcirc_halo':   np.ones(len(r_arr)) * -99.,
+                        'vcirc_bar':    np.ones(len(r_arr)) * -99.,
+                        'vcirc_tot':    np.ones(len(r_arr)) * -99.,
 
-                        'alphan': np.ones(len(r_arr)) * -99.,
-                        'alpha_SG': np.ones(len(r_arr)) * -99.,
+                        'alphan':       np.ones(len(r_arr)) * -99.,
+                        'alpha_SG':     np.ones(len(r_arr)) * -99.,
 
-                        'vrot_alphan': np.ones(len(r_arr)) * -99.,
-                        'vrot_SG': np.ones(len(r_arr)) * -99.
+                        'vrot_alphan':  np.ones(len(r_arr)) * -99.,
+                        'vrot_SG':      np.ones(len(r_arr)) * -99.
                         }
             Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
@@ -5797,15 +5809,21 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             val_dict['sigma0'] = sigma0
 
             ######
-            nearest_n, nearest_invq = n_disk, invq_disk
-            try:
-                vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr,
+            # nearest_n, nearest_invq = n_disk, invq_disk
+            # try:
+            #     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr,
+            #                 total_mass=((1.-bt)*Mbaryon),
+            #                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+            #
+            # except:
+            #     vcirc_disk = calcs.v_circ(r_arr, total_mass=((1.-bt)*Mbaryon),
+            #                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+
+            # JUST USE LOOKUP
+            nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+            vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
                             total_mass=((1.-bt)*Mbaryon),
                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-
-            except:
-                vcirc_disk = calcs.v_circ(r_arr, total_mass=((1.-bt)*Mbaryon),
-                            Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
 
             vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
@@ -5862,10 +5880,10 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
 
             ax = axes[k]
 
-
-            lws = [1., 1., 1., 1.3, 1.3]
-            colors = ['blue', 'red', 'green', 'purple', 'orange', 'black']
-            lss = ['-', '-', '-', '-', '-']
+            lw_comp = 0.5 # 1.
+            lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, 1.3]
+            colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
+            lss = ['-', '-', '-', '-', '-', '-']
             comps = ['disk', 'bulge', 'bar', 'halo', 'sigma0', 'tot']
             labels_components = [r'$v_{\mathrm{circ,disk}}$', r'$v_{\mathrm{circ,bulge}}$',
                                  r'$v_{\mathrm{circ,bar}}$', r'$v_{\mathrm{circ,halo}}$',
@@ -5875,12 +5893,16 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             for comp, ls, col, lw, lbl in zip(comps, lss, colors, lws, labels_components):
                 if comp == 'sigma0':
                     keyy = comp
+                    # Convert const to array
+                    yarr = dict_stack[j][keyy] + 0. * dict_stack[j]['r_arr']
                 else:
                     keyy = 'vcirc_{}'.format(comp)
-                ax.plot(dict_stack[j]['r_arr'], dict_stack[j][keyy],
+                    yarr = dict_stack[j][keyy]
+                ax.plot(dict_stack[j]['r_arr'], yarr,
                            ls=ls, color=col, lw=lw, label=lbl, zorder=-1.)
                 plot_cnt_lmstar += 1
 
+            plot_cnt_lmstar -= 1
 
             for mm, type in enumerate(types):
                     ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vrot_{}'.format(type)],
@@ -5909,7 +5931,7 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                     va='top'
                     ha='left'
                 ax.annotate(ann_arr[j], xy=xy,
-                        va=va, ha=ha, fontsize=fontsize_ann-0.5, #fontsize_ann_latex
+                        va=va, ha=ha, fontsize=fontsize_ann_latex-2,
                         xycoords='axes fraction')
 
 
@@ -5930,7 +5952,8 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                 #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            if ylabel is not None:
+            #if ylabel is not None:
+            if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
                 #ax.tick_params(labelleft='off')
@@ -5938,8 +5961,436 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
 
             ax.tick_params(labelsize=fontsize_ticks)
 
-            # if title is not None:
-            #     ax.set_title(title, fontsize=fontsize_title)
+            if titles[j] is not None:
+                ax.set_title(titles[j], fontsize=fontsize_title)
+
+            if k == 0:
+                handles, labels_leg = ax.get_legend_handles_labels()
+                neworder = range(plot_cnt_lmstar)
+                handles_arr = []
+                labels_arr = []
+                for ii in neworder:
+                    handles_arr.append(handles[ii])
+                    labels_arr.append(labels_leg[ii])
+
+                neworder2 = range(plot_cnt_lmstar, len(handles))
+                handles_arr2 = []
+                labels_arr2 = []
+                for ii in neworder2:
+                    handles_arr2.append(handles[ii])
+                    labels_arr2.append(labels_leg[ii])
+
+                frameon = True
+                framealpha = 1.
+                edgecolor = 'none'
+                borderpad = 0.25
+                fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
+                labelspacing=0.01 #0.15
+                handletextpad=0.25
+                #loc = 'lower left' #'upper right' #'lower right'
+                loc = (0.02, 0.005) #0.015)
+                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
+                # fontsize_leg_title = fontsize_leg
+                legend1 = ax.legend(handles_arr, labels_arr,
+                    labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                    loc=loc,
+                    numpoints=1, scatterpoints=1,
+                    frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                    fontsize=fontsize_leg_tmp)
+                legend1.set_zorder(-0.05)
+                    #title=leg_title, title_fontsize=fontsize_leg_title)
+                ax.add_artist(legend1)
+                if len(handles_arr2) > 0:
+                    labelspacing=0.15
+                    loc2= (0.55, 0.635)#'lower right' # 'lower left'
+                    legend2 = ax.legend(handles_arr2, labels_arr2,
+                        labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                        loc=loc2,
+                        numpoints=1, scatterpoints=1,
+                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        fontsize=fontsize_leg_tmp)
+                    ax.add_artist(legend2)
+
+
+
+    if fileout is not None:
+        plt.savefig(fileout, bbox_inches='tight', dpi=600)
+        plt.close()
+    else:
+        plt.show()
+
+    # if return_dict:
+    #     return dict_stack
+    # else:
+    #     return None
+
+
+    mpl.rcParams['text.usetex'] = False
+
+    return None
+
+def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
+            output_path=None, table_path=None, fileout=None,
+            n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
+            save_dict_stack=True,
+            overwrite_dict_stack=False):
+    """
+
+    Input:
+        output_path:        Path to directory where the output plot will be saved.
+        table_path:         Path to directory containing the Sersic profile tables.
+
+    Optional Input:
+        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+
+        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+
+        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+
+        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
+        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
+        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+
+
+        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+
+    Output:         PDF plot saved to file.
+    """
+    if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+    if table_path is None:      raise ValueError("Must set 'table_path' !")
+
+    if (fileout is None):
+        # Ensure trailing slash:
+        if output_path[-1] != '/':  output_path += '/'
+        fileout = output_path+'plot_toy_AD_corr_z'
+        fileout += '.pdf'
+
+
+    #mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['text.usetex'] = False
+
+    if lmstar is None:
+        lmstar = 10.5
+
+    if z_arr is None:
+        z_step = 0.5
+        zlims = [1., 3.] #[0.5, 2.5]
+        z_arr = np.arange(zlims[0], zlims[1]+z_step, z_step)
+
+    # Ensure it's an np array, not a list:
+    z_arr = np.array(z_arr)
+
+
+    rstep = 0.1 # kpc
+    r_arr = np.arange(0., 20.+rstep, rstep)
+
+
+    # ++++++++++++++++
+    titles = []
+    for z in z_arr:
+        if (z %1 == 0):
+            titles.append(r'$z={:0.0f}$'.format(z))
+        else:
+            titles.append(r'$z={:0.1f}$'.format(z))
+
+    xlabel = r'$r$ [kpc]'
+    ylabel = r'$v(r)$ [km/s]'
+    xlim = [0., 20.]
+    ylim = [0., 340.] #300.]
+
+    types = ['alphan', 'SG']
+    ls_arr = ['--', ':']
+    color_arr = ['cyan', 'grey']
+    lw_arr = [1.3, 1.3]
+    labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
+
+
+    # ann_arr = [ None, None, None, None, None]
+    # ann_arr_pos = [None, None, None, None, None]
+    ann_arr = [ r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None, None]
+    ann_arr_pos = ['upperright', None, None, None, None]
+
+    ######################################
+    # Setup plot:
+    f = plt.figure()
+    scale = 3.25 #3.75 #4.25
+    n_cols = len(z_arr)
+    n_rows = 1
+    fac = 1.05 #1.15 #1.02
+    f.set_size_inches(fac*scale*n_cols,scale*n_rows)
+
+
+    wspace = 0.075 #0.1 #0.25 #0.025
+    hspace = wspace
+    gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
+    axes = []
+    for i in range(n_rows):
+        for j in range(n_cols):
+            axes.append(plt.subplot(gs[i,j]))
+
+
+    ######################
+    # Load bulge: n, invq don't change.
+    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge_menc =    tab_bulge['menc3D_sph']
+    tab_bulge_vcirc =   tab_bulge['vcirc']
+    tab_bulge_rad =     tab_bulge['r']
+    tab_bulge_Reff =    tab_bulge['Reff']
+    tab_bulge_mass =    tab_bulge['total_mass']
+
+    # Clean up values inside rmin:  Add the value at r=0: menc=0
+    if tab_bulge['r'][0] > 0.:
+        tab_bulge_rad = np.append(0., tab_bulge_rad)
+        tab_bulge_menc = np.append(0., tab_bulge_menc)
+        tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
+
+    m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+    v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+
+
+    ######################
+
+    dict_stack = None
+    f_save = output_path+'toy_impl_AD_corr_z.pickle'
+    if save_dict_stack:
+        if (os.path.isfile(f_save)):
+            with open(f_save, 'rb') as f:
+                dict_stack = copy.deepcopy(pickle.load(f))
+
+            if overwrite_dict_stack:
+                raise ValueError("Really shouldn't do this!")
+                os.remove(f_save)
+                dict_stack = None
+
+
+    if dict_stack is None:
+        dict_stack = []
+        for mm, z in enumerate(z_arr):
+            print("z={}".format(z))
+            val_dict = {'z':            z,
+                        'r_arr':        r_arr,
+                        'lmstar':       lmstar,
+                        'bt':           -99.,
+                        'Reff_disk':    -99.,
+                        'invq_disk':    -99.,
+                        'invq_near':    -99.,
+                        'fgas':         -99.,
+                        'lMbar':        -99.,
+                        'lMhalo':       -99.,
+                        'Rvir':         -99.,
+                        'halo_conc':    -99.,
+                        'sigma0':       -99.,
+
+                        'vcirc_disk':   np.ones(len(r_arr)) * -99.,
+                        'vcirc_bulge':  np.ones(len(r_arr)) * -99.,
+                        'vcirc_halo':   np.ones(len(r_arr)) * -99.,
+                        'vcirc_bar':    np.ones(len(r_arr)) * -99.,
+                        'vcirc_tot':    np.ones(len(r_arr)) * -99.,
+
+                        'alphan':       np.ones(len(r_arr)) * -99.,
+                        'alpha_SG':     np.ones(len(r_arr)) * -99.,
+
+                        'vrot_alphan':  np.ones(len(r_arr)) * -99.,
+                        'vrot_SG':      np.ones(len(r_arr)) * -99.,
+
+                        'vrot_obs':     np.ones(len(r_arr)) * -99.,
+                        'vcirc_corr_alphan': np.ones(len(r_arr)) * -99.,
+                        'vcirc_corr_SG':     np.ones(len(r_arr)) * -99.
+                        }
+            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+
+            invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+
+            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+
+            Mstar =     np.power(10., lmstar)
+            Mbaryon =   Mstar / (1.-fgas)
+            Mgas = Mbaryon * fgas
+            lMbar = np.log10(Mbaryon)
+
+            bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+
+            Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+            Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+            lMhalo = np.log10(Mhalo)
+            halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+            sigma0 = _int_disp_z_evol_U19(z=z)
+
+            val_dict['bt'] = bt
+            val_dict['Reff_disk'] = Reff_disk
+            val_dict['invq_disk'] = invq_disk
+            val_dict['fgas'] = fgas
+            val_dict['lMbar'] = lMbar
+            val_dict['lMhalo'] = lMhalo
+            val_dict['Rvir'] = Rvir
+            val_dict['halo_conc'] = halo_conc
+            val_dict['sigma0'] = sigma0
+
+            ######
+            # nearest_n, nearest_invq = n_disk, invq_disk
+            # try:
+            #     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr,
+            #                 total_mass=((1.-bt)*Mbaryon),
+            #                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+            #
+            # except:
+            #     vcirc_disk = calcs.v_circ(r_arr, total_mass=((1.-bt)*Mbaryon),
+            #                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+
+            # JUST USE LOOKUP
+            nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+            vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
+                            total_mass=((1.-bt)*Mbaryon),
+                            Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+
+            vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+
+
+            vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
+            vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
+            vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+
+
+            alphan = calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
+                    BT=bt,  total_mass=Mgas,
+                    Reff_disk=Reff_disk, n_disk=n_disk, invq_disk=invq_disk,
+                    Reff_bulge=Reff_bulge,  n_bulge=n_bulge, invq_bulge=invq_bulge,
+                    path=table_path)
+
+            alpha_SG = 3.36 * (r_arr / Reff_disk)
+
+            vrot_alphan = np.sqrt(vcirc_tot**2 - alphan*(sigma0**2))
+            vrot_SG = np.sqrt(vcirc_tot**2 - alpha_SG*(sigma0**2))
+
+            ####
+
+            val_dict['invq_near'] = nearest_invq
+
+            val_dict['vcirc_disk'] = vcirc_disk
+            val_dict['vcirc_bulge'] = vcirc_bulge
+            val_dict['vcirc_halo'] = vcirc_halo
+            val_dict['vcirc_bar'] = vcirc_baryons
+            val_dict['vcirc_tot'] = vcirc_tot
+
+            val_dict['alphan'] = alphan
+            val_dict['alpha_SG'] = alpha_SG
+
+            val_dict['vrot_alphan'] = vrot_alphan
+            val_dict['vrot_SG'] = vrot_SG
+
+            val_dict['vrot_obs'] = vrot_alphan
+            val_dict['vcirc_corr_alphan'] = np.sqrt(val_dict['vrot_obs']**2 + alphan*(sigma0**2))
+            val_dict['vcirc_corr_SG'] = np.sqrt(val_dict['vrot_obs']**2 + alpha_SG*(sigma0**2))
+
+            ##
+            dict_stack.append(val_dict)
+
+
+    if save_dict_stack:
+        if not (os.path.isfile(f_save)):
+            with open(f_save, 'wb') as f:
+                pickle.dump(dict_stack, f)
+
+    ######################
+    # FOR JUST THE fDM PLOTS!
+    n_rows = 1
+
+    for i in range(n_rows):
+        for j in range(n_cols):
+            k = i*n_cols + j
+
+            ax = axes[k]
+
+            lw_comp = 0.5 # 1.
+            lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, 1.3]
+            colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
+            lss = ['-', '-', '-', '-', '-', '-']
+            comps = ['disk', 'bulge', 'bar', 'halo', 'sigma0', 'tot']
+            labels_components = [r'$v_{\mathrm{circ,disk}}$', r'$v_{\mathrm{circ,bulge}}$',
+                                 r'$v_{\mathrm{circ,bar}}$', r'$v_{\mathrm{circ,halo}}$',
+                                 r'$\sigma_0$', r'$v_{\mathrm{circ,tot}}$']
+
+            plot_cnt_lmstar = 0
+            for comp, ls, col, lw, lbl in zip(comps, lss, colors, lws, labels_components):
+                if comp == 'sigma0':
+                    keyy = comp
+                    # Convert const to array
+                    yarr = dict_stack[j][keyy] + 0. * dict_stack[j]['r_arr']
+                else:
+                    keyy = 'vcirc_{}'.format(comp)
+                    yarr = dict_stack[j][keyy]
+                ax.plot(dict_stack[j]['r_arr'], yarr,
+                           ls=ls, color=col, lw=lw, label=lbl, zorder=-1.)
+                plot_cnt_lmstar += 1
+
+            #
+            ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vrot_obs'],
+               ls='-',color='magenta', lw=1.3, label=r'$v_{\mathrm{rot}}$', zorder=-1.)
+
+            # val_dict['vrot_obs'] = vrot_alphan
+            # val_dict['vcirc_corr_alphan'] = np.sqrt(val_dict['vrot_obs']**2 + alphan*(sigma0**2))
+            # val_dict['vcirc_corr_SG'] = np.sqrt(val_dict['vrot_obs']**2 + alpha_SG*(sigma0**2))
+
+
+            for mm, type in enumerate(types):
+                    ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vcirc_corr_{}'.format(type)],
+                       ls=ls_arr[mm],
+                       color=color_arr[mm], lw=lw_arr[mm], label=labels[mm],
+                       zorder=-1.)
+
+
+            ######################
+            if ylim is None:        ylim = ax.get_ylim()
+
+            ax.axvline(x=dict_stack[j]['Reff_disk'], ls=':', color='darkgrey', zorder=-20.)
+
+            if ann_arr[j] is not None:
+                xydelt = 0.04
+                if ann_arr_pos[j] == 'lowerright':
+                    xy = (1.-xydelt, xydelt)
+                    va='bottom'
+                    ha='right'
+                elif ann_arr_pos[j] == 'upperright':
+                    xy = (1.-xydelt, 1.-xydelt)
+                    va='top'
+                    ha='right'
+                elif ann_arr_pos[j] == 'upperleft':
+                    xy = (xydelt, 1.-xydelt)
+                    va='top'
+                    ha='left'
+                ax.annotate(ann_arr[j], xy=xy,
+                        va=va, ha=ha, fontsize=fontsize_ann_latex-2,
+                        xycoords='axes fraction')
+
+
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+
+            ########
+            ax.xaxis.set_minor_locator(MultipleLocator(1.))
+            ax.xaxis.set_major_locator(MultipleLocator(5.))
+
+            ax.yaxis.set_minor_locator(MultipleLocator(20.))
+            ax.yaxis.set_major_locator(MultipleLocator(100.))
+
+            if xlabel is not None:
+                ax.set_xlabel(xlabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelbottom='off')
+                ax.set_xticklabels([])
+
+            #if ylabel is not None:
+            if (j == 0) & (ylabel is not None):
+                ax.set_ylabel(ylabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelleft='off')
+                ax.set_yticklabels([])
+
+            ax.tick_params(labelsize=fontsize_ticks)
+
+            if titles[j] is not None:
+                ax.set_title(titles[j], fontsize=fontsize_title)
 
             if k == 0:
                 handles, labels_leg = ax.get_legend_handles_labels()
@@ -5999,9 +6450,736 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     #     return None
 
 
-    mpl.rcParams['text.usetex'] = True
+    mpl.rcParams['text.usetex'] = False
 
     return None
+
+
+def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
+            z = 2., lmstar = 11.4365, n_disk = 1.,
+            n_bulge = 4., invq_bulge=1., Reff_bulge=1.,
+            q_arr=[0.1, 0.2, 0.4, 1., 1.5, 2.],
+            bt_arr = [0., 0.25, 0.5, 0.75, 1.],
+            save_dict_stack=False,
+            overwrite_dict_stack=False):
+    """
+
+    Input:
+        output_path:        Path to directory where the output plot will be saved.
+        table_path:         Path to directory containing the Sersic profile tables.
+
+    Optional Input:
+        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+
+        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+
+        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+
+        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
+        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
+        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+
+
+        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+
+    Output:         PDF plot saved to file.
+    """
+    if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+    if table_path is None:      raise ValueError("Must set 'table_path' !")
+
+    if (fileout is None):
+        # Ensure trailing slash:
+        if output_path[-1] != '/':  output_path += '/'
+        fileout = output_path+'plot_menc_frac_bulge_disk'
+        fileout += '_lmstar_{:0.1f}'.format(lmstar)
+        fileout += '.pdf'
+
+
+    mpl.rcParams['text.usetex'] = True
+    #mpl.rcParams['text.usetex'] = False
+
+
+    # Ensure it's an np array, not a list:
+    q_arr = np.array(q_arr)
+    bt_arr = np.array(bt_arr)
+
+
+    rstep = 0.1 # kpc
+    r_range = [0., 3.] #[0., 5.] #[0., 10.] #[0., 20.]
+    r_arr = np.arange(r_range[0], r_range[1]+rstep, rstep)
+
+
+    # ++++++++++++++++
+    titles = []
+    for bt in bt_arr:
+        if (bt % 1 == 0):
+            titles.append(r'$B/T={:0.0f}$'.format(bt))
+        else:
+            titles.append(r'$B/T={}$'.format(bt))
+
+    xlabel = r'$r/R_{e,\mathrm{disk}}$'
+    ylabel = r'$M_{\mathrm{enc}}(<r)/M_{\mathrm{tot}}$'
+    xlim = [r_arr.min(), r_arr.max()]
+    ylim = [0., 1.]
+
+
+    color_arr = []
+    ls_arr = []
+    labels = []
+    for q in q_arr:
+        if q <= 1.:
+            color_arr.append(cmap_q(q))
+            ls_arr.append('-')
+        else:
+            color_arr.append(cmapg(1./q))
+            ls_arr.append('--')
+        labels.append(r'$q_0={}$'.format(q))
+
+    lw = 1.3
+
+    ######################################
+    # Setup plot:
+    f = plt.figure()
+    scale = 2.75 #3.25 #3.75 #4.25
+    n_cols = len(bt_arr)
+    n_rows = 1
+    fac = 1.05 #1.15 #1.02
+    f.set_size_inches(fac*scale*n_cols,scale*n_rows)
+
+
+    wspace = 0.075 #0.1 #0.25 #0.025
+    hspace = wspace
+    gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
+    axes = []
+    for i in range(n_rows):
+        for j in range(n_cols):
+            axes.append(plt.subplot(gs[i,j]))
+
+
+    ######################
+    # Load bulge: n, invq don't change.
+    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge_menc =    tab_bulge['menc3D_sph']
+    tab_bulge_vcirc =   tab_bulge['vcirc']
+    tab_bulge_rad =     tab_bulge['r']
+    tab_bulge_Reff =    tab_bulge['Reff']
+    tab_bulge_mass =    tab_bulge['total_mass']
+
+    # Clean up values inside rmin:  Add the value at r=0: menc=0
+    if tab_bulge['r'][0] > 0.:
+        tab_bulge_rad = np.append(0., tab_bulge_rad)
+        tab_bulge_menc = np.append(0., tab_bulge_menc)
+        tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
+
+    m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+    v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+
+
+    ######################
+
+    dict_stack = None
+    f_save = output_path+'menc_frac_bulge_disk.pickle'
+    if save_dict_stack:
+        if (os.path.isfile(f_save)):
+            with open(f_save, 'rb') as f:
+                dict_stack = copy.deepcopy(pickle.load(f))
+
+            if overwrite_dict_stack:
+                os.remove(f_save)
+                dict_stack = None
+
+
+    if dict_stack is None:
+        dict_stack = []
+        for jj, bt in enumerate(bt_arr):
+            val_bt_dict = {}
+            print("B/T={}".format(bt))
+            for mm, q in enumerate(q_arr):
+                print("   q0={}".format(q))
+                val_dict = {'q':            q,
+                            'z':            z,
+                            'r_arr':        np.ones(len(r_arr)) * -99.,
+                            'lmstar':       lmstar,
+                            'bt':           bt,
+                            'Reff_disk':    -99.,
+                            'invq_disk':    -99.,
+                            'invq_near':    -99.,
+                            'fgas':         -99.,
+                            'lMbar':        -99.,
+
+                            'menc_disk':    np.ones(len(r_arr)) * -99.,
+                            'menc_bulge':   np.ones(len(r_arr)) * -99.,
+                            'menc_bar':     np.ones(len(r_arr)) * -99.,
+                            'Mbar_tot':     -99.
+                            }
+                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+
+                invq_disk = 1./q
+
+                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+
+                Mstar =     np.power(10., lmstar)
+                Mbaryon =   Mstar / (1.-fgas)
+                Mgas = Mbaryon * fgas
+                lMbar = np.log10(Mbaryon)
+
+
+                val_dict['bt'] = bt
+                val_dict['Reff_disk'] = Reff_disk
+                val_dict['invq_disk'] = invq_disk
+                val_dict['fgas'] = fgas
+                val_dict['lMbar'] = lMbar
+                val_dict['Mbar_tot'] = np.power(10., lMbar)
+
+                val_dict['r_arr'] = r_arr.copy() * Reff_disk
+
+
+                # JUST USE LOOKUP
+                nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+                menc_disk = calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
+                                total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+                menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
+
+                menc_bar = menc_disk + menc_bulge
+
+
+                ####
+
+                val_dict['invq_near'] = nearest_invq
+
+                val_dict['menc_disk'] = menc_disk
+                val_dict['menc_bulge'] = menc_bulge
+                val_dict['menc_bar'] = menc_bar
+
+
+                val_bt_dict['q={}'.format(q)] = val_dict
+                ##
+            dict_stack.append(val_bt_dict)
+
+    print("Re,disk={}".format(Reff_disk))
+
+    if save_dict_stack:
+        if not (os.path.isfile(f_save)):
+            with open(f_save, 'wb') as f:
+                pickle.dump(dict_stack, f)
+
+    ######################
+    # FOR JUST THE fDM PLOTS!
+    n_rows = 1
+
+    for i in range(n_rows):
+        for j in range(n_cols):
+            k = i*n_cols + j
+
+            ax = axes[k]
+
+            bt = bt_arr[j]
+
+            plot_cnt_lmstar = 0
+            for mm, q in enumerate(q_arr):
+                plot_cnt_lmstar += 1
+                ax.plot(dict_stack[j]['q={}'.format(q)]['r_arr']/dict_stack[j]['q={}'.format(q)]['Reff_disk'],
+                        dict_stack[j]['q={}'.format(q)]['menc_bar']/dict_stack[j]['q={}'.format(q)]['Mbar_tot'],
+                           ls=ls_arr[mm], color=color_arr[mm], lw=lw, label=labels[mm], zorder=-1.)
+
+
+
+
+            ######################
+            if ylim is None:        ylim = ax.get_ylim()
+
+            ax.axhline(y=0.5, ls=':', color='darkgrey', zorder=-20.)
+            ax.axvline(x=1., ls=':', color='darkgrey', zorder=-20.)
+
+
+            ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk'], ls='-.', color='darkgrey', zorder=-20.)
+            ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk']*1.3, ls='--', color='darkgrey', zorder=-20.)
+
+
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+
+            ########
+            # ax.xaxis.set_minor_locator(MultipleLocator(1.))
+            # ax.xaxis.set_major_locator(MultipleLocator(5.))
+
+            ax.xaxis.set_minor_locator(MultipleLocator(0.2))
+            ax.xaxis.set_major_locator(MultipleLocator(1.))
+
+            ax.yaxis.set_minor_locator(MultipleLocator(0.05))
+            ax.yaxis.set_major_locator(MultipleLocator(0.2))
+
+            if xlabel is not None:
+                ax.set_xlabel(xlabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelbottom='off')
+                ax.set_xticklabels([])
+
+            #if ylabel is not None:
+            if (j == 0) & (ylabel is not None):
+                ax.set_ylabel(ylabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelleft='off')
+                ax.set_yticklabels([])
+
+            ax.tick_params(labelsize=fontsize_ticks)
+
+            if titles[j] is not None:
+                ax.set_title(titles[j], fontsize=fontsize_title)
+
+            if k == 0:
+                handles, labels_leg = ax.get_legend_handles_labels()
+                neworder = range(plot_cnt_lmstar)
+                handles_arr = []
+                labels_arr = []
+                for ii in neworder:
+                    handles_arr.append(handles[ii])
+                    labels_arr.append(labels_leg[ii])
+
+                neworder2 = range(plot_cnt_lmstar, len(handles))
+                handles_arr2 = []
+                labels_arr2 = []
+                for ii in neworder2:
+                    handles_arr2.append(handles[ii])
+                    labels_arr2.append(labels_leg[ii])
+
+                frameon = True
+                framealpha = 1.
+                edgecolor = 'none'
+                borderpad = 0.25
+                fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
+                labelspacing=0.01 #0.15
+                handletextpad=0.25
+                #loc = 'lower left' #'upper right' #'lower right'
+                #loc = (0.02, 0.005) #0.015)
+                loc = 'lower right'
+                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
+                # fontsize_leg_title = fontsize_leg
+                legend1 = ax.legend(handles_arr, labels_arr,
+                    labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                    loc=loc,
+                    numpoints=1, scatterpoints=1,
+                    frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                    fontsize=fontsize_leg_tmp)
+                legend1.set_zorder(-0.05)
+                    #title=leg_title, title_fontsize=fontsize_leg_title)
+                ax.add_artist(legend1)
+                if len(handles_arr2) > 0:
+                    labelspacing=0.15
+                    loc2= (0.55, 0.635)#'lower right' # 'lower left'
+                    legend2 = ax.legend(handles_arr2, labels_arr2,
+                        labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                        loc=loc2,
+                        numpoints=1, scatterpoints=1,
+                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        fontsize=fontsize_leg_tmp)
+                    ax.add_artist(legend2)
+
+
+
+    if fileout is not None:
+        plt.savefig(fileout, bbox_inches='tight', dpi=600)
+        plt.close()
+    else:
+        plt.show()
+
+    # if return_dict:
+    #     return dict_stack
+    # else:
+    #     return None
+
+
+    mpl.rcParams['text.usetex'] = False
+
+    return None
+
+
+def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
+            z = 2., lmstar = 11.4365, n_disk = 1.,
+            n_bulge = 4., invq_bulge=1., Reff_bulge=1.,
+            q_arr=[0.1, 0.2, 0.4, 1., 1.5, 2.],
+            bt_arr = [0., 0.25, 0.5, 0.75, 1.],
+            save_dict_stack=False,
+            overwrite_dict_stack=False):
+    """
+
+    Input:
+        output_path:        Path to directory where the output plot will be saved.
+        table_path:         Path to directory containing the Sersic profile tables.
+
+    Optional Input:
+        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+
+        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+
+        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+
+        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
+        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
+        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+
+
+        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+
+    Output:         PDF plot saved to file.
+    """
+    if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+    if table_path is None:      raise ValueError("Must set 'table_path' !")
+
+    if (fileout is None):
+        # Ensure trailing slash:
+        if output_path[-1] != '/':  output_path += '/'
+        fileout = output_path+'plot_k3D_bulge_disk_halo'
+        fileout += '_lmstar_{:0.1f}'.format(lmstar)
+        fileout += '.pdf'
+
+
+    mpl.rcParams['text.usetex'] = True
+    #mpl.rcParams['text.usetex'] = False
+
+
+    # Ensure it's an np array, not a list:
+    q_arr = np.array(q_arr)
+    bt_arr = np.array(bt_arr)
+
+
+    rstep = 0.1 # kpc
+    r_range = [0., 3.] #[0., 5.] #[0., 10.] #[0., 20.]
+    r_arr = np.arange(r_range[0], r_range[1]+rstep, rstep)
+
+
+    # ++++++++++++++++
+    titles = []
+    for bt in bt_arr:
+        if (bt % 1 == 0):
+            titles.append(r'$B/T={:0.0f}$'.format(bt))
+        else:
+            titles.append(r'$B/T={}$'.format(bt))
+
+    xlabel = r'$r/R_{e,\mathrm{disk}}$'
+    ylabel = r'$k_{\mathrm{3D}}$'
+    xlim = [r_arr.min(), r_arr.max()]
+    ylim = [0.8, 1.3] #[0., 2.] #[0., 1.]
+
+
+    color_arr = []
+    ls_arr = []
+    labels = []
+    for q in q_arr:
+        if q <= 1.:
+            color_arr.append(cmap_q(q))
+            ls_arr.append('-')
+        else:
+            color_arr.append(cmapg(1./q))
+            ls_arr.append('--')
+        labels.append(r'$q_0={}$'.format(q))
+
+    lw = 1.3
+
+    ######################################
+    # Setup plot:
+    f = plt.figure()
+    scale = 2.75 #3.25 #3.75 #4.25
+    n_cols = len(bt_arr)
+    n_rows = 1
+    fac = 1.05 #1.15 #1.02
+    f.set_size_inches(fac*scale*n_cols,scale*n_rows)
+
+
+    wspace = 0.075 #0.1 #0.25 #0.025
+    hspace = wspace
+    gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
+    axes = []
+    for i in range(n_rows):
+        for j in range(n_cols):
+            axes.append(plt.subplot(gs[i,j]))
+
+
+    ######################
+    # Load bulge: n, invq don't change.
+    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge_menc =    tab_bulge['menc3D_sph']
+    tab_bulge_vcirc =   tab_bulge['vcirc']
+    tab_bulge_rad =     tab_bulge['r']
+    tab_bulge_Reff =    tab_bulge['Reff']
+    tab_bulge_mass =    tab_bulge['total_mass']
+
+    # Clean up values inside rmin:  Add the value at r=0: menc=0
+    if tab_bulge['r'][0] > 0.:
+        tab_bulge_rad = np.append(0., tab_bulge_rad)
+        tab_bulge_menc = np.append(0., tab_bulge_menc)
+        tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
+
+    m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+    v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+
+
+    ######################
+
+    dict_stack = None
+    f_save = output_path+'menc_frac_bulge_disk.pickle'
+    if save_dict_stack:
+        if (os.path.isfile(f_save)):
+            with open(f_save, 'rb') as f:
+                dict_stack = copy.deepcopy(pickle.load(f))
+
+            if overwrite_dict_stack:
+                os.remove(f_save)
+                dict_stack = None
+
+
+    if dict_stack is None:
+        dict_stack = []
+        for jj, bt in enumerate(bt_arr):
+            val_bt_dict = {}
+            print("B/T={}".format(bt))
+            for mm, q in enumerate(q_arr):
+                print("   q0={}".format(q))
+                val_dict = {'q':            q,
+                            'z':            z,
+                            'r_arr':        np.ones(len(r_arr)) * -99.,
+                            'lmstar':       lmstar,
+                            'bt':           bt,
+                            'Reff_disk':    -99.,
+                            'invq_disk':    -99.,
+                            'invq_near':    -99.,
+                            'fgas':         -99.,
+                            'lMbar':        -99.,
+                            'lMhalo':       -99.,
+                            'Rvir':         -99.,
+                            'halo_conc':    -99.,
+
+                            'vcirc_disk':   np.ones(len(r_arr)) * -99.,
+                            'vcirc_bulge':  np.ones(len(r_arr)) * -99.,
+                            'vcirc_halo':   np.ones(len(r_arr)) * -99.,
+                            'vcirc_bar':    np.ones(len(r_arr)) * -99.,
+                            'vcirc_tot':    np.ones(len(r_arr)) * -99.,
+
+                            'menc_disk':    np.ones(len(r_arr)) * -99.,
+                            'menc_bulge':   np.ones(len(r_arr)) * -99.,
+                            'menc_bar':     np.ones(len(r_arr)) * -99.,
+                            'menc_halo':    np.ones(len(r_arr)) * -99.,
+                            'menc_tot':     np.ones(len(r_arr)) * -99.,
+                            'Mbar_tot':     -99.,
+                            'k3d':          np.ones(len(r_arr)) * -99.
+                            }
+                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+
+                invq_disk = 1./q
+
+                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+
+                Mstar =     np.power(10., lmstar)
+                Mbaryon =   Mstar / (1.-fgas)
+                Mgas = Mbaryon * fgas
+                lMbar = np.log10(Mbaryon)
+
+                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+                lMhalo = np.log10(Mhalo)
+                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+                #sigma0 = _int_disp_z_evol_U19(z=z)
+
+                val_dict['bt'] = bt
+                val_dict['Reff_disk'] = Reff_disk
+                val_dict['invq_disk'] = invq_disk
+                val_dict['fgas'] = fgas
+                val_dict['lMbar'] = lMbar
+                val_dict['Mbar_tot'] = np.power(10., lMbar)
+
+                val_dict['lMhalo'] = lMhalo
+                val_dict['Rvir'] = Rvir
+                val_dict['halo_conc'] = halo_conc
+
+                val_dict['r_arr'] = r_arr.copy() * Reff_disk
+
+
+                # JUST USE LOOKUP
+                nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+                menc_disk = calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
+                                total_mass=((1.-bt)*Mbaryon),
+                                Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+                menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
+                menc_halo = calcs.NFW_halo_enclosed_mass(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
+
+                menc_bar = menc_disk + menc_bulge
+
+                menc_tot = menc_bar + menc_halo
+
+                vcirc_disk = calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
+                                        Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+                # vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(bt)*Mbaryon,
+                #                         Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
+                vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+                vcirc_halo = calcs.NFW_halo_vcirc(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
+                vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
+                vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+
+                ####
+
+                val_dict['invq_near'] = nearest_invq
+
+                val_dict['menc_disk'] = menc_disk
+                val_dict['menc_bulge'] = menc_bulge
+                val_dict['menc_bar'] = menc_bar
+                val_dict['menc_halo'] = menc_halo
+                val_dict['menc_tot'] = menc_tot
+
+                val_dict['vcirc_disk'] = vcirc_disk
+                val_dict['vcirc_bulge'] = vcirc_bulge
+                val_dict['vcirc_halo'] = vcirc_halo
+                val_dict['vcirc_baryons'] = vcirc_baryons
+                val_dict['vcirc_tot'] = vcirc_tot
+
+                k3d = (menc_tot * Msun.cgs.value) * G.cgs.value / \
+                                          (( val_dict['r_arr'] *1.e3*pc.cgs.value ) * \
+                                           (vcirc_tot*1.e5)**2)
+                val_dict['k3d'] = k3d
+
+                # Mhalo = _Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
+
+                val_bt_dict['q={}'.format(q)] = val_dict
+                ##
+            dict_stack.append(val_bt_dict)
+
+    print("Re,disk={}".format(Reff_disk))
+
+    if save_dict_stack:
+        if not (os.path.isfile(f_save)):
+            with open(f_save, 'wb') as f:
+                pickle.dump(dict_stack, f)
+
+    ######################
+    # FOR JUST THE fDM PLOTS!
+    n_rows = 1
+
+    for i in range(n_rows):
+        for j in range(n_cols):
+            k = i*n_cols + j
+
+            ax = axes[k]
+
+            bt = bt_arr[j]
+
+            plot_cnt_lmstar = 0
+            for mm, q in enumerate(q_arr):
+                plot_cnt_lmstar += 1
+                ax.plot(dict_stack[j]['q={}'.format(q)]['r_arr']/dict_stack[j]['q={}'.format(q)]['Reff_disk'],
+                        dict_stack[j]['q={}'.format(q)]['k3d'],
+                           ls=ls_arr[mm], color=color_arr[mm], lw=lw, label=labels[mm], zorder=-1.)
+
+
+
+
+            ######################
+            if ylim is None:        ylim = ax.get_ylim()
+
+            ax.axvline(x=1., ls=':', color='darkgrey', zorder=-20.)
+
+
+            ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk'], ls='-.', color='darkgrey', zorder=-20.)
+
+
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+
+
+            ########
+            # ax.xaxis.set_minor_locator(MultipleLocator(1.))
+            # ax.xaxis.set_major_locator(MultipleLocator(5.))
+
+            ax.xaxis.set_minor_locator(MultipleLocator(0.2))
+            ax.xaxis.set_major_locator(MultipleLocator(1.))
+
+            ax.yaxis.set_minor_locator(MultipleLocator(0.05))
+            ax.yaxis.set_major_locator(MultipleLocator(0.2))
+
+            if xlabel is not None:
+                ax.set_xlabel(xlabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelbottom='off')
+                ax.set_xticklabels([])
+
+            #if ylabel is not None:
+            if (j == 0) & (ylabel is not None):
+                ax.set_ylabel(ylabel, fontsize=fontsize_labels)
+            else:
+                #ax.tick_params(labelleft='off')
+                ax.set_yticklabels([])
+
+            ax.tick_params(labelsize=fontsize_ticks)
+
+            if titles[j] is not None:
+                ax.set_title(titles[j], fontsize=fontsize_title)
+
+            if k == 0:
+                handles, labels_leg = ax.get_legend_handles_labels()
+                neworder = range(plot_cnt_lmstar)
+                handles_arr = []
+                labels_arr = []
+                for ii in neworder:
+                    handles_arr.append(handles[ii])
+                    labels_arr.append(labels_leg[ii])
+
+                neworder2 = range(plot_cnt_lmstar, len(handles))
+                handles_arr2 = []
+                labels_arr2 = []
+                for ii in neworder2:
+                    handles_arr2.append(handles[ii])
+                    labels_arr2.append(labels_leg[ii])
+
+                frameon = True
+                framealpha = 1.
+                edgecolor = 'none'
+                borderpad = 0.25
+                fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
+                labelspacing=0.01 #0.15
+                handletextpad=0.25
+                #loc = 'lower left' #'upper right' #'lower right'
+                #loc = (0.02, 0.005) #0.015)
+                loc = 'upper right'
+                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
+                # fontsize_leg_title = fontsize_leg
+                legend1 = ax.legend(handles_arr, labels_arr,
+                    labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                    loc=loc,
+                    numpoints=1, scatterpoints=1,
+                    frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                    fontsize=fontsize_leg_tmp)
+                legend1.set_zorder(-0.05)
+                    #title=leg_title, title_fontsize=fontsize_leg_title)
+                ax.add_artist(legend1)
+                if len(handles_arr2) > 0:
+                    labelspacing=0.15
+                    loc2= (0.55, 0.635)#'lower right' # 'lower left'
+                    legend2 = ax.legend(handles_arr2, labels_arr2,
+                        labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                        loc=loc2,
+                        numpoints=1, scatterpoints=1,
+                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        fontsize=fontsize_leg_tmp)
+                    ax.add_artist(legend2)
+
+
+
+    if fileout is not None:
+        plt.savefig(fileout, bbox_inches='tight', dpi=600)
+        plt.close()
+    else:
+        plt.show()
+
+    # if return_dict:
+    #     return dict_stack
+    # else:
+    #     return None
+
+
+    mpl.rcParams['text.usetex'] = False
+
+    return None
+
 
 def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
             q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.],
