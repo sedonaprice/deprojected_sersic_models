@@ -36,6 +36,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
         fileout=None, fileout_base=None,
         input_path=None,
         output_path=None, overwrite=False,
+        include_r0 = True,
         logr_min = -2., logr_max = 2., nSteps=101, i=90.,
         cumulative=None):
     """
@@ -108,35 +109,53 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     total_mass = tabin['total_mass']
     rarr = tabin['r']
 
+
+
     # ---------------------
     # Calculate profiles:
 
-    rho =           calcs.rho(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
+    rarr_new = np.array([0.])
+    vcirc_new =         calcs.v_circ(rarr_new, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
+    menc3D_sph_new =    calcs.M_encl_3D(rarr_new, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
+    menc3D_ellip_new =  calcs.M_encl_3D_ellip(rarr_new, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
+    rho_new =           calcs.rho(rarr_new, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
+    dlnrho_dlnr_new =   calcs.dlnrho_dlnr(rarr_new, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
 
-    dlnrho_dlnr =   calcs.dlnrho_dlnr(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
+    table_new = { 'r':                  rarr_new,
+                 'total_mass':          total_mass,
+                 'Reff':                Reff,
+                 'invq':                invq,
+                 'q':                   q,
+                 'n':                   n,
+                 'vcirc':               vcirc_new,
+                 'menc3D_sph':          menc3D_sph_new,
+                 'menc3D_ellipsoid':    menc3D_ellip_new,
+                 'rho':                 rho_new,
+                 'dlnrho_dlnr':         dlnrho_dlnr_new }
 
 
     # ---------------------
     # Setup table:
-    table    = { 'r':                   rarr,
-                 'rho':                 rho,
-                 'dlnrho_dlnr':         dlnrho_dlnr,
+
+    rarr_out = np.append(rarr_new, rarr)
+    table    = { 'r':                   rarr_out,
                  'total_mass':          total_mass,
                  'Reff':                Reff,
                  'invq':                invq,
                  'q':                   q,
                  'n':                   n }
 
-
     # ---------------------
     # Get pre-calculated profiles:
     keys_copy = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid',
-                'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff',
-                'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
+                'rho', 'dlnrho_dlnr']
     for key in keys_copy:
+        table[key] = np.append(table_new[key], tabin[key])
+
+    keys_copy_const = ['menc3D_sph_Reff', 'menc3D_ellipsoid_Reff',
+                    'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
+    for key in keys_copy_const:
         table[key] = tabin[key]
-
-
 
     # ---------------------
     # Check that table calculated correctly:
@@ -147,7 +166,6 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # ---------------------
     # Save table:
     table_io.save_profile_table(table=table, filename=fileout, overwrite=overwrite)
-
 
 
     return None
@@ -231,7 +249,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
     return None
 
 
-def wrapper_calculate_full_table_set(fileout_base=None, input_path=None, output_path=None, overwrite=False, f_log=None,
+def wrapper_calculate_full_table_set(fileout_base=None, input_path=None, output_path=None,
+        overwrite=False, f_log=None,
         indChunk=None, nChunk=None, invqstart=None, cumulative=None):
     """
     Wrapper function to calculate the full set of Sersic profile tables.

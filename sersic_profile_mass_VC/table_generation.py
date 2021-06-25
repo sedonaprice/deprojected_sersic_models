@@ -34,10 +34,11 @@ logger = logging.getLogger('SersicProfileMassVC')
 def calculate_sersic_profile_table(n=1., invq=5.,
         Reff=1., total_mass=5.e10,
         fileout=None, fileout_base=None, output_path=None, overwrite=False,
-        logr_min = -2., logr_max = 2., nSteps=101, i=90.,
-        cumulative=None):
+        logr_min = -2., logr_max = 2., nSteps=101,
+        include_r0 = True, i=90., cumulative=None):
     """
-    Calculate the Sersic profile table for a specific Sersic index n and inverse axis ratio invq.
+    Calculate the Sersic profile table for a specific Sersic index n and
+    inverse axis ratio invq.
 
     Parameters
     ----------
@@ -61,6 +62,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
             Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
         nSteps: int, optional
             Number of radii steps to calculate. Default: 101
+        include_r0: bool, optional
+            Include r=0 in table or not. Default: True
         i: float, optional
             Inclination of model (to determin q_obs relative to the
             intrinsic axis ratio q.) Default: i = 90 deg
@@ -115,6 +118,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # ---------------------
     # Calculate profiles:
     rarr = np.logspace(logr_min, logr_max, num=nSteps)*Reff
+    if include_r0:
+        rarr = np.append(0., rarr) 
 
     vcirc =         calcs.v_circ(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
     menc3D_sph =    calcs.M_encl_3D(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
@@ -259,7 +264,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
     return None
 
 
-def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwrite=False, f_log=None,
+def wrapper_calculate_full_table_set(fileout_base=None, output_path=None,
+        overwrite=False, f_log=None,
         indChunk=None, nChunk=None, invqstart=None, cumulative=None):
     """
     Wrapper function to calculate the full set of Sersic profile tables.

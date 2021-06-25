@@ -37,3 +37,6 @@ docs/_build
 
 # Private data
 tests/test_data/PYTEST_OUTPUT/
+wrapper_add_r0.py
+wrapper_add_rho_calcs.py
+plot_spiral.py

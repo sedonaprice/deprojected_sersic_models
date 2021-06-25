@@ -5,23 +5,21 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
-
 import numpy as np
-# import scipy.misc as scp_misc
 import scipy.special as scp_spec
 import scipy.interpolate as scp_interp
-# import astropy.constants as apy_con
-# import astropy.units as u
-# import astropy.cosmology as apy_cosmo
+
+import astropy.cosmology as apy_cosmo
 
 import logging
-
 
 
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 
 def check_for_inf(table=None):
     status = 0
@@ -32,8 +30,6 @@ def check_for_inf(table=None):
         if not np.isfinite(table['menc3D_ellipsoid'][i]): status += 1
 
     return status
-
-
 
 
 # ---------------------
