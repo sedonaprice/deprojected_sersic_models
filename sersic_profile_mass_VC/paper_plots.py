@@ -5,15 +5,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
-import numpy as np
-
 import os
 import copy
+
 import dill as pickle
 
+import numpy as np
+
 import scipy.interpolate as scp_interp
-import scipy.optimize as scp_opt
-import scipy.special as scp_special
 
 import astropy.cosmology as apy_cosmo
 import astropy.constants as apy_con
@@ -29,15 +28,13 @@ from matplotlib.colors import ListedColormap
 from matplotlib import colorbar
 from matplotlib.patches import Rectangle
 
-try:
-    import table_io
-    import calcs
-except:
-    from . import table_io
-    from . import calcs
+
+from sersic_profile_mass_VC import table_io
+from sersic_profile_mass_VC import calcs
+from sersic_profile_mass_VC import utils
 
 
-#__all__ = [ 'make_all_paper_plots', 'plot_compare_mencl', 'plot_virial_coeff' ]
+__all__ = [ 'make_all_paper_plots' ]
 
 
 # CONSTANTS
@@ -66,22 +63,8 @@ fontsize_ann_lg = 11.
 fontsize_ann_latex_sm = 12.
 fontsize_ann_latex = 13.
 
-#cmap_mass = cm.Oranges
-cmap_mass = cm.YlOrRd
+
 cmap_mass = cm.OrRd
-# cmap_Bu = cm.Blues
-# cmap_Gn = cm.Greens
-# cmap_Pu = cm.Purples
-# cmap_Rd = cm.Reds
-# # cmap_mass = ListedColormap([cmap_Bu(0.9),
-# #         cmap_Pu(0.25), cmap_Pu(0.5), cmap_Pu(0.75), cmap_Pu(1.),
-# #         cmap_Rd(0.25), cmap_Rd(0.5), cmap_Rd(0.75), cmap_Rd(1.)])
-# cmap_mass = ListedColormap([cmap_Bu(0.7),
-#         cmap_Pu(0.2), cmap_Pu(0.45), cmap_Pu(0.65), cmap_Pu(0.75),
-#         cmap_Rd(0.1), cmap_Rd(0.35), cmap_Rd(0.6), cmap_Rd(0.8)])
-
-
-
 cmap_q = cm.magma_r
 cmap_n = cm.viridis_r
 cmapg = cm.Greys
@@ -95,798 +78,7 @@ cmap_im2 = copy.copy(cm.RdYlBu_r)
 cmap_im2.set_under('#503a99')
 cmap_im2.set_over('#b4396f')
 
-cmap_fdm = cm.Blues #cm.Greens #cm.Blues
-
-
-
-# ---------------------
-# Utility functions:
-#   Observed scaling relations, etc
-
-def _mstar_Reff_relation(z=None, lmstar=None, galtype='sf'):
-    # van der Wel + 2014:
-    #   From the (1+z) fitting (coefficients form Table 2):
-    #       interpolate to go between masses....
-    #
-    #   Reff/kpc = Bz * (1+z)^betaz
-    #   logReff = log(Bz) + betaz*log(1+z)
-
-    ######
-    if galtype == 'sf':
-        lmass_arr_sf =      np.array([9.25, 9.75, 10.25, 10.75, 11.25])
-        logBz_arr_sf =      np.array([0.54, 0.69, 0.74, 0.90, 1.05])
-        logbetaz_arr_sf =   np.array([-0.48, -0.63, -0.52, -0.72, -0.80])
-
-        sf_interp_Bz = scp_interp.interp1d(lmass_arr_sf, np.power(10.,logBz_arr_sf),
-                        fill_value="extrapolate", kind='linear')
-        sf_interp_betaz = scp_interp.interp1d(lmass_arr_sf, logbetaz_arr_sf,
-                        fill_value="extrapolate", kind='linear')
-
-        Bz =        sf_interp_Bz(lmstar)
-        betaz =     sf_interp_betaz(lmstar)
-    ######
-    elif galtype == 'q':
-        lmass_arr_q =       np.array([9.75, 10.25, 10.75, 11.25])
-        logBz_arr_q =       np.array([0.29, 0.47, 0.75, 1.05])
-        logbetaz_arr_q =    np.array([-0.22, -1.01, -1.24, -1.32])
-
-        q_interp_Bz = scp_interp.interp1d(lmass_arr_q, np.power(10.,logBz_arr_q),
-                        fill_value="extrapolate", kind='linear')
-        q_interp_betaz = scp_interp.interp1d(lmass_arr_q, logbetaz_arr_q,
-                        fill_value="extrapolate", kind='linear')
-
-        Bz =        q_interp_Bz(lmstar)
-        betaz =     q_interp_betaz(lmstar)
-
-    Reff = Bz * np.power((1.+z), betaz)
-
-    return Reff
-
-
-def _mumol_scaling_relation(z=None, lmstar=None, del_lsSFR_MS=None):
-    # Using the scaling relation fit from Tacconi, Genzel, Sternberg 2020, ARAA:
-    #   Table 2b:
-    #   log(mu_mol) = log10(M_molgas/Mstar)
-
-    A = 0.06
-    B = -3.33
-    F = 0.65
-    C = 0.51
-    D = -0.41
-
-    log_mu_mol = A + B* (np.log10(1.+z)-F)**2 + C* del_lsSFR_MS + D * (lmstar-10.7)
-
-    return log_mu_mol
-
-def _fgas_scaling_relation_MS(z=None, lmstar=None):
-    # Using the log(mu_mol) scaling relation from Tacconi, Genzel, Sternberg 2020, ARAA,
-    #    with fgas = mu_mol / (1 + mu_mol)
-    #       so just ignoring atomic gas, for expediency
-
-    log_mu_mol = _mumol_scaling_relation(z=z, lmstar=lmstar, del_lsSFR_MS=0.)
-    mu_mol = np.power(10., log_mu_mol)
-    fgas = mu_mol / (1.+mu_mol)
-    return fgas
-
-def _invq_disk_lmstar_estimate(z=None, lmstar=None):
-    # Extrapolation, using ROUGH values similar to those that were adopted
-    #   for the RC41 fitting for Genzel+2020
-    #
-    # For now, ignoring any possible stellar mass differences
-
-    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2., 2.5])
-    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4., 4.])
-
-    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2.])#, 2.5])
-    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.])#, 4.])
-
-    ## adding z=1.8, qinv=4.2 point to smooth out curve....
-    z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 1.75, 2.])
-    invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.3, 4.])
-
-    fill_value= invq_arr_ROUGH[-1]
-    kind = 'quadratic' # 'linear'
-
-    invq_interp_ROUGH = scp_interp.interp1d(z_arr_ROUGH, invq_arr_ROUGH,
-                    fill_value=fill_value, kind=kind, bounds_error=False)
-
-    invq_disk =        invq_interp_ROUGH(z)
-
-    if isinstance(z, float):
-        return np.float(invq_disk)
-    else:
-        return invq_disk
-
-    # z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 2., 2.5])
-    # invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4., 4.])
-    # fill_value= invq_arr_ROUGH[-1]
-    #
-    # invq_interp_ROUGH = scp_interp.interp1d(z_arr_ROUGH, invq_arr_ROUGH,
-    #                 fill_value=fill_value, kind='linear', bounds_error=False)
-    #
-    # invq_disk =        invq_interp_ROUGH(z)
-    #
-    # if isinstance(z, float):
-    #     return np.float(invq_disk)
-    # else:
-    #     return invq_disk
-
-
-def _bt_lmstar_relation(z=None, lmstar=None, galtype='sf'):
-    # Perform a *REDSHIFT INDEPENDENT* lmstar interpolation based on the results from
-    #   Lang+2014, Figure 1b
-    #  Using approximate point location values for the SF galaxies.
-
-
-    if galtype == 'sf':
-        lmass_arr_sf =      np.array([10.09, 10.29, 10.49, 10.685, 10.88, 11.055, 11.255, 11.45])
-        bt_arr_sf =         np.array([0.235, 0.2475, 0.27, 0.29, 0.37, 0.42, 0.47, 0.50])
-
-        sf_interp_bt = scp_interp.interp1d(lmass_arr_sf, bt_arr_sf,
-                        fill_value=np.NaN, kind='slinear') #'linear')
-        sf_interp_bt_extrap = scp_interp.interp1d(lmass_arr_sf, bt_arr_sf,
-                        fill_value="extrapolate", kind='linear')
-        #bt =        sf_interp_bt(lmstar)
-        if isinstance(lmstar, float):
-            if (lmstar < lmass_arr_sf.min()) | (lmstar > lmass_arr_sf.max()):
-                bt =        sf_interp_bt_extrap(lmstar)
-            else:
-                bt =        sf_interp_bt(lmstar)
-        else:
-            whout = np.where((lmstar < lmass_arr_sf.min()) | (lmstar > lmass_arr_sf.max()))[0]
-            whin = np.where((lmstar >= lmass_arr_sf.min()) & (lmstar <= lmass_arr_sf.max()))[0]
-            bt[whout] = sf_interp_bt_extrap(lmstar[whout])
-            bt[whin] =    sf_interp_bt(lmstar[whin])
-
-    elif galtype == 'q':
-        raise ValueError("Not implemented yet")
-
-    if isinstance(lmstar, float):
-        return np.float(bt)
-    else:
-        return bt
-
-
-def _smhm_relation(z=None, lmstar=None):
-    # Moster+18 relation
-    # From the updated fitting relation from Moster, Naab & White 2018; from email from Thorsten Naab on 2020-05-21
-    # From stellar mass binned fitting result (avoids divergance at high lMstar)
-
-    log_m1 = 10.6
-    n = np.power(10., (1.507 - 0.124 * (z/(z+1.)) ) )
-    b = -0.621 - 0.059 * (z/(z+1.))
-    g = 1.055 + 0.838 * (z/(z+1)) - 3.083 * ( ((z/(z+1)))**2 )
-
-    lmhalo = lmstar + np.log10(0.5) + np.log10(n) + np.log10( np.power( np.power(10., (lmstar-log_m1)), b ) + \
-                np.power( np.power(10., (lmstar-log_m1)), g ) )
-
-    Mhalo =  np.power(10., lmhalo)
-
-    return Mhalo
-
-def _halo_conc_relation(z=None, lmhalo=None):
-    # From Dutton+14
-    # Fitting function: Eq 7
-    #   log10conc = a + b * log10(Mhalo / (1e12 h^{-1} Msun))
-    # Slope, zpt: NFW conc200: Eqs 10, 11:
-    #   b = -0.101 + 0.026 * z
-    #   a = 0.520 + (0.905-0.520)*exp(-0.617*z^1.21)
-
-    # PLANCK COSMOLOGY
-    planck_cosmo = apy_cosmo.FlatLambdaCDM(H0=67.1, Om0=0.3175)
-    hinv = 100./planck_cosmo.H(z).value
-
-    b = -0.101 + 0.026*z
-    a = 0.520 + (0.905-0.520)*np.exp(-0.617*np.power(z,1.21))
-
-    log10conc = a + b * (lmhalo - np.log10(1.e12 * hinv))
-
-    return np.power(10.,log10conc)
-
-
-def _int_disp_z_evol_U19(z=None):
-    # Fit from Uebler+19.
-    # sigma0 = a + b*z
-    # Using the "Including upper limts" coefficients, from Table 3
-    a = 21.1
-    b = 11.3
-
-    sig0 = a + b*z
-    return sig0
-
-
-#
-def _Mhalo_from_fDMv_NFW(vcirc_baryons=None, fDMv=None, r=None, conc=None, z=None):
-
-    vsq_bar = vcirc_baryons**2
-    vsqr_dm_target = vsq_bar / (1./fDMv - 1.)
-
-    mtest = np.arange(-5, 50, 1.0)
-    vtest = np.array([_minfunc_vdm_NFW(m, vsqr_dm_target, conc, z, r) for m in mtest])
-
-    a = mtest[vtest < 0][-1]
-    b = mtest[vtest > 0][0]
-
-    lmhalo = scp_opt.brentq(_minfunc_vdm_NFW, a, b, args=(vsqr_dm_target, conc, z, r))
-    Mhalo = np.power(10., lmhalo)
-    return Mhalo
-
-def _minfunc_vdm_NFW(lmass, vtarget, conc, z, r):
-        halo_vcirc = calcs.NFW_halo_vcirc(r=r, Mvirial=10.**lmass, conc=conc, z=z)
-        return halo_vcirc ** 2 - vtarget
-
-#
-def _Mhalo_from_fDMv_TPH(vcirc_baryons=None, fDMv=None, r=None, conc=None, z=None, alpha=None):
-
-    vsq_bar = vcirc_baryons**2
-    vsqr_dm_target = vsq_bar / (1./fDMv - 1.)
-
-    mtest = np.arange(-5, 50, 1.0)
-    vtest = np.array([_minfunc_vdm_TPH(m, vsqr_dm_target, conc, z, r, alpha) for m in mtest])
-
-    a = mtest[vtest < 0][-1]
-    b = mtest[vtest > 0][0]
-
-    lmhalo = scp_opt.brentq(_minfunc_vdm_TPH, a, b, args=(vsqr_dm_target, conc, z, r, alpha))
-    Mhalo = np.power(10., lmhalo)
-    return Mhalo
-
-def _minfunc_vdm_TPH(lMvir, vtarget, conc, z, r, alpha):
-        halo_vcirc = calcs.TPH_halo_vcirc(r=r, Mvirial=10.**lMvir, conc=conc, z=z, alpha=alpha)
-        return halo_vcirc ** 2 - vtarget
-
-
-def _alpha_from_fDMv_TPH(vcirc_baryons=None, fDMv=None, r=None, conc=None, z=None, Mhalo=None):
-
-    vsq_bar = vcirc_baryons**2
-    vsqr_dm_target = vsq_bar / (1./fDMv - 1.)
-
-    alphtest = np.arange(-50, 50, 1.)
-    vtest = np.array([_minfunc_vdm_TPH_alpha(alph, vsqr_dm_target, np.log10(Mhalo), conc, z, r) for alph in alphtest])
-
-    try:
-        a = alphtest[vtest < 0][-1]
-        try:
-            b = alphtest[vtest > 0][0]
-        except:
-            a = alphtest[-2] # Even if not perfect, force in case of no convergence...
-            b = alphtest[-1]
-    except:
-        a = alphtest[0]    # Even if not perfect, force in case of no convergence...
-        b = alphtest[1]
-
-    alpha = scp_opt.brentq(_minfunc_vdm_TPH_alpha, a, b, args=(vsqr_dm_target, np.log10(Mhalo), conc, z, r))
-
-    return alpha
-
-def _minfunc_vdm_TPH_alpha(alpha, vtarget, lMvir, conc, z, r):
-    halo_vcirc = calcs.TPH_halo_vcirc(r=r, Mvirial=10.**lMvir, conc=conc, z=z, alpha=alpha)
-    return halo_vcirc ** 2 - vtarget
-
-#
-def _solver_lmstar_fgas_mbar(z=None, Mbar=None):
-
-    lmbar_targ = np.log10(Mbar)
-
-    lm_test = np.arange(6., 12., 0.2)
-    vtest = np.array([_minfunc_lmstar_fgas_mbar(lm, z, lmbar_targ) for lm in lm_test])
-
-    try:
-        a = lm_test[vtest < 0][-1]
-        try:
-            b = lm_test[vtest > 0][0]
-        except:
-            a = lm_test[-2] # Even if not perfect, force in case of no convergence...
-            b = lm_test[-1]
-    except:
-        a = lm_test[0]    # Even if not perfect, force in case of no convergence...
-        b = lm_test[1]
-
-    lmstar = scp_opt.brentq(_minfunc_lmstar_fgas_mbar, a, b, args=(z, lmbar_targ))
-
-    return lmstar
-
-def _minfunc_lmstar_fgas_mbar(lmstar_test, z, lmbar_targ):
-
-    fgas = _fgas_scaling_relation_MS(z=z, lmstar=lmstar_test)
-
-    lmbar_test = lmstar_test - np.log10(1.-fgas)
-
-    return lmbar_test - lmbar_targ
-
-
-
-def _tomczak14_SMF_total_coeffs():
-
-    z_bounds = np.array([0.2, 0.5, 0.75, 1., 1.25, 1.5, 2., 2.5, 3.])
-    z_mid = 0.5*(z_bounds[:-1]+z_bounds[1:])
-
-    # logMstar = np.array([10.78, 10.7, 10.66, 10.54, 10.61, 10.74, 10.69, 10.74])
-
-    # alpha1 = np.array([-0.98, -0.39, -0.37, 0.3, -0.12, 0.04, 1.03, 1.62])
-    # logphistar1 = np.array([-2.54, -2.55, -2.56, -2.72, -2.78, -3.05, -3.80, -4.54])
-    #
-    # alpha2 = np.array([-1.90, -1.53, -1.61, -1.45, -1.56, -1.49, -1.33, -1.57])
-    # logphistar2 = np.array([-4.29, -3.15, -3.39, -3.17, -3.43, -3.38, -3.26, -3.69])
-
-    # Use SINGLE SCHECHTER FIT above z>2
-    logMstar = np.array([10.78, 10.7, 10.66, 10.54, 10.61, 10.74, 11.13, 11.35])
-
-    alpha1 = np.array([-0.98, -0.39, -0.37, 0.3, -0.12, 0.04, -1.43, -1.74])
-    logphistar1 = np.array([-2.54, -2.55, -2.56, -2.72, -2.78, -3.05, -3.59, -4.36])
-
-    alpha2 = np.array([-1.90, -1.53, -1.61, -1.45, -1.56, -1.49, -99., -99.])
-    logphistar2 = np.array([-4.29, -3.15, -3.39, -3.17, -3.43, -3.38, -np.inf, -np.inf])
-
-
-
-    dict_t14 = {'z_mid':   z_mid,
-               'logMstar': logMstar,
-               'alpha1': alpha1,
-               'alpha2': alpha2,
-               'logphistar1': logphistar1,
-               'logphistar2': logphistar2}
-
-    return dict_t14
-
-
-
-def _tomczak14_SMF_total_coeffs_interp(z, kind='nearest'):
-    dict_t14 = _tomczak14_SMF_total_coeffs()
-
-    kindtmp = kind #copy.deepcopy(kind)
-    if (z >= dict_t14['z_mid'].min()) & (z <= dict_t14['z_mid'].max()):
-        pass
-    else:
-        # if kind != 'nearest':
-        #     kindtmp = 'linear'
-        kindtmp = 'nearest'
-
-    logMstar_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['logMstar'],
-                        fill_value='extrapolate', bounds_error=False, kind=kindtmp)
-
-    alpha1_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['alpha1'],
-                        fill_value='extrapolate', bounds_error=False, kind=kindtmp)
-
-    logphistar1_func = scp_interp.interp1d(dict_t14['z_mid'], dict_t14['logphistar1'],
-                        fill_value='extrapolate', bounds_error=False, kind=kindtmp)
-
-    alpha2_func = scp_interp.interp1d(dict_t14['z_mid'][:-2], dict_t14['alpha2'][:-2],
-                        fill_value='extrapolate', bounds_error=False, kind=kindtmp)
-
-    logphistar2_func = scp_interp.interp1d(dict_t14['z_mid'][:-2], dict_t14['logphistar2'][:-2],
-                        fill_value='extrapolate', bounds_error=False, kind=kindtmp)
-
-    d_t14_int = {'z': z,
-                'logMstar': logMstar_func(z),
-                'alpha1':  alpha1_func(z),
-                'alpha2':  alpha2_func(z),
-                'logphistar1':  logphistar1_func(z),
-                'logphistar2':  logphistar2_func(z)}
-
-    if (z >= 2.):
-        d_t14_int['alpha2'] = -99.
-        d_t14_int['logphistar2'] = -np.inf
-
-    # if (z == 2.):
-    #     raise ValueError
-    return d_t14_int
-
-
-def _single_schecter_func(logM, logMstar, logphistar, alpha):
-    return _double_schecter_func(logM, logMstar,
-                logphistar, alpha,
-                -np.inf, -99.)
-
-def _double_schecter_func(logM, logMstar,
-            logphistar1, alpha1,
-            logphistar2, alpha2):
-    #
-    phistar1 = np.power(10,logphistar1)
-    phistar2 = np.power(10,logphistar2)
-    if ~np.isfinite(logphistar2):
-        phistar2 = 0.
-    phi = np.log(10.)*\
-        np.exp(-np.power(10.,(logM-logMstar)))*\
-        np.power(10.,(logM-logMstar))*\
-        (phistar1*np.power(10.,((logM-logMstar)*(alpha1))) +\
-         phistar2*np.power(10.,((logM-logMstar)*(alpha2))) )
-    return np.log10(phi)
-
-# def test_t14_SMF():
-#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-#     dict_t14 = _tomczak14_SMF_total_coeffs()
-#     dlmass = 0.05
-#     lmass_lims = [7.6, 12]
-#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-#     for i in range(len(dict_t14['z_mid'])):
-#         dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
-#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-#         plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
-#
-#     plt.gca().set_xlim([7.6, 12.])
-#     plt.gca().set_ylim([-5.4,-1.])
-#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-#
-#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-#     plt.gcf().set_size_inches((6., 6.))
-#     plt.show()
-#
-#     return None
-#
-# def test_t14_SMF_decomp():
-#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-#     dict_t14 = _tomczak14_SMF_total_coeffs()
-#     dlmass = 0.05
-#     lmass_lims = [7.6, 12]
-#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-#     #for i in range(len(dict_t14['z_mid'])):
-#     for i in range(1):
-#         dsche = _double_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i],
-#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-#         plt.plot(lmass_arr, dsche, color=colors[i], ls='-', lw=2)
-#
-#         sch1 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['logphistar1'][i], dict_t14['alpha1'][i])
-#         sch2 = _single_schecter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['logphistar2'][i], dict_t14['alpha2'][i])
-#
-#         plt.plot(lmass_arr, sch1, color=colors[i], ls='--', lw=2)
-#         plt.plot(lmass_arr, sch2, color=colors[i], ls=':', lw=2)
-#
-#     plt.gca().set_xlim([7.6, 12.])
-#     plt.gca().set_ylim([-5.4,-1.])
-#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-#
-#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-#     plt.gcf().set_size_inches((6., 6.))
-#     plt.show()
-#
-#     return None
-#
-# def test_t14_CMF_decomp():
-#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-#     dict_t14 = _tomczak14_SMF_total_coeffs()
-#     dlmass = 0.05
-#     lmass_lims = [9., 12.]
-#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-#     for i in range(1):
-#         cmf = _num_density_double_schechter_func(lmass_arr,
-#                     dict_t14['logMstar'][i], dict_t14['alpha1'][i], dict_t14['logphistar1'][i],
-#                     dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
-#
-#         plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
-#
-#         cmf1 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['alpha1'][i], dict_t14['logphistar1'][i])
-#         cmf2 = _num_density_single_schechter_func(lmass_arr, dict_t14['logMstar'][i],
-#                     dict_t14['alpha2'][i], dict_t14['logphistar2'][i])
-#
-#         plt.plot(lmass_arr, cmf1, color=colors[i], ls='--', lw=2)
-#         plt.plot(lmass_arr, cmf2, color=colors[i], ls=':', lw=2)
-#
-#     plt.gca().set_xlim([9., 12.])
-#     plt.gca().set_ylim([8.e-5, 3.e-2])
-#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-#
-#     #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-#     #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-#     plt.gca().set_yscale('log')
-#     plt.gcf().set_size_inches((6., 6.))
-#     plt.show()
-#
-#     #raise ValueError
-#     return None
-#
-#
-#
-# def test_t14_CMF():
-#     colors = ['black', 'purple', 'blue', 'teal', 'green', 'lime', 'orange', 'red']
-#     dict_t14 = _tomczak14_SMF_total_coeffs()
-#     dlmass = 0.05
-#     lmass_lims = [9., 12.]
-#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-#     for i in range(len(dict_t14['z_mid'])):
-#         cmf = _num_density_tomczak14_double_schechter_interp(dict_t14['z_mid'][i],
-#                 lmass_arr, kind='nearest')
-#         plt.plot(lmass_arr, cmf, color=colors[i], ls='-', lw=2)
-#
-#     plt.gca().set_xlim([9., 12.])
-#     plt.gca().set_ylim([8.e-5, 3.e-2])
-#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().xaxis.set_major_locator(MultipleLocator(1.))
-#
-#     #plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-#     #plt.gca().yaxis.set_major_locator(MultipleLocator(1.))
-#     plt.gca().set_yscale('log')
-#     plt.gcf().set_size_inches((6., 6.))
-#     plt.show()
-#
-#     return None
-#
-# def test_t14_p15_MW_M31():
-#     dp15 = _papovich15_values_MW_M31()
-#
-#     zstep = 0.1
-#     z_arr = np.arange(0., 3.+zstep, zstep)
-#
-#     colors = ['black', 'grey']
-#     lss = ['--', '-']
-#     markers = ['s', 'o']
-#     names = ['MW', 'M31']
-#     ln0_arr = [-2.9, -3.4]
-#     n_evol='const'
-#     cmf_source='papovich15'
-#     for name, ln0, color, ls, m in zip(names, ln0_arr, colors, lss, markers):
-#         lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
-#                 n_evol=n_evol, cmf_source=cmf_source)
-#         plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
-#
-#         plt.scatter(dp15[name]['z'], dp15[name]['lmass'], marker=m, color=color, s=30,
-#                         facecolor='None')
-#
-#     colors = ['blue', 'red']
-#     lss = ['--', '-']
-#     n_evol='const'
-#     cmf_source='tomczak14'
-#     for name, ln0, color, ls in zip(names, ln0_arr, colors, lss):
-#         lmass_arr = _mass_progenitor_num_density(ln0, z_arr,
-#                 n_evol=n_evol, cmf_source=cmf_source)
-#         plt.plot(z_arr, lmass_arr, ls=ls, lw=2, color=color)
-#
-#
-#     plt.gca().set_ylim([9., 11.5])
-#     plt.gca().set_xlim([0., 3.])
-#     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().xaxis.set_major_locator(MultipleLocator(0.5))
-#
-#     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
-#     plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
-#     plt.gcf().set_size_inches((6., 6.))
-#     plt.show()
-#
-#     return None
-
-def _num_density_single_schechter_func(lmass_arr, logMstar, alpha, logphistar):
-    phistar = np.power(10,logphistar)
-    if ~np.isfinite(logphistar):
-        phistar = 0.
-
-
-    x = np.power(10.,((lmass_arr-logMstar)))
-
-    if phistar == 0.:
-        narr = lmass_arr * 0.
-    else:
-        if (alpha+1.) >= 0.:
-            narr = phistar*scp_special.gammaincc(alpha+1, x)* scp_special.gamma(alpha+1)
-        else:
-            gammainc = 1./(alpha+1.) * ( scp_special.gammaincc(alpha+2., x)*scp_special.gamma(alpha+2.) \
-                                            - np.power(x , alpha+1.)*np.exp(-x) )
-
-            narr = phistar*gammainc
-
-    return narr
-
-
-def _num_density_double_schechter_func(lmass_arr, logMstar,
-                alpha1, logphistar1, alpha2, logphistar2):
-    phistar1 = np.power(10,logphistar1)
-    phistar2 = np.power(10,logphistar2)
-
-    if ~np.isfinite(logphistar1):
-        phistar1 = 0.
-    if ~np.isfinite(logphistar2):
-        phistar2 = 0.
-
-
-    x = np.power(10.,((lmass_arr-logMstar)))
-    #narr1 = phistar1*scp_special.gammaincc(alpha1+1,x)* scp_special.gamma(alpha1+1)
-
-    narr = lmass_arr * 0.
-    for phistar, alpha in zip([phistar1, phistar2], [alpha1, alpha2]):
-        if phistar == 0.:
-            narr_comp = lmass_arr * 0.
-        else:
-            if (alpha+1.) >= 0.:
-                gammainc = scp_special.gammaincc(alpha+1, x)* scp_special.gamma(alpha+1)
-            # elif (alpha+2.) >=0:
-            #     s = alpha+2.
-            #     gammainc_s = scp_special.gammaincc(s, x)*scp_special.gamma(s)
-            #     gammainc_s_1 = 1./(s-1.)*(gammainc_s   - np.power(x , s-1)*np.exp(-x))
-            #     gammainc = gammainc_s_1
-            # elif (alpha+3.) >= 0:
-            #     s = alpha+3.
-            #     gammainc_s = scp_special.gammaincc(s, x)*scp_special.gamma(s)
-            #     gammainc_s_1 = 1./(s-1.)*(gammainc_s   - np.power(x, s-1)*np.exp(-x))
-            #     gammainc_s_2 = 1./(s-2.)*(gammainc_s_1 - np.power(x, s-2)*np.exp(-x))
-            #     gammainc = gammainc_s_2
-            # elif (alpha+4.) >= 0.:
-            #     s = alpha+4.
-            #     gammainc_s = scp_special.gammaincc(s, x)*scp_special.gamma(s)
-            #     gammainc_s_1 = 1./(s-1.)*(gammainc_s   - np.power(x, s-1)*np.exp(-x))
-            #     gammainc_s_2 = 1./(s-2.)*(gammainc_s_1 - np.power(x, s-2)*np.exp(-x))
-            #     gammainc_s_3 = 1./(s-3.)*(gammainc_s_2 - np.power(x, s-3)*np.exp(-x))
-            #     gammainc = gammainc_s_3
-            else:
-                # alpha < -1.
-                # what is int s.t. alpha+int > -1, or alpha+int+1 > 0?
-                s = alpha+1.
-                while s < 0:
-                    s += 1
-                #
-                i = 0.
-                # Initialize:
-                gammainc_n_m_1 = scp_special.gammaincc(s, x)*scp_special.gamma(s)
-                while (s-i > alpha+1):
-                    i += 1.
-                    gammainc_n = gammainc_n_m_1.copy()
-                    gammainc_n_m_1 = 1./(s-i)*(gammainc_n   - np.power(x , s-i)*np.exp(-x))
-                gammainc = gammainc_n_m_1
-
-
-            narr_comp = phistar*gammainc
-        narr = narr + narr_comp
-
-
-    return narr
-
-
-def _num_density_tomczak14_double_schechter_interp(z, lmass_arr, kind='nearest'):
-
-    d_t14_int = _tomczak14_SMF_total_coeffs_interp(z, kind=kind)
-
-    n_t14_interp = _num_density_double_schechter_func(lmass_arr,
-                d_t14_int['logMstar'], d_t14_int['alpha1'], d_t14_int['logphistar1'],
-                d_t14_int['alpha2'], d_t14_int['logphistar2'])
-
-    return n_t14_interp
-
-def _interp_mass_from_tomczak14_num_density(lnz, z, kind_cmf_interp='nearest'):
-    dlmass = 0.05
-    lmass_lims = [9., 12]
-    lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-
-    narr = _num_density_tomczak14_double_schechter_interp(z, lmass_arr, kind=kind_cmf_interp)
-
-    minterp_func = scp_interp.interp1d(np.log10(narr), lmass_arr, fill_value=np.NaN,  #'extrapolate',
-                        bounds_error=False, kind='cubic')
-    minterp = minterp_func(lnz)
-    return minterp
-
-# def _moster13_SMHM_func(M, M1, N, beta, gamma):
-#     x = M/M1
-#     mtoM = 2.*N / (np.power(x,-1.*beta) + np.power(x, gamma))
-#     return mtoM
-#
-# def _moster13_coeffs():
-#     dict_m13 = {'keys': ['M', 'N', 'beta', 'gamma'],
-#         'M10': 11.59,'M11': 1.195, 'N10': 0.0351, 'N11': -0.0247,
-#                 'beta10': 1.376, 'beta11', -0.826, 'gamma10': 0.608, 'gamma11': 0.329}
-#
-#     return dict_m13
-#
-# def _m13_z_helper_func(z, key):
-#     d13 = _moster13_coeffs()
-#     x = d13['{}10'.format(key)] + d13['{}11'.format(key)] * z/(1.+z)
-#     return x
-# def _moster13_SMHM_func_z(z, M):
-#
-#     M1z = np.power(10., _m13_z_helper_func(z, 'M'))
-#     Nz = _m13_z_helper_func(z, 'N')
-#     betaz = _m13_z_helper_func(z, 'beta')
-#     gammaz = _m13_z_helper_func(z, 'gamma')
-#
-#     return _moster13_SMHM_func(M, M1z, Nz, betaz, gammaz)
-#
-# def _SMF_moster13(z, lmhalo_arr, kind='nearest'):
-#
-#     lmstar_arr = np.log10(_moster13_SMHM_func_z(z, np.power(10., lmhalo_arr))) + lmhalo_arr
-#
-#     return lmstar_arr
-#
-# def _interp_mass_from_moster13_SMHM_z(nz, z, kind_cmf_interp='nearest'):
-#     dlmass = 0.05
-#     lmass_lims = [9., 12]
-#     lmass_arr = np.arange(lmass_lims[0], lmass_lims[1]+dlmass, dlmass)
-#
-#     raise ValueError
-#     narr = _num_density_moster13(z, lmass_arr, kind=kind_t14_interp)
-#
-#     minterp_func = scp_interp.interp1d(narr, lmass_arr, fill_value=np.NaN,  #'extrapolate',
-#                         bounds_error=False, kind='cubic')
-#     minterp = minterp_func(nz)
-#     return minterp
-def _papovich15_values_MW_M31():
-    # Fig 4: Values from the thick dashed/solid lines: inferenced from Moster+13 models
-
-    dmw = {'ln0': -2.9,
-           'z': np.array([0., 0.25, 0.5, 0.75,
-                          1., 1.25, 1.5, 1.75,
-                          2., 2.25, 2.5, 2.75, 3.]),
-           'lmass': np.array([10.73,  10.7, 10.64, 10.54,
-                            10.4075, 10.27, 10.125, 9.97,
-                            9.82, 9.66, 9.51, 9.37, 9.22])}
-
-    dm31 = {'ln0': -3.4,
-           'z': np.array([0., 0.25, 0.5, 0.75,
-                          1., 1.25, 1.5, 1.75,
-                          2., 2.25, 2.5, 2.75, 3.]),
-           'lmass': np.array([10.985, 10.975, 10.96, 10.93,
-                              10.87, 10.79, 10.69, 10.57,
-                              10.445, 10.32, 10.18, 10.05, 9.91])}
-
-    dp15 = {'MW': dmw, 'M31': dm31}
-
-    return dp15
-
-def _interp_mass_from_papovich15_z(ln0, zarr):
-    dp15 = _papovich15_values_MW_M31()
-
-    if ln0 == -2.9:
-        key = 'MW'
-    elif ln0 == -3.4:
-        key = 'M31'
-
-    minterp_func = scp_interp.interp1d(dp15[key]['z'], dp15[key]['lmass'], fill_value='extrapolate',
-                        bounds_error=False, kind='quadratic')
-    minterp = minterp_func(zarr)
-
-
-    return minterp
-
-def _mass_progenitor_num_density(ln0, zarr, n_evol=None, cmf_source=None, kind_cmf_interp='quadratic'):
-    cmf_sources = ['tomczak14', 'papovich15']
-    if cmf_source not in cmf_sources:
-        errmsg = '{} not reconized CMF reference! Must be one of: '
-        for i, cmf in enumerate(cmf_sources):
-            errmsg += '{}'.format(cmf)
-            if i < len(cmf_sources)-1:
-                errmsg += ", "
-        raise ValueError(errmsg)
-    n_evol_types = ['const', 'torrey17_backwards']
-    if n_evol not in n_evol_types:
-        errmsg = '{} not reconized evolution type for number density! Must be one of: '
-        for i, nev in enumerate(n_evol_types):
-            errmsg += '{}'.format(nev)
-            if i < len(n_evol_types)-1:
-                errmsg += ", "
-        raise ValueError(errmsg)
-
-    if n_evol == 'const':
-        lnzarr = np.ones(len(zarr)) * ln0
-    elif n_evol == 'torrey17_backwards':
-        # LOOK UP VALUES
-        lnzarr = BOB
-
-
-    lmass_arr = np.ones(len(zarr)) * -99.
-    for i in range(len(zarr)):
-        if cmf_source == 'tomczak14':
-            lmass_arr[i] = _interp_mass_from_tomczak14_num_density(lnzarr[i], zarr[i], kind_cmf_interp=kind_cmf_interp)
-        # elif cmf_source == 'moster13':
-        #     lmass_arr[i] = _interp_mass_from_moster13_SMHM_z(lnzarr[i], zarr[i], kind_cmf_interp=kind_cmf_interp)
-
-    if cmf_source == 'papovich15':
-        lmass_arr = _interp_mass_from_papovich15_z(ln0, zarr)
-
-    return lmass_arr
-
-def _sigr_toy(r, sig01, sig0, rsig):
-    sigr = np.sqrt((sig01*np.exp(-r/rsig))**2 + sig0**2)
-    return sigr
-
-def _alpha_sigr_toy(r, sig01, sig0, rsig):
-    sigr = _sigr_toy(r, sig01, sig0, rsig)
-    dlnsigsq_dlnr = -2.*r/rsig * (sig01*np.exp(-r/rsig))**2 / sigr**2
-    return -dlnsigsq_dlnr
+cmap_fdm = cm.Blues
 
 
 
@@ -895,18 +87,23 @@ def _alpha_sigr_toy(r, sig01, sig0, rsig):
 def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1., 0.4, 0.2]):
     """
     Plot the fractional 3D spherical enclosed mass profile versus radius,
-        for a range of Sersic indices n (n=1..8) and intrinsic axis ratios q.
+    for a range of Sersic indices n (n=1..8) and intrinsic axis ratios q.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        q_arr:      Range of intrinsic axis ratios to plot.     Default: q_arr = [1., 0.4, 0.2]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        q_arr: array_like, optional
+            Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.4, 0.2]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -1009,9 +206,7 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 
 
     xlim = [-2.0, 2.0]
-
     ylims = [[0., 1.], [0., 1.], [0., 1.]]
-
     spec_pairs = [[1., 0.], [4., 0.]]
 
     lw = 1.25 # 1.
@@ -1023,7 +218,6 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
     n_cols = len(types)
     fac = 1.15
     f.set_size_inches(fac*scale*n_cols,scale)
-
 
     pad_outer = 0.2
 
@@ -1140,17 +334,23 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 #####
 def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=None):
     """
-    Plot the ratio of the 3D half mass radius to the 2D projected major axis effective radius (Reff),
-        for a range of Sersic indices n and range of intrinsic axis ratios q
+    Plot the ratio of the 3D half mass radius to
+    the 2D projected major axis effective radius (Reff),
+    for a range of Sersic indices n and range of intrinsic axis ratios q.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-    Output:         PDF plot saved to file.
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
+
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -1428,20 +628,27 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
 def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.],
              output_path=None, table_path=None, fileout=None):
     """
-    Plot the enclosed mass and circular velocity profiles versus radius, for a number of direct calculations
-        and inverted assumptions (applying the relation valid for spherically symmetric cases: v^2 = GM/r )
+    Plot the enclosed mass and circular velocity profiles versus radius,
+    for a number of direct calculations and inverted assumptions
+    (applying the relation valid for spherically symmetric cases: v^2 = GM/r ).
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        q_arr:      Range of intrinsic axis ratios to plot.     Default: q_arr = [1., 0.4, 0.2]
-        n_arr:      Range of Sersic indices to plot.            Default: n_arr = [1., 4.]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        q_arr: array_like, optional
+            Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.4, 0.2]
+        n_arr: array_like, optional
+            Range of Sersic indices to plot. Default: n_arr = [1., 4.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -1835,18 +1042,24 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
             q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.]):
     """
     Plot the total and 3D virial coefficients at Reff, ktot(Reff) and k3D(Reff),
-        as a function of Sersic index n for a range of intrinsic axis ratios q.
+    as a function of Sersic index n for a range of intrinsic axis ratios q.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        q_arr:      Range of intrinsic axis ratios to plot.   Default: q_arr = [0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.]  (mostly oblate, 2 prolate)
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        q_arr: array_like, optional
+            Range of intrinsic axis ratios to plot.
+            Default: q_arr = [0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.]  (mostly oblate, 2 prolate)
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -2028,19 +1241,24 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             n_arr=[0.5, 1., 2., 4., 8.]):
     """
     Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
-            over a range of Sersic index n.
-            Compare to self-gravitating exponential disk case (eg Burkert+10),
-            and to some point-calculated values from Kretschmer+20 (AS SANITY CHECK-- should be same?)
+    over a range of Sersic index n.
+    Compare to self-gravitating exponential disk case (eg Burkert+10).
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        n_arr:      Range of Sersic indices n to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-    Output:         PDF plot saved to file.
+        n_arr: array_like, optional
+            Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
+
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -2279,302 +1497,39 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
     return None
     #####
 
-#
-# #
-# def plot_AD_sersic_potential_alpha_vs_r_color_by_n(fileout=None, output_path=None, table_path=None,
-#             sigma0_arr = [30., 60.],
-#             q_arr=[1., 0.2],
-#             n_arr=[0.5, 1., 2., 4.]):
-#     """
-#     Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
-#             over a range of Sersic index n and intrinsic axis ratios q.
-#             Compare to self-gravitating exponential disk case (eg Burkert+10),
-#             and to some point-calculated values from Kretschmer+20 (AS SANITY CHECK-- should be same?)
-#
-#     Input:
-#         output_path:        Path to directory where the output plot will be saved.
-#         table_path:         Path to directory containing the Sersic profile tables.
-#
-#     Optional Input:
-#         sigma0_arr: Intrinsic constant velocity dispersions to plot (km/s). Default: [30., 60.]
-#         n_arr:      Range of Sersic indices n to plot. Default: n_arr = [0.5, 1., 2., 4.]
-#         q_arr:      Range of intrinsic axis ratios to plot.   Default: q_arr = [1., 0.2]
-#         fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-#
-#     Output:         PDF plot saved to file.
-#     """
-#     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
-#     if table_path is None:      raise ValueError("Must set 'table_path' !")
-#
-#     if (fileout is None):
-#         # Ensure trailing slash:
-#         if output_path[-1] != '/':  output_path += '/'
-#         fileout = output_path+'AD_sersic_potential_alpha_vs_r.pdf'
-#
-#
-#     ####################
-#     n_arr = np.array(n_arr)
-#     q_arr = np.array(q_arr)
-#
-#     color_arr = []
-#     #ls_arr = []
-#     labels = []
-#     nextra = -0.5
-#     nrange = 7. #n_arr.max()-n_arr.min()
-#     for n in n_arr:
-#         if n == 8.:
-#             color_arr.append('#2d0037')
-#         else:
-#             color_arr.append(cmap_n((n+nextra)/(nrange+nextra)))
-#         #ls_arr.append('-')
-#         if n < 1.:
-#             labels.append(r'$n={:0.1f}$'.format(n))
-#         else:
-#             labels.append(r'$n={:0.0f}$'.format(n))
-#
-#     # # Load files:
-#     # #try:
-#     # if True:
-#     #     # read fits tables, construct ks dict.....
-#     #     ks_dict = {}
-#     #
-#     #     #nmin = 0.5
-#     #     #nmax = 8.
-#     #     #nstep = 0.1
-#     #     #n_arr = np.linspace(nmin,nmax, num=np.int(np.round((nmax-nmin)/nstep+1)))
-#     #
-#     #     for q in q_arr:
-#     #         invq = 1./q
-#     #         ks_dict_q = {}
-#     #         for j, n in enumerate(n_arr):
-#     #             ks_dict_q['n={}'.format(n)] = {}
-#     #             tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
-#     #             if (q == 1.) & (n == 1.):
-#     #                 ks_dict['Reff'] = tab['Reff']
-#     #                 ks_dict['narr'] = n_arr
-#     #                 ks_dict['qarr'] = q_arr
-#     #                 ks_dict['r'] = tab['r']
-#     #
-#     #             ks_dict_q['n={}'.format(n)]['alpha'] = -tab['dlnrho_dlnr']
-#     #             ks_dict_q['n={}'.format(n)]['vcirc'] = tab['vcirc']
-#     #
-#     #         ks_dict['q={}'.format(q)] = ks_dict_q
-#     #
-#     #
-#     # #except:
-#     # else:
-#     #     ks_dict = None
-#
-#
-#
-#     xlabel = r'$r/R_e$'
-#     ylabel = r'$v(r)$'
-#     # xlim = [0., 20.]
-#     # ylims = [[-1., 20.]]
-#     # xlim = [0., 5.]
-#     # ylims = [[-1., 20.]]
-#     xlim = [0., 5.] #4.5] #3.5]
-#     ylim = [0.,320.] #[0., 180.] #200.] #[0., 400.] #450.]
-#     #ylims = [[-10., 10.], [-2., 2.]]
-#
-#     # Load files:
-#     delr = 0.01
-#     rarr = np.arange(xlim[0], xlim[1]+delr, delr)
-#     Reff = 1.
-#     #total_mass = 5.e10
-#     #total_mass = 1.e10
-#     total_mass = np.power(10.,10.5)
-#     #try:
-#     if True:
-#         # read fits tables, construct ks dict.....
-#         ks_dict = {}
-#
-#         for q in q_arr:
-#             invq = 1./q
-#             ks_dict_q = {}
-#             for j, n in enumerate(n_arr):
-#                 ks_dict_q['n={}'.format(n)] = {}
-#                 tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
-#                 if (q == q_arr.min()) & (n == n_arr.min()):
-#                     ks_dict['Reff'] = Reff
-#                     ks_dict['narr'] = n_arr
-#                     ks_dict['qarr'] = q_arr
-#                     ks_dict['r'] = rarr
-#                     ks_dict['total_mass'] = total_mass
-#
-#                 ks_dict_q['n={}'.format(n)]['alpha'] = calcs.interpolate_sersic_profile_alpha_nearest(r=rarr,
-#                             Reff=Reff, n=n, invq=invq, path=table_path)
-#                 ks_dict_q['n={}'.format(n)]['vcirc'] = calcs.interpolate_sersic_profile_VC_nearest(r=rarr,
-#                             total_mass=total_mass, Reff=Reff, n=n, invq=invq, path=table_path)
-#                 #tab['vcirc']
-#                 #raise ValueError
-#
-#             ks_dict['q={}'.format(q)] = ks_dict_q
-#
-#
-#     #except:
-#     else:
-#         ks_dict = None
-#
-#
-#     titles = []
-#     ann_arr = []
-#     ann_arr_pos = []
-#     for sig0 in sigma0_arr:
-#         titles.append(r'$\sigma_0='+'{:0.0f}$'.format(sig0))
-#
-#     for q in q_arr:
-#         if q != 1.:
-#             qstr = "{:0.1f}".format(q)
-#         else:
-#             qstr = "{:0.0f}".format(q)
-#         ann_arr.append(r'$q_0='+'{}$'.format(qstr))
-#         ann_arr_pos.append('lowerright')
-#
-#     lw = 1.3 #1.25 #1.
-#
-#
-#     ######################################
-#     # Setup plot:
-#     f = plt.figure()
-#     scale = 4.25
-#     n_cols = len(sigma0_arr)
-#     n_rows = len(q_arr)
-#     f.set_size_inches(1.025*scale*n_cols,scale*n_rows)
-#
-#
-#     pad_outer = 0.2
-#
-#     gs = gridspec.GridSpec(n_rows, n_cols, wspace=pad_outer,hspace=pad_outer)
-#     axes = []
-#     for j in range(n_rows):
-#         for i in range(n_cols):
-#             axes.append(plt.subplot(gs[j,i]))
-#
-#
-#
-#     r_arr = ks_dict['r']/ks_dict['Reff']
-#
-#
-#     for j, q in enumerate(q_arr):
-#         for i, sig0 in enumerate(sigma0_arr):
-#             ax = axes[j*n_cols+i]
-#
-#             for k, n in enumerate(n_arr):
-#
-#                 vcirc = ks_dict['q={}'.format(q)]['n={}'.format(n)]['vcirc'].copy()
-#                 alpha = ks_dict['q={}'.format(q)]['n={}'.format(n)]['alpha'].copy()
-#                 lbl_n = labels[k]
-#                 lbl_circ = r'$v_{\mathrm{circ}}$'
-#                 lbl_alpha = r'$v_{\mathrm{rot}}$, $\alpha(n)$'
-#                 lbl_SG = r'$v_{\mathrm{rot}}$, Self-grav'
-#                 if k == 0:
-#                     ax.plot(r_arr, r_arr*np.NaN, ls='-', color='black', lw=lw, label=lbl_circ)
-#                     ax.plot(r_arr, r_arr*np.NaN, ls='--', color='black', lw=lw, label=lbl_alpha)
-#                     ax.plot(r_arr, r_arr*np.NaN, ls=':', color='black', lw=lw, label=lbl_SG)
-#
-#                 ax.plot(r_arr, vcirc, ls='-', color=color_arr[k], lw=lw, label=lbl_n)
-#
-#                 ax.plot(r_arr, np.sqrt(vcirc**2-alpha*(sig0**2)), ls='--', color=color_arr[k], lw=lw)
-#                 ax.plot(r_arr, np.sqrt(vcirc**2-3.36*r_arr*(sig0**2)), ls=':', color=color_arr[k], lw=lw)
-#
-#             # ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
-#             # ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
-#             # ax.axvline(x=4., ls=':', color='lightgrey', zorder=-20.)
-#
-#             ax.set_xlim(xlim)
-#             ax.set_ylim(ylim)
-#             ax.set_xlabel(xlabel, fontsize=fontsize_labels)
-#             ax.set_ylabel(ylabel, fontsize=fontsize_labels)
-#             ax.tick_params(labelsize=fontsize_ticks)
-#
-#             if (titles[i] is not None) & (j==0):
-#                 ax.set_title(titles[i], fontsize=fontsize_title)
-#
-#             # ax.xaxis.set_minor_locator(MultipleLocator(0.25))
-#             # ax.xaxis.set_major_locator(MultipleLocator(1.))
-#             ax.xaxis.set_minor_locator(MultipleLocator(0.1))
-#             ax.xaxis.set_major_locator(MultipleLocator(0.5))
-#
-#             #if (i == 0):
-#             if True:
-#                 xydelt = 0.04
-#                 if ann_arr_pos[j] == 'lowerright':
-#                     xy = (1.-xydelt, xydelt)
-#                     va='bottom'
-#                     ha='right'
-#                 elif ann_arr_pos[j] == 'upperright':
-#                     xy = (1.-xydelt, 1.-xydelt)
-#                     va='top'
-#                     ha='right'
-#                 ax.annotate(ann_arr[j], xy=xy,
-#                         va=va, ha=ha, fontsize=fontsize_ann_latex,
-#                         xycoords='axes fraction')
-#             if (ylim[1]-ylim[0]) > 300:
-#                 ax.yaxis.set_minor_locator(MultipleLocator(20.))
-#                 ax.yaxis.set_major_locator(MultipleLocator(100.))
-#             elif (ylim[1]-ylim[0]) > 50:
-#                 ax.yaxis.set_minor_locator(MultipleLocator(10.))
-#                 ax.yaxis.set_major_locator(MultipleLocator(50.))
-#             elif (ylim[1]-ylim[0]) > 3:
-#                 ax.yaxis.set_minor_locator(MultipleLocator(0.2))
-#                 ax.yaxis.set_major_locator(MultipleLocator(1.))
-#             elif (ylim[1]-ylim[0]) > 1:
-#                 ax.yaxis.set_minor_locator(MultipleLocator(0.1))
-#                 ax.yaxis.set_major_locator(MultipleLocator(0.5))
-#             else:
-#                 ax.yaxis.set_minor_locator(MultipleLocator(0.02))
-#                 ax.yaxis.set_major_locator(MultipleLocator(0.1))
-#
-#             if (i == 0) & (j == 0):
-#                 frameon = False #True
-#                 borderpad = 0.5 #0.25
-#                 fontsize_leg_tmp = fontsize_leg
-#                 labelspacing=0.15
-#                 handletextpad= 0.5  #0.25
-#                 fancybox = False
-#                 edgecolor='None'
-#                 loc='upper right' #'upper left'
-#                 legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
-#                     handletextpad=handletextpad, loc=loc, frameon=frameon,
-#                     numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
-#                     fancybox=fancybox,edgecolor=edgecolor)
-#
-#
-#     if fileout is not None:
-#         plt.savefig(fileout, bbox_inches='tight', dpi=600)
-#         plt.close()
-#     else:
-#         plt.show()
-#
-#
-#     return None
-#     #####
 
 #
 def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_path=None,
-            sigma0_arr = [30., 60., 90.], #[10., 30., 60., 90., 120.],
+            sigma0_arr = [30., 60., 90.],
             q_arr=[1., 0.2],
             n_arr=[0.5, 1., 2., 4.],
             show_sigmar_toy=False,
             show_sigmar_toy_nosig0=False):
     """
-    Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
-            over a range of Sersic index n and intrinsic axis ratios q.
-            Compare to self-gravitating exponential disk case (eg Burkert+10),
-            and to some point-calculated values from Kretschmer+20 (AS SANITY CHECK-- should be same?)
+    Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected
+    Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.
+    Compare to self-gravitating exponential disk case (eg Burkert+10).
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        sigma0_arr: Intrinsic constant velocity dispersions to plot (km/s). Default: [30., 60., 90.]
-        n_arr:      Range of Sersic indices n to plot. Default: n_arr = [0.5, 1., 2., 4.]
-        q_arr:      Range of intrinsic axis ratios to plot.   Default: q_arr = [1., 0.2]
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-    Output:         PDF plot saved to file.
+        sigma0_arr: array_like, optional
+            Intrinsic constant velocity dispersions to plot (km/s).
+            Default: [30., 60., 90.]
+        q_arr: array_like, optional
+            Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.2]
+        n_arr: array_like, optional
+            Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
+
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -2612,20 +1567,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
 
     labels = []
     color_arr = []
-    color_arr_basic = ['red', 'blue', 'orange', 'tab:purple']
-    #cmpb = cm.BuPu
-    #color_arr_basic = [cmpb(0.8), cmpb(0.4), cmpb(0.3), cmpb(0.2)]
-    #cmpurp = cm.Purples
-    #cmoran = cm.Oranges
-    #color_arr_basic = [cmpurp(0.5), cmoran(0.5)]
-    #color_arr_basic = [cmpurp(0.7), cmoran(0.5)]
-    #color_arr_basic = ['tab:purple', 'tab:orange', 'gold']
-
-    color_arr_basic = ['tab:blue', 'tab:purple',  'tab:red', 'tab:orange', 'gold']
-    color_arr_basic = ['tab:purple', 'tab:orange', 'gold']
-
-    #cmPuBuGn = cm.PuBuGn
-    #color_arr_basic = [cmPuBuGn(0.8), cmPuBuGn(0.6), cmPuBuGn(0.4), cmPuBuGn(0.2)]
     color_arr_basic = ['tab:purple', 'tab:cyan', 'tab:orange']
 
     for i, sig0 in enumerate(sigma0_arr):
@@ -2634,20 +1575,13 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
 
     xlabel = r'$r/R_e$'
     ylabel = r'$v(r)$'
-    # xlim = [0., 20.]
-    # ylims = [[-1., 20.]]
-    # xlim = [0., 5.]
-    # ylims = [[-1., 20.]]
-    xlim = [0., 5.] #4.5] #3.5]
-    ylim = [0.,320.] #[0., 180.] #200.] #[0., 400.] #450.]
-    #ylims = [[-10., 10.], [-2., 2.]]
+    xlim = [0., 5.]
+    ylim = [0.,320.]
 
     # Load files:
-    delr = 0.001 #0.01
+    delr = 0.001
     rarr = np.arange(xlim[0], xlim[1]+delr, delr)
     Reff = 1.
-    #total_mass = 5.e10
-    #total_mass = 1.e10
     total_mass = np.power(10.,10.5)
     #try:
     if True:
@@ -2700,13 +1634,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
         else:
             qstr = "{:0.0f}".format(q)
         ann_arr.append(r'$q_0='+'{}$'.format(qstr))
-        #ann_arr_pos.append('lowerright')
-
-        # #ann_arr_pos.append('lowerleft')
-        # if i == 0:
-        #     ann_arr_pos.append('upperleft')
-        # else:
-        #     ann_arr_pos.append('upperright')
         ann_arr_pos.append('upperright')
 
     lw = 1.3 #1.25 #1.
@@ -2720,8 +1647,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
     n_rows = len(q_arr)
     f.set_size_inches(1.05*scale*n_cols,scale*n_rows)
 
-
-    #pad_outer = 0.25 #0.2
     pad_outer = 0.05
 
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=pad_outer,hspace=pad_outer)
@@ -2730,10 +1655,7 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
         for i in range(n_cols):
             axes.append(plt.subplot(gs[j,i]))
 
-
-
     r_arr = ks_dict['r']/ks_dict['Reff']
-
 
     for j, q in enumerate(q_arr):
         for i, n in enumerate(n_arr):
@@ -2764,7 +1686,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
 
                 if k == 0:
                     ax.plot(r_arr, vcirc, ls='-', color='black', lw=lw, label=lbl_circ, zorder=10.)
-                    #ax.plot(r_arr, r_arr*np.NaN, ls='-', color='black', lw=lw, label=lbl_circ)
                     if lbl_alpha is not None:
                         ax.plot(r_arr, r_arr*np.NaN, ls='--', color='black', lw=lw, label=lbl_alpha)
                         if show_sigmar_toy:
@@ -2773,9 +1694,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                             ax.plot(r_arr, r_arr*np.NaN, ls=(0, (5, 2, 1, 2, 1, 2, 1, 2)), color='black', lw=lw, label=lbl_alpha_sigmar_nosig0)
                         ax.plot(r_arr, r_arr*np.NaN, ls=':', color='black', lw=lw, label=lbl_SG)
 
-                #ax.plot(r_arr, vcirc, ls='-', color=color_arr[k], lw=lw, label=lbl_n)
-
-                #ax.plot(r_arr, vcirc, ls='-', color=color_arr[k], lw=lw, label=lbl_sig0)
                 if lbl_sig0 is not None:
                     ax.plot(r_arr, r_arr*np.NaN, ls='-', color=color_arr[k], lw=lw, label=lbl_sig0)
 
@@ -2793,8 +1711,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                 ax.plot(r_arr, np.sqrt(vcirc**2-3.36*r_arr*(sig0**2)), ls=':', color=color_arr[k], lw=lw)
 
             ax.axvline(x=1.3, ls=':', color='lightgrey', zorder=-20.)
-            # ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
-            # ax.axvline(x=4., ls=':', color='lightgrey', zorder=-20.)
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
@@ -2804,14 +1720,9 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
             if (titles[i] is not None) & (j==0):
                 ax.set_title(titles[i], fontsize=fontsize_title)
 
-            # ax.xaxis.set_minor_locator(MultipleLocator(0.25))
-            # ax.xaxis.set_major_locator(MultipleLocator(1.))
             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
             ax.xaxis.set_major_locator(MultipleLocator(1.))
-            # ax.xaxis.set_minor_locator(MultipleLocator(0.1))
-            # ax.xaxis.set_major_locator(MultipleLocator(0.5))
 
-            #if (i == 0):
             if True:
                 xydelt = 0.04
                 arpos = ann_arr_pos[j]
@@ -2862,7 +1773,6 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
             else:
                 ax.set_yticklabels([])
 
-            #if (i == 0) & (j == 0):
             if (mm <= 1):
                 frameon = False #True
                 borderpad = 0.5 #0.25
@@ -2891,22 +1801,23 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
 
 def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None):
     """
-    Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
-            over a range of Sersic index n and intrinsic axis ratios q.
-            Compare to self-gravitating exponential disk case (eg Burkert+10),
-            and to some point-calculated values from Kretschmer+20 (AS SANITY CHECK-- should be same?)
+    Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected
+    Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.
+    Compare to self-gravitating exponential disk case (eg Burkert+10).
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        sigma0_arr: Intrinsic constant velocity dispersions to plot (km/s). Default: [30., 60., 90.]
-        n_arr:      Range of Sersic indices n to plot. Default: n_arr = [0.5, 1., 2., 4.]
-        q_arr:      Range of intrinsic axis ratios to plot.   Default: q_arr = [1., 0.2]
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-    Output:         PDF plot saved to file.
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
+
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -2918,13 +1829,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
 
 
     ####################
-    # ks_dict = {'bt':      [0.07,  0.07,  0.07,  0.07,  0.5,  0.5, 0.5, 0.5, 0.5],
-    #            'ns_disk': [0.5,   0.5,   0.5,   0.5,   1.,   1.,  1.,  1.,   1.],
-    #            're_disk': [6,     6,     6,     6,     5,    5,   5,   5,    5],
-    #            'sigma0':  [60,    65,    30,    30,    45,   45,  20,  20,   60],
-    #            'lMbar':   [10.74, 10.46, 10.74, 10.46, 10.5, 11., 11., 10.8, 10.8],
-    #            'fDM':     [0.01,  0.52,  0.01,  0.52,  0.5,  0.,  0.,  0.2,  0.2]}
-
     ks_dict = {}
     gal1 = {'bt':      0.07,
             'q_disk':  0.25,
@@ -2963,12 +1867,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
             'lMhalo':  11.5,
             'halo_conc': 4.}
 
-    # gal1 = {'bt':      [0.07,  0.07,  0.07,  0.07,  0.5,  0.5, 0.5, 0.5, 0.5],
-    #            'ns_disk': [0.5,   0.5,   0.5,   0.5,   1.,   1.,  1.,  1.,   1.],
-    #            're_disk': [6,     6,     6,     6,     5,    5,   5,   5,    5],
-    #            'sigma0':  [60,    65,    30,    30,    45,   45,  20,  20,   60],
-    #            'lMbar':   [10.74, 10.46, 10.74, 10.46, 10.5, 11., 11., 10.8, 10.8],
-    #            'fDM':     [0.01,  0.52,  0.01,  0.52,  0.5,  0.,  0.,  0.2,  0.2]}
     gal5 = {'bt':      0.5,
             'q_disk':  0.25,
             'z':       2.,
@@ -3052,16 +1950,11 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
 
     xlabel = r'$r$ [kpc]'
     ylabel = r'$v(r)$ [km/s]'
-    # xlim = [0., 20.]
-    # ylims = [[-1., 20.]]
-    # xlim = [0., 5.]
-    # ylims = [[-1., 20.]]
-    xlim = [0., 30.] #4.5] #3.5]
-    ylim = [0.,320.] #[0., 180.] #200.] #[0., 400.] #450.]
-    #ylims = [[-10., 10.], [-2., 2.]]
+    xlim = [0., 30.]
+    ylim = [0.,320.]
 
     # Load files:
-    delr = 0.1 #0.001 #0.01
+    delr = 0.1
     rarr = np.arange(xlim[0], xlim[1]+delr, delr)
 
     for key in ks_dict.keys():
@@ -3098,17 +1991,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
         ks_dict[key]['vcirc_halo'] = vcirc_halo
         ks_dict[key]['vcirc_baryons'] = vcirc_baryons
         ks_dict[key]['fdm_vsq'] = fdm_vsq
-
-        # labels = ['Disk', 'Bulge',
-        #             'Baryons (D+B)',
-        #             'Halo', 'Total',
-        #             r'$M_{\mathrm{enc,DM}}/M_{\mathrm{enc,tot}}$', r'$v_{\mathrm{circ,DM}}^2/v_{\mathrm{circ,tot}}^2$']
-        #
-        # color_arr = ['blue', 'red',
-        #             'purple',
-        #             'green', 'black',
-        #             color_fdm, color_vsq]
-
 
     ann_arr = []
     ann_arr_pos = []
@@ -3204,8 +2086,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
             axes.append(plt.subplot(gs[j,i]))
 
 
-
-
     for j in range(n_rows):
         for i in range(n_cols):
             mm = j*n_cols+i
@@ -3248,7 +2128,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
                 ax.set_xlim(xlim)
                 ax.set_ylim(ylim)
                 ax.tick_params(labelsize=fontsize_ticks)
-
 
                 ax.xaxis.set_minor_locator(MultipleLocator(1.))
                 ax.xaxis.set_major_locator(MultipleLocator(5.))
@@ -3304,7 +2183,6 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
                 else:
                     ax.set_yticklabels([])
 
-                #if (i == 0) & (j == 0):
                 if (mm <= 0):
                     frameon = False #True
                     borderpad = 0.5 #0.25
@@ -3343,44 +2221,63 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
              ylim_lmenc_lograd=[6.,12.5],
              ylim_vcirc=[0., 360.]):
     """
-    Plot example enclosed mass and circular velocity profiles for different mass components, over a variety of B/T ratios
+    Plot example enclosed mass and circular velocity profiles for
+    different mass components, over a variety of B/T ratios.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        bt_arr:     Array of B/T ratios to plot, in separate panels.  Default: [0., 0.25, 0.5, 0.75]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z:          Redshift (to determine NFW halo properties)     [Default: z=2.]
-        Mbaryon:    Total baryon mass [Msun]                        [Default: 5.e10 Msun]
+        bt_arr: array_like, optional
+            Array of B/T ratios to plot, in separate panels.
+            Default: [0., 0.25, 0.5, 0.75]
+        z: float, optional
+            Redshift (to determine NFW halo properties. Default: z=2.
+        Mbaryon: float, optional
+            Total baryon mass [Msun]. Default: 5.e10 Msun.
+        Reff_disk: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].
+            Default: 5kpc
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        invq_disk: float, optional
+            Flattening of disk component. Default: invq_disk = 5.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        Mhalo: float, optional
+            NFW halo mass within R200 (=M200) [Msun]. Default: 1.e12 Msun
+        halo_conc: float, optional
+            Concentration of NFW halo. Default: 4.
 
-        Reff_disk:  Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].   [Default: 5kpc]
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
-        invq_disk:  Flattening of disk component                    [Default: invq_disk = 5.]
+        logradius: bool, optional
+            Option whether to plot log radius or linear. Default: False (plot linear).
+        rmin: float, optional
+            Minimum radius, if doing linear radius. Ignored if logradius=True. [kpc]
+        rmax: float, optional
+            Maximum radius, if doing linear radius. Ignored if logradius=True. [kpc]
+        rstep: float, optional
+            Radius stepsize, if doing linear radius.Ignored if logradius=True. [kpc]
+        log_rmin: float, optional
+            Log of minimum radius, if doing log radius. Ignored if logradius=False. [log(kpc)]
+        log_rmax: float, optional
+            Log of maximum radius, if doing log radius. Ignored if logradius=False. [log(kpc)]
+        nlogr: int, optional
+            Number of log radius steps, if logradius=True. Ignored if logradius=False.
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-
-        Mhalo:      NFW halo mass within R200 (=M200) [Msun]        [Default: 1.e12 Msun]
-        halo_conc:  Concentration of NFW halo                       [Default: 4.]
-
-
-        logradius:  Option whether to plot log radius or linear     [Default: False  (plot linear)]
-
-        rmin:       Minimum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Maximum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Radius stepsize, if doing linear radius. Ignored if logradius=True.   [kpc]
-
-        log_rmin:   Log of minimum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        log_rmax:   Log of maximum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        nlogr:      Number of log radius steps, if logradius=True. Ignored if logradius=False.
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -3426,10 +2323,6 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 'Halo', 'Total',
                 r'$M_{\mathrm{enc,DM}}/M_{\mathrm{enc,tot}}$', r'$v_{\mathrm{circ,DM}}^2/v_{\mathrm{circ,tot}}^2$']
 
-    # color_arr = ['blue', 'red',
-    #             'purple',
-    #             'green', 'black',
-    #             color_fdm, color_vsq]
     color_arr = ['blue', 'red',
                 'green',
                 'purple', 'black',
@@ -3662,13 +2555,11 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
             if xlabels[k] is not None:
                 ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
             if ylabels[k] is not None:
                 ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
 
@@ -3763,30 +2654,43 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
     """
     Plot the calibration ratio between fDM(vcirc,Reff) / fDM(Menc,Reff)
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
-        Mbaryon_arr:    Array of total baryon mass to plot [Msun]                        [Default: [1.e10, 10**10.5, 1.e11] Msun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+        Path to directory containing the Sersic profile tables.
 
-        Mhalo_arr:      Array of NFW halo masses within R200 (=M200) [Msun]        [Default: [3.e11, 1.e12, 3.e12] Msun]
-        halo_conc_arr:  Array of halo concentrations             [Default: [4.,4.,4.]]
+        z: float, optional
+            Redshift (to determine NFW halo properties). Default: z=2.
+        Mbaryon_arr: array_like, optional
+            Array of total baryon mass to plot [Msun].
+            Default: [1.e10, 10**10.5, 1.e11] Msun.
+        q_disk_arr: array_like, optional
+            Array of flattening for disk.
+            Default: [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.]
+        Mhalo_arr: array_like, optional
+            Array of NFW halo masses within R200 (=M200) [Msun].
+            Default: [3.e11, 1.e12, 3.e12] Msun.
+        halo_conc_arr: array_like, optional
+            Array of halo concentrations. Default: [4.,4.,4.]
+        Reff_disk_arr: array_like, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].
+            Default: [3.,5.,7.] kpc.
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge:    Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: Flattening of bulge componen. Default: invq_bulge = 1. (spherical)
 
-        Reff_disk:  Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].   [Default: 5kpc]
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        halo_conc:  Concentration of NFW halo                       [Default: 4.]
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -4169,30 +3073,43 @@ def plot_fdm_calibration(Mstar_arr=None,
     """
     Plot the calibration ratio between fDM(vcirc,Reff) / fDM(Menc,Reff)
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
-        Mbaryon_arr:    Array of total baryon mass to plot [Msun]       [Default: [10**10.5] Msun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+        Path to directory containing the Sersic profile tables.
 
-        Mhalo_arr:      Array of NFW halo masses within R200 (=M200) [Msun]      [Default: [1.e12] Msun]
-        halo_conc_arr:  Array of halo concentrations             [Default: [4.]]
+        z: float, optional
+            Redshift (to determine NFW halo properties). Default: z=2.
+        Mbaryon_arr: array_like, optional
+            Array of total baryon mass to plot [Msun].
+            Default: [10**10.5] Msun.
+        q_disk_arr: array_like, optional
+            Array of flattening for disk.
+            Default: [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.]
+        Mhalo_arr: array_like, optional
+            Array of NFW halo masses within R200 (=M200) [Msun].
+            Default: [1.e12] Msun.
+        halo_conc_arr: array_like, optional
+            Array of halo concentrations. Default: [4.]
+        Reff_disk: array_like, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].
+            Default: [5.] kpc
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge:    Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: Flattening of bulge componen. Default: invq_bulge = 1. (spherical)
 
-        Reff_disk:  Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].   [Default: 5kpc]
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        halo_conc:  Concentration of NFW halo                       [Default: 4.]
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -4216,11 +3133,11 @@ def plot_fdm_calibration(Mstar_arr=None,
         for Mstar in Mstar_arr:
             lmstar = np.log10(Mstar)
 
-            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
-            Mhalo = _smhm_relation(z=z, lmstar=lmstar)
-            halo_conc = _halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
+            Mhalo = utils._smhm_relation(z=z, lmstar=lmstar)
+            halo_conc = utils._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
 
             Mbaryon_arr.append(Mstar/(1.-fgas))
             Mhalo_arr.append(Mhalo)
@@ -4499,18 +3416,12 @@ def plot_fdm_calibration(Mstar_arr=None,
             if xlabels[k] is not None:
                 ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
             if ylabels[k] is not None:
                 ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
-
-
-            # if titles[k] is not None:
-            #     ax.set_title(titles[k], fontsize=fontsize_title)
 
 
             if k == 0:
@@ -4563,343 +3474,6 @@ def plot_fdm_calibration(Mstar_arr=None,
         plt.show()
 
 
-# def plot_toy_impl_fDM_calibration_z_evol_1panel(lmstar_arr=None,
-#             output_path=None, table_path=None, fileout=None,
-#             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-#             del_fDM=False,
-#             dict_stack=None):
-#     """
-#     Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
-#         with redshift for SF, roughly MS galaxies, for different stellar masses
-#
-#
-#     Input:
-#         output_path:        Path to directory where the output plot will be saved.
-#         table_path:         Path to directory containing the Sersic profile tables.
-#
-#     Optional Input:
-#         z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
-#         lmstar_arr:     Array of the log of the total stellar mass [logMsun]  [Default: [9.0, 9.5, 10., 10.5, 11.] logMsun]
-#
-#         n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
-#
-#         Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-#         n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-#         invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-#
-#
-#         fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-#
-#     Output:         PDF plot saved to file.
-#     """
-#     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
-#     if table_path is None:      raise ValueError("Must set 'table_path' !")
-#
-#     if (fileout is None):
-#         # Ensure trailing slash:
-#         if output_path[-1] != '/':  output_path += '/'
-#         fileout = output_path+'plot_toy_fdm_calibration_z_evol'
-#         if del_fDM:     fileout += '_del_fDM'
-#         fileout += '.pdf'
-#
-#     if lmstar_arr is None:
-#         lm_step = 0.25
-#         lmstar_arr = np.arange(9.0, 11.+lm_step, lm_step)
-#
-#     # Ensure it's an np array, not a list:
-#     lmstar_arr = np.array(lmstar_arr)
-#
-#     # ++++++++++++++++
-#     # plot:
-#
-#     zstep = 0.1
-#     # SHORTCUT FOR NOW:
-#     #zstep = 1.0
-#     z_arr = np.arange(0., 3.+zstep, zstep)
-#
-#     color_arr = []
-#     ls_arr = []
-#     labels = []
-#     lw_arr = []
-#     for lmstar in lmstar_arr:
-#         color_arr.append(cmap_mass( (lmstar-lmstar_arr.min())/(lmstar_arr.max()-lmstar_arr.min()) ) )
-#         ls_arr.append('-')
-#         lw_arr.append(1.25)
-#         labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
-#
-#
-#
-#     title = 'NFW'
-#     xlabel = r'$z$'
-#     if del_fDM:
-#         ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$'
-#     else:
-#         ylabel = r'$f_{\mathrm{DM}}^{v}(R_{e,\mathrm{disk}})/f_{\mathrm{DM}}^{m}(R_{e,\mathrm{disk}})$'
-#     xlim = [0., 3.]
-#     ylim = [0.9, 1.01]
-#
-#
-#
-#
-#     ######################################
-#     # Setup plot:
-#     f = plt.figure()
-#     scale = 4.25
-#     n_cols = 1
-#     n_rows = 1
-#     fac = 1.02
-#     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
-#
-#
-#     wspace = 0.025
-#     hspace = wspace
-#     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
-#     axes = []
-#     for i in range(n_rows):
-#         for j in range(n_cols):
-#             axes.append(plt.subplot(gs[i,j]))
-#
-#
-#     ######################
-#     # Load bulge: n, invq don't change.
-#     tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
-#     tab_bulge_menc =    tab_bulge['menc3D_sph']
-#     tab_bulge_vcirc =   tab_bulge['vcirc']
-#     tab_bulge_rad =     tab_bulge['r']
-#     tab_bulge_Reff =    tab_bulge['Reff']
-#     tab_bulge_mass =    tab_bulge['total_mass']
-#
-#     # Clean up values inside rmin:  Add the value at r=0: menc=0
-#     if tab_bulge['r'][0] > 0.:
-#         tab_bulge_rad = np.append(0., tab_bulge_rad)
-#         tab_bulge_menc = np.append(0., tab_bulge_menc)
-#         tab_bulge_vcirc = np.append(0., tab_bulge_vcirc)
-#
-#     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-#     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-#
-#
-#     ######################
-#
-#     if dict_stack is None:
-#         dict_stack = []
-#         for mm, lmstar in enumerate(lmstar_arr):
-#             val_dict = {'z_arr': z_arr,
-#                         'lmstar': np.ones(len(z_arr)) * lmstar,
-#                         'bt': np.ones(len(z_arr)) * -99.,
-#                         'Reff_disk': np.ones(len(z_arr)) * -99.,
-#                         'invq_disk': np.ones(len(z_arr)) * -99.,
-#                         'invq_near': np.ones(len(z_arr)) * -99.,
-#                         'fgas': np.ones(len(z_arr)) * -99.,
-#                         'lMbar': np.ones(len(z_arr)) * -99.,
-#                         'lMhalo': np.ones(len(z_arr)) * -99.,
-#                         'Rvir': np.ones(len(z_arr)) * -99.,
-#                         'halo_conc': np.ones(len(z_arr)) * -99.,
-#
-#                         'menc_disk': np.ones(len(z_arr)) * -99.,
-#                         'menc_bulge': np.ones(len(z_arr)) * -99.,
-#                         'menc_halo': np.ones(len(z_arr)) * -99.,
-#                         'menc_bar': np.ones(len(z_arr)) * -99.,
-#                         'menc_tot': np.ones(len(z_arr)) * -99.,
-#                         'fdm_menc': np.ones(len(z_arr)) * -99.,
-#                         'vcirc_disk': np.ones(len(z_arr)) * -99.,
-#                         'vcirc_bulge': np.ones(len(z_arr)) * -99.,
-#                         'vcirc_halo': np.ones(len(z_arr)) * -99.,
-#                         'vcirc_bar': np.ones(len(z_arr)) * -99.,
-#                         'vcirc_tot': np.ones(len(z_arr)) * -99.,
-#                         'fdm_vsq': np.ones(len(z_arr)) * -99.,
-#                         'fDM_comp': np.ones(len(z_arr)) * -99.
-#                         }
-#             for ll, z in enumerate(z_arr):
-#                 Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-#
-#                 invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
-#
-#                 fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
-#
-#                 Mstar =     np.power(10., lmstar)
-#                 Mbaryon =   Mstar / (1.-fgas)
-#                 lMbar = np.log10(Mbaryon)
-#
-#                 bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
-#
-#                 Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
-#                 Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
-#                 lMhalo = np.log10(Mhalo)
-#                 halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-#
-#                 val_dict['bt'][ll] = bt
-#                 val_dict['Reff_disk'][ll] = Reff_disk
-#                 val_dict['invq_disk'][ll] = invq_disk
-#                 val_dict['fgas'][ll] = fgas
-#                 val_dict['lMbar'][ll] = lMbar
-#                 val_dict['lMhalo'][ll] = lMhalo
-#                 val_dict['Rvir'][ll] = Rvir
-#                 val_dict['halo_conc'][ll] = halo_conc
-#
-#
-#                 ######
-#                 nearest_n, nearest_invq = n_disk, invq_disk
-#                 try:
-#                     menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
-#                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-#                     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
-#                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-#
-#                 except:
-#                     menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-#                                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-#                     vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-#                                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-#
-#                 menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
-#                 vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
-#
-#                 menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
-#                 menc_baryons = menc_disk + menc_bulge
-#                 menc_tot = menc_baryons + menc_halo
-#                 fdm_menc = menc_halo/menc_tot
-#
-#                 vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
-#                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
-#                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
-#                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
-#
-#                 #fDM_compare_arr
-#                 if del_fDM:
-#                     val_dict['fDM_comp'][ll] = (fdm_vsq-fdm_menc)/fdm_menc
-#                 else:
-#                     val_dict['fDM_comp'][ll] = fdm_vsq/fdm_menc
-#
-#                 ####
-#
-#                 val_dict['menc_disk'][ll] = menc_disk
-#                 val_dict['menc_bulge'][ll] = menc_bulge
-#                 val_dict['menc_halo'][ll] = menc_halo
-#                 val_dict['menc_bar'][ll] = menc_baryons
-#                 val_dict['menc_tot'][ll] = menc_tot
-#                 val_dict['fdm_menc'][ll] = fdm_menc
-#
-#                 val_dict['vcirc_disk'][ll] = vcirc_disk
-#                 val_dict['vcirc_bulge'][ll] = vcirc_bulge
-#                 val_dict['vcirc_halo'][ll] = vcirc_halo
-#                 val_dict['vcirc_bar'][ll] = vcirc_baryons
-#                 val_dict['vcirc_tot'][ll] = vcirc_tot
-#                 val_dict['fdm_vsq'][ll] = fdm_vsq
-#
-#                 val_dict['invq_near'][ll] = nearest_invq
-#
-#             ##
-#             dict_stack.append(val_dict)
-#
-#
-#     ######################
-#
-#
-#     for i in range(n_rows):
-#         for j in range(n_cols):
-#             k = i*n_cols + j
-#
-#             ax = axes[k]
-#
-#             plot_cnt_lmstar = 0
-#             for mm, lmstar in enumerate(lmstar_arr):
-#                 ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm]['fDM_comp'], ls=ls_arr[mm],
-#                            color=color_arr[mm], lw=lw_arr[mm], label=labels[mm])
-#
-#                 plot_cnt_lmstar += 1
-#
-#             ######################
-#             if ylim is None:        ylim = ax.get_ylim()
-#
-#             if del_fDM:
-#                 ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
-#             else:
-#                 ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
-#
-#
-#             ax.set_xlim(xlim)
-#             ax.set_ylim(ylim)
-#
-#
-#
-#             ########
-#             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
-#             ax.xaxis.set_major_locator(MultipleLocator(1.))
-#
-#
-#             ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-#             ax.yaxis.set_major_locator(MultipleLocator(0.05))
-#
-#             if xlabel is not None:
-#                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
-#             else:
-#                 #ax.tick_params(labelbottom='off')
-#                 ax.set_xticklabels([])
-#
-#             if ylabel is not None:
-#                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
-#             else:
-#                 #ax.tick_params(labelleft='off')
-#                 ax.set_yticklabels([])
-#
-#             ax.tick_params(labelsize=fontsize_ticks)
-#
-#             if title is not None:
-#                 ax.set_title(title, fontsize=fontsize_title)
-#
-#             if k == 0:
-#                 handles, labels_leg = ax.get_legend_handles_labels()
-#                 neworder = range(plot_cnt_lmstar)
-#                 handles_arr = []
-#                 labels_arr = []
-#                 for ii in neworder:
-#                     handles_arr.append(handles[ii])
-#                     labels_arr.append(labels_leg[ii])
-#
-#                 neworder2 = range(plot_cnt_lmstar, len(handles))
-#                 handles_arr2 = []
-#                 labels_arr2 = []
-#                 for ii in neworder2:
-#                     handles_arr2.append(handles[ii])
-#                     labels_arr2.append(labels_leg[ii])
-#
-#                 frameon = True
-#                 framealpha = 1.
-#                 edgecolor = 'none'
-#                 borderpad = 0.25
-#                 fontsize_leg_tmp = fontsize_leg
-#                 labelspacing=0.15
-#                 handletextpad=0.25
-#
-#                 legend1 = ax.legend(handles_arr, labels_arr,
-#                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
-#                     loc='lower right',
-#                     numpoints=1, scatterpoints=1,
-#                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
-#                     fontsize=fontsize_leg_tmp)
-#                 ax.add_artist(legend1)
-#                 if len(handles_arr2) > 0:
-#                     legend2 = ax.legend(handles_arr2, labels_arr2,
-#                         labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
-#                         loc='upper right',
-#                         numpoints=1, scatterpoints=1,
-#                         frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
-#                         fontsize=fontsize_leg_tmp)
-#                     ax.add_artist(legend2)
-#
-#
-#
-#     if fileout is not None:
-#         plt.savefig(fileout, bbox_inches='tight', dpi=600)
-#         plt.close()
-#     else:
-#         plt.show()
-#
-#     #return dict_stack
-#     return None
-
-#
 def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             output_path=None, table_path=None, fileout=None,
             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
@@ -4908,31 +3482,42 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             overwrite_dict_stack=False,
             include_toy_curves=True):
     """
-    Plot "typical" change of difference between fDM calibrations fDM(vcirc,Reff) / fDM(Menc,Reff)
-        with redshift for SF, roughly MS galaxies, for different stellar masses
+    Plot "typical" change of difference between fDM calibrations
+    fDM(vcirc,Reff) / fDM(Menc,Reff) with redshift for SF, roughly MS galaxies,
+    for different stellar masses.
 
+    Saves plot to PDF.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+        Path to directory containing the Sersic profile tables.
 
-    Optional Input:
-        z:              Redshift (to determine NFW halo properties)     [Default: z=2.]
-        lmstar_arr:     Array of the log of the total stellar mass [logMsun]  [Default: [9.0, 9.5, 10., 10.5, 11.] logMsun]
+        z: float, optional
+            Redshift (to determine NFW halo properties). Default: z=2.
+        lmstar_arr: array_like, optional
+            Array of the log of the total stellar mass [logMsun].
+            Default: [9.0, 9.5, 10., 10.5, 11.] logMsun.
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge
+            component [kpc].  Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        include_toy_curves: bool, optional
+            Include curves showing assumed interpolated / extrapolated parameters
+            curves used to construct the toy MS model. Default: True
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-
-        include_toy_curves:  Include curves showing assumed interpolated / extrapolated parameters curves
-                                used to construct the toy MS model.
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -4959,8 +3544,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     # plot:
 
     zstep = 0.1
-    # SHORTCUT FOR NOW:
-    #zstep = 1.0
     z_arr = np.arange(0., 3.+zstep, zstep)
 
     color_arr = []
@@ -4972,33 +3555,18 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
         if ((lmstar % 1.) == 0):
             lw_arr.append(2.) #1.75)
             ls_arr.append('-')
-        # elif ((lmstar*2. % 1.) == 0):
-        #     lw_arr.append(1.25)
-        #     ls_arr.append((0, (10, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
-        # elif (((lmstar + 0.75) % 1.) == 0):
-        #     lw_arr.append(1.25)
-        #     ls_arr.append((0, (2, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
-        # else:
-        #     lw_arr.append(1.25)
-        #     ls_arr.append((0, (3, 1, 1, 1))) #'--') # (0, (3, 1, 1, 1, 1, 1))
         else:
             lw_arr.append(1.)
             ls_arr.append('-')
 
-        #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
         if ((lmstar % 1.) == 0):
-            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.0f}$'.format(lmstar))
             labels.append(r'${:2.0f}$'.format(lmstar))
         elif ((lmstar*2. % 1.) == 0):
-            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar))
             labels.append(r'${:2.1f}$'.format(lmstar))
         else:
-            #labels.append(r'$\log_{10}(M_*/M_{\odot})'+r'={:0.2f}$'.format(lmstar))
             labels.append(r'${:2.2f}$'.format(lmstar))
 
 
-
-    #title = 'NFW'
     xlabel = r'$z$'
     if del_fDM:
         ylabel = r'$[ (f_{\mathrm{DM}}^{v}-f_{\mathrm{DM}}^{m})/f_{\mathrm{DM}}^{m}](R_{e,\mathrm{disk}})$'
@@ -5020,7 +3588,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ann_arr_pos = ['upperleft', 'upperright', None]
 
     if include_toy_curves:
-        #keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
         keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'bt', 'lMhalo', 'halo_conc']
         ylabels_toy = []
         ylims_toy = []
@@ -5064,7 +3631,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     n_cols = len(types)
     if include_toy_curves:
         n_rows = 2
-        #fac = 1.5 #1.725 #1.15*1.5
         if len(keys_toy) == 7:
             fac = 1.5 #1.725 #1.15*1.5
         elif len(keys_toy) == 6:
@@ -5084,12 +3650,9 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             height_ratios=[0.45, 1.]
         else:
             height_ratios=[len(types)/len(keys_toy), 1.]
-        #height_ratios=[len(types)/len(keys_toy), 1.]
 
         gs_outer = gridspec.GridSpec(2, 1, wspace=wspace, hspace=hspace, height_ratios=height_ratios)
 
-
-        #keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'lMbar', 'bt', 'lMhalo', 'halo_conc']
         wspace = 0.35 #0.25 #0.025
         hspace = wspace
         gs0 = gridspec.GridSpecFromSubplotSpec(1, len(keys_toy),subplot_spec=gs_outer[0,0],
@@ -5184,22 +3747,22 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                         }
             for ll, z in enumerate(z_arr):
                 print("  z={}".format(z))
-                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+                invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 lMbar = np.log10(Mbaryon)
 
-                bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+                bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
                 Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
 
                 val_dict['bt'][ll] = bt
                 val_dict['Reff_disk'][ll] = Reff_disk
@@ -5266,7 +3829,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             dict_stack.append(val_dict)
 
 
-#
 
     dict_toy = None
     f_save_toy = output_path+'toy_impl_fDM_calibration_z_MW_M31.pickle'
@@ -5325,22 +3887,22 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 print("  z={}".format(z))
 
                 lmstar = val_dict['lmstar'][ll]
-                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+                invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 lMbar = np.log10(Mbaryon)
 
-                bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+                bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
                 Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
+                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
 
                 val_dict['bt'][ll] = bt
                 val_dict['Reff_disk'][ll] = Reff_disk
@@ -5438,22 +4000,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
                         plot_cnt_lmstar += 1
 
-                # if keyy == 'invq_disk':
-                #     # ytmp = _invq_disk_lmstar_estimate(z=dict_stack[mm]['z_arr'],
-                #     #             lmstar=10., kind='linear')
-                #     # ax.plot(dict_stack[mm]['z_arr'], ytmp, ls='-', color='tab:green',
-                #     #             lw=1,zorder=2.)
-                #
-                #     ## adding z=1.8, qinv=4.2 point to smooth out curve....
-                #     z_arr_ROUGH =      np.array([0., 0.8, 1.2, 1.5, 1.75, 2.])
-                #     invq_arr_ROUGH =   np.array([10., 8., 6., 5., 4.3, 4.])
-                #     ax.scatter(z_arr_ROUGH, invq_arr_ROUGH, s=5,  marker='o', color='tab:green', label=None)
-
-                # MW, M31 toy:
-                # for name, color, ls in zip(['MW', 'M31'], ['black', 'grey'], ['--', ':']):
-                #     ax.plot(dict_toy[name]['z_arr'], dict_toy[name][keyy],
-                #                color=color, lw=0.75, ls=ls, label=name,
-                #                zorder=-0.5)
                 for name, color, m, s,zord in zip(['MW', 'M31'], ['black', 'grey'],
                                             ['*', 's'], [15, 7.5], [-0.5, -0.6]):
                     whshow = np.where(((dict_toy[name]['z_arr'])%0.25 == 0))[0]
@@ -5463,12 +4009,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
                 ######################
                 if ylim is None:        ylim = ax.get_ylim()
-
-                # if keyy == 'fDM_comp':
-                #     if del_fDM:
-                #         ax.axhline(y=0., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
-                #     else:
-                #         ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
 
                 ax.set_xlim(xlim)
                 ax.set_ylim(ylim)
@@ -5482,13 +4022,11 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 if xlabel is not None:
                     ax.set_xlabel(xlabel, fontsize=fontsize_labels_sm-2)
                 else:
-                    #ax.tick_params(labelbottom='off')
                     ax.set_xticklabels([])
 
                 if ylabel is not None:
                     ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=2)
                 else:
-                    #ax.tick_params(labelleft='off')
                     ax.set_yticklabels([])
 
                 ax.tick_params(labelsize=fontsize_ticks_sm-2)
@@ -5508,7 +4046,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
             plot_cnt_lmstar = 0
             for mm, lmstar in enumerate(lmstar_arr):
-                #if ((lmstar*2. % 1.) == 0):
                 if True:
                     ax.plot(dict_stack[mm]['z_arr'], dict_stack[mm][keyy], ls=ls_arr[mm],
                                color=color_arr[mm], lw=lw_arr[mm], label=labels[mm],
@@ -5517,12 +4054,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                     plot_cnt_lmstar += 1
 
             #####################
-            # MW, M31 toy:
-            # for name, color, ls in zip(['MW', 'M31'], ['black', 'grey'], ['--', ':']):
-            #     ax.plot(dict_toy[name]['z_arr'], dict_toy[name][keyy],
-            #                color=color, lw=1, ls=ls, label=name,
-            #                zorder=-0.5)
-
             for name, color, m, s,zord in zip(['MW', 'M31'], ['black', 'grey'],
                                         ['*', 's'], [30, 15], [-0.5, -0.6]):
                 whshow = np.where(((dict_toy[name]['z_arr'])%0.25 == 0))[0]
@@ -5557,12 +4088,8 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                         va=va, ha=ha, fontsize=fontsize_ann-0.5, #fontsize_ann_latex
                         xycoords='axes fraction')
 
-
-
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-
-
 
             ########
             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
@@ -5578,19 +4105,14 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
             if ylabel is not None:
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
-
-            # if title is not None:
-            #     ax.set_title(title, fontsize=fontsize_title)
 
             if k == 0:
                 handles, labels_leg = ax.get_legend_handles_labels()
@@ -5635,8 +4157,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
@@ -5656,26 +4176,36 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             overwrite_dict_stack=False,
             show_sigmar_toy=False):
     """
+    Plot example applying asymmetric drift of different kinds to vcirc curves
+    to yield predicted vrot curves.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+        lmstar: float, optional
+            Log of the total stellar mass [logMsun]. Default: 10.5 logMsun
+        z_arr: array_like, optional
+            Redshifts to show example. Default: [0.5, 1., 1.5, 2., 2.5]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -5688,8 +4218,6 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             fileout += "_sigmar_toy"
         fileout += '.pdf'
 
-
-    #mpl.rcParams['text.usetex'] = True
     mpl.rcParams['text.usetex'] = False
 
     if lmstar is None:
@@ -5702,10 +4230,8 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
     # Ensure it's an np array, not a list:
     z_arr = np.array(z_arr)
 
-
     rstep = 0.1 # kpc
     r_arr = np.arange(0., 20.+rstep, rstep)
-
 
     # ++++++++++++++++
     titles = []
@@ -5726,9 +4252,6 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
     lw_arr = [1.3, 1.3]
     labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
 
-
-    # ann_arr = [ None, None, None, None, None]
-    # ann_arr_pos = [None, None, None, None, None]
     if show_sigmar_toy:
         ann_arr = [ None, r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None]
         ann_arr_pos = [None, 'upperright', None, None, None]
@@ -5773,9 +4296,7 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
 
-
     ######################
-
     dict_stack = None
     f_save = output_path+'toy_impl_AD_apply_z.pickle'
     if save_dict_stack:
@@ -5787,7 +4308,6 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                 raise ValueError("Really shouldn't do this!")
                 os.remove(f_save)
                 dict_stack = None
-
 
     if dict_stack is None:
         dict_stack = []
@@ -5819,24 +4339,24 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                         'vrot_alphan':  np.ones(len(r_arr)) * -99.,
                         'vrot_SG':      np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
             Mgas = Mbaryon * fgas
             lMbar = np.log10(Mbaryon)
 
-            bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+            Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
             Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
             lMhalo = np.log10(Mhalo)
-            halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-            sigma0 = _int_disp_z_evol_U19(z=z)
+            halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
+            sigma0 =    utils._int_disp_z_evol_U19(z=z)
 
             val_dict['bt'] = bt
             val_dict['Reff_disk'] = Reff_disk
@@ -5849,16 +4369,6 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             val_dict['sigma0'] = sigma0
 
             ######
-            # nearest_n, nearest_invq = n_disk, invq_disk
-            # try:
-            #     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr,
-            #                 total_mass=((1.-bt)*Mbaryon),
-            #                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-            #
-            # except:
-            #     vcirc_disk = calcs.v_circ(r_arr, total_mass=((1.-bt)*Mbaryon),
-            #                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-
             # JUST USE LOOKUP
             nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
             vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
@@ -5867,11 +4377,9 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
 
             vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-
             vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
-
 
             alphan = calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
                     BT=bt,  total_mass=Mgas,
@@ -5986,10 +4494,8 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                         va=va, ha=ha, fontsize=fontsize_ann_latex-2,
                         xycoords='axes fraction')
 
-
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-
 
             ########
             ax.xaxis.set_minor_locator(MultipleLocator(1.))
@@ -6001,14 +4507,11 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            #if ylabel is not None:
             if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
@@ -6039,10 +4542,7 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                 fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
                 labelspacing=0.01 #0.15
                 handletextpad=0.25
-                #loc = 'lower left' #'upper right' #'lower right'
-                loc = (0.02, 0.005) #0.015)
-                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
-                # fontsize_leg_title = fontsize_leg
+                loc = (0.02, 0.005)
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc=loc,
@@ -6050,7 +4550,6 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
                 legend1.set_zorder(-0.05)
-                    #title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     labelspacing=0.15
@@ -6065,19 +4564,11 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
     else:
         plt.show()
-
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
-
 
     mpl.rcParams['text.usetex'] = False
 
@@ -6089,26 +4580,37 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             save_dict_stack=True,
             overwrite_dict_stack=False):
     """
+    Plot example correcting for asymmetric drift of different kinds.
+    Take a vrot curve and predict the appropriate vcirc curves
+    for the different AD corrections.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+        lmstar: float, optional
+            Log of the total stellar mass [logMsun]. Default: 10.5 logMsun
+        z_arr: array_like, optional
+            Redshifts to show example. Default: [0.5, 1., 1.5, 2., 2.5]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -6119,8 +4621,6 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
         fileout = output_path+'plot_toy_AD_corr_z'
         fileout += '.pdf'
 
-
-    #mpl.rcParams['text.usetex'] = True
     mpl.rcParams['text.usetex'] = False
 
     if lmstar is None:
@@ -6134,10 +4634,8 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     # Ensure it's an np array, not a list:
     z_arr = np.array(z_arr)
 
-
     rstep = 0.1 # kpc
     r_arr = np.arange(0., 20.+rstep, rstep)
-
 
     # ++++++++++++++++
     titles = []
@@ -6158,9 +4656,6 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     lw_arr = [1.3, 1.3]
     labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
 
-
-    # ann_arr = [ None, None, None, None, None]
-    # ann_arr_pos = [None, None, None, None, None]
     ann_arr = [ r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None, None]
     ann_arr_pos = ['upperright', None, None, None, None]
 
@@ -6201,9 +4696,7 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
 
-
     ######################
-
     dict_stack = None
     f_save = output_path+'toy_impl_AD_corr_z.pickle'
     if save_dict_stack:
@@ -6215,7 +4708,6 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                 raise ValueError("Really shouldn't do this!")
                 os.remove(f_save)
                 dict_stack = None
-
 
     if dict_stack is None:
         dict_stack = []
@@ -6251,24 +4743,24 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                         'vcirc_corr_alphan': np.ones(len(r_arr)) * -99.,
                         'vcirc_corr_SG':     np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
             Mgas = Mbaryon * fgas
             lMbar = np.log10(Mbaryon)
 
-            bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+            Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
             Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
             lMhalo = np.log10(Mhalo)
-            halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-            sigma0 = _int_disp_z_evol_U19(z=z)
+            halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
+            sigma0 =    utils._int_disp_z_evol_U19(z=z)
 
             val_dict['bt'] = bt
             val_dict['Reff_disk'] = Reff_disk
@@ -6281,16 +4773,6 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             val_dict['sigma0'] = sigma0
 
             ######
-            # nearest_n, nearest_invq = n_disk, invq_disk
-            # try:
-            #     vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr,
-            #                 total_mass=((1.-bt)*Mbaryon),
-            #                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-            #
-            # except:
-            #     vcirc_disk = calcs.v_circ(r_arr, total_mass=((1.-bt)*Mbaryon),
-            #                 Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-
             # JUST USE LOOKUP
             nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
             vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
@@ -6339,7 +4821,6 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             ##
             dict_stack.append(val_dict)
 
-
     if save_dict_stack:
         if not (os.path.isfile(f_save)):
             with open(f_save, 'wb') as f:
@@ -6377,21 +4858,14 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                            ls=ls, color=col, lw=lw, label=lbl, zorder=-1.)
                 plot_cnt_lmstar += 1
 
-            #
             ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vrot_obs'],
                ls='-',color='magenta', lw=1.3, label=r'$v_{\mathrm{rot}}$', zorder=-1.)
-
-            # val_dict['vrot_obs'] = vrot_alphan
-            # val_dict['vcirc_corr_alphan'] = np.sqrt(val_dict['vrot_obs']**2 + alphan*(sigma0**2))
-            # val_dict['vcirc_corr_SG'] = np.sqrt(val_dict['vrot_obs']**2 + alpha_SG*(sigma0**2))
-
 
             for mm, type in enumerate(types):
                     ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vcirc_corr_{}'.format(type)],
                        ls=ls_arr[mm],
                        color=color_arr[mm], lw=lw_arr[mm], label=labels[mm],
                        zorder=-1.)
-
 
             ######################
             if ylim is None:        ylim = ax.get_ylim()
@@ -6431,14 +4905,11 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            #if ylabel is not None:
             if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
@@ -6469,16 +4940,13 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                 fontsize_leg_tmp = fontsize_leg
                 labelspacing=0.15
                 handletextpad=0.25
-                loc = 'lower left' #'upper right' #'lower right'
-                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
-                # fontsize_leg_title = fontsize_leg
+                loc = 'lower left'
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc=loc,
                     numpoints=1, scatterpoints=1,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
-                    #title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     loc2='lower right' # 'lower left'
@@ -6490,19 +4958,11 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
     else:
         plt.show()
-
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
-
 
     mpl.rcParams['text.usetex'] = False
 
@@ -6517,26 +4977,39 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
             save_dict_stack=False,
             overwrite_dict_stack=False):
     """
+    Plot enclosed mass fractions predicted for different flattening q and B/T ratios.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+        lmstar: float, optional
+            Log of the total stellar mass [logMsun]. Default: 10.5 logMsun
+        z_arr: array_like, optional
+            Redshifts to show example. Default: [0.5, 1., 1.5, 2., 2.5]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        q_arr: array_like, optional
+            Disk axis ratio array. Default: q_arr=[0.1, 0.2, 0.4, 1., 1.5, 2.].
+        bt_arr: array_like, optional
+            Bulge-to-total ratio array. Default: bt_arr = [0., 0.25, 0.5, 0.75, 1.].
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -6550,13 +5023,10 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
 
 
     mpl.rcParams['text.usetex'] = True
-    #mpl.rcParams['text.usetex'] = False
-
 
     # Ensure it's an np array, not a list:
     q_arr = np.array(q_arr)
     bt_arr = np.array(bt_arr)
-
 
     rstep = 0.1 # kpc
     r_range = [0., 3.] #[0., 5.] #[0., 10.] #[0., 20.]
@@ -6600,7 +5070,6 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
     fac = 1.05 #1.15 #1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
-
     wspace = 0.075 #0.1 #0.25 #0.025
     hspace = wspace
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
@@ -6628,7 +5097,6 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
 
-
     ######################
 
     dict_stack = None
@@ -6641,7 +5109,6 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
             if overwrite_dict_stack:
                 os.remove(f_save)
                 dict_stack = None
-
 
     if dict_stack is None:
         dict_stack = []
@@ -6666,17 +5133,16 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                             'menc_bar':     np.ones(len(r_arr)) * -99.,
                             'Mbar_tot':     -99.
                             }
-                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
                 invq_disk = 1./q
 
-                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 Mgas = Mbaryon * fgas
                 lMbar = np.log10(Mbaryon)
-
 
                 val_dict['bt'] = bt
                 val_dict['Reff_disk'] = Reff_disk
@@ -6697,15 +5163,12 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
 
                 menc_bar = menc_disk + menc_bulge
 
-
                 ####
-
                 val_dict['invq_near'] = nearest_invq
 
                 val_dict['menc_disk'] = menc_disk
                 val_dict['menc_bulge'] = menc_bulge
                 val_dict['menc_bar'] = menc_bar
-
 
                 val_bt_dict['q={}'.format(q)] = val_dict
                 ##
@@ -6737,28 +5200,19 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                         dict_stack[j]['q={}'.format(q)]['menc_bar']/dict_stack[j]['q={}'.format(q)]['Mbar_tot'],
                            ls=ls_arr[mm], color=color_arr[mm], lw=lw, label=labels[mm], zorder=-1.)
 
-
-
-
             ######################
             if ylim is None:        ylim = ax.get_ylim()
 
             ax.axhline(y=0.5, ls=':', color='darkgrey', zorder=-20.)
             ax.axvline(x=1., ls=':', color='darkgrey', zorder=-20.)
 
-
             ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk'], ls='-.', color='darkgrey', zorder=-20.)
             ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk']*1.3, ls='--', color='darkgrey', zorder=-20.)
-
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
 
-
             ########
-            # ax.xaxis.set_minor_locator(MultipleLocator(1.))
-            # ax.xaxis.set_major_locator(MultipleLocator(5.))
-
             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
             ax.xaxis.set_major_locator(MultipleLocator(1.))
 
@@ -6768,14 +5222,11 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            #if ylabel is not None:
             if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
@@ -6806,11 +5257,7 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                 fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
                 labelspacing=0.01 #0.15
                 handletextpad=0.25
-                #loc = 'lower left' #'upper right' #'lower right'
-                #loc = (0.02, 0.005) #0.015)
                 loc = 'lower right'
-                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
-                # fontsize_leg_title = fontsize_leg
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc=loc,
@@ -6818,7 +5265,6 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
                 legend1.set_zorder(-0.05)
-                    #title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     labelspacing=0.15
@@ -6831,19 +5277,11 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
     else:
         plt.show()
-
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
-
 
     mpl.rcParams['text.usetex'] = False
 
@@ -6858,26 +5296,40 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
             save_dict_stack=False,
             overwrite_dict_stack=False):
     """
+    Plot 3D enclosed virial coefficient k3D for a composite disk+bulge system
+    predicted for different flattening q and B/T ratios.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+        lmstar: float, optional
+            Log of the total stellar mass [logMsun]. Default: 10.5 logMsun
+        z_arr: array_like, optional
+            Redshifts to show example. Default: [0.5, 1., 1.5, 2., 2.5]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        q_arr: array_like, optional
+            Disk axis ratio array. Default: q_arr=[0.1, 0.2, 0.4, 1., 1.5, 2.].
+        bt_arr: array_like, optional
+            Bulge-to-total ratio array. Default: bt_arr = [0., 0.25, 0.5, 0.75, 1.].
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -6891,18 +5343,14 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
 
 
     mpl.rcParams['text.usetex'] = True
-    #mpl.rcParams['text.usetex'] = False
-
 
     # Ensure it's an np array, not a list:
     q_arr = np.array(q_arr)
     bt_arr = np.array(bt_arr)
 
-
     rstep = 0.1 # kpc
     r_range = [0., 3.] #[0., 5.] #[0., 10.] #[0., 20.]
     r_arr = np.arange(r_range[0], r_range[1]+rstep, rstep)
-
 
     # ++++++++++++++++
     titles = []
@@ -7019,22 +5467,21 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                             'Mbar_tot':     -99.,
                             'k3d':          np.ones(len(r_arr)) * -99.
                             }
-                Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
                 invq_disk = 1./q
 
-                fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 Mgas = Mbaryon * fgas
                 lMbar = np.log10(Mbaryon)
 
-                Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
+                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
                 Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-                #sigma0 = _int_disp_z_evol_U19(z=z)
+                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
 
                 val_dict['bt'] = bt
                 val_dict['Reff_disk'] = Reff_disk
@@ -7048,7 +5495,6 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                 val_dict['halo_conc'] = halo_conc
 
                 val_dict['r_arr'] = r_arr.copy() * Reff_disk
-
 
                 # JUST USE LOOKUP
                 nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
@@ -7064,8 +5510,6 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
 
                 vcirc_disk = calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
                                         Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                # vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(bt)*Mbaryon,
-                #                         Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
                 vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
                 vcirc_halo = calcs.NFW_halo_vcirc(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
@@ -7091,8 +5535,6 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                                           (( val_dict['r_arr'] *1.e3*pc.cgs.value ) * \
                                            (vcirc_tot*1.e5)**2)
                 val_dict['k3d'] = k3d
-
-                # Mhalo = _Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
 
                 val_bt_dict['q={}'.format(q)] = val_dict
                 ##
@@ -7124,26 +5566,16 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                         dict_stack[j]['q={}'.format(q)]['k3d'],
                            ls=ls_arr[mm], color=color_arr[mm], lw=lw, label=labels[mm], zorder=-1.)
 
-
-
-
             ######################
             if ylim is None:        ylim = ax.get_ylim()
 
             ax.axvline(x=1., ls=':', color='darkgrey', zorder=-20.)
-
-
             ax.axvline(x=Reff_bulge/dict_stack[j]['q={}'.format(q)]['Reff_disk'], ls='-.', color='darkgrey', zorder=-20.)
-
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
 
-
             ########
-            # ax.xaxis.set_minor_locator(MultipleLocator(1.))
-            # ax.xaxis.set_major_locator(MultipleLocator(5.))
-
             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
             ax.xaxis.set_major_locator(MultipleLocator(1.))
 
@@ -7153,14 +5585,11 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            #if ylabel is not None:
             if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
@@ -7191,11 +5620,7 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                 fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
                 labelspacing=0.01 #0.15
                 handletextpad=0.25
-                #loc = 'lower left' #'upper right' #'lower right'
-                #loc = (0.02, 0.005) #0.015)
                 loc = 'upper right'
-                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
-                # fontsize_leg_title = fontsize_leg
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc=loc,
@@ -7203,7 +5628,6 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
                 legend1.set_zorder(-0.05)
-                    #title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     labelspacing=0.15
@@ -7216,19 +5640,11 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
     else:
         plt.show()
-
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
-
 
     mpl.rcParams['text.usetex'] = False
 
@@ -7241,26 +5657,38 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             save_dict_stack=False,
             overwrite_dict_stack=False):
     """
+    Plot 3D enclosed virial coefficient k3D for a composite disk+bulge system,
+    using typical values for a disk of lmstar=10.5, but varying fDM.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        lmstar:     Log of the total stellar mass [logMsun]  [Default: 10.5 logMsun]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z_arr:      Redshifts to show example [Default: [0.5, 1., 1.5, 2., 2.5]]
+        lmstar: float, optional
+            Log of the total stellar mass [logMsun]. Default: 10.5 logMsun
+        z: float, optional
+            Redshift. Default: 2.
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        fdm_arr: array_like, optional
+            Dark matter fraction array. Default :fdm_arr = [0.001, 0.25, 0.5, 0.75, 0.999].
 
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -7274,8 +5702,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
 
 
     mpl.rcParams['text.usetex'] = True
-    #mpl.rcParams['text.usetex'] = False
-
 
     rstep = 0.02 #0.1 # kpc
     r_range = [0., 3.] #[0., 5.] #[0., 10.] #[0., 20.]
@@ -7288,7 +5714,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
     ylabel = r'$k_{\mathrm{3D}}$'
     xlim = [r_arr.min(), r_arr.max()]
     ylim = [0.8, 1.3] #[0., 2.] #[0., 1.]
-
 
     color_arr = []
     ls_arr = []
@@ -7310,7 +5735,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
     n_rows = 1
     fac = 1.05 #1.05
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
-
 
     wspace = 0.075 #0.1 #0.25 #0.025
     hspace = wspace
@@ -7339,7 +5763,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
     m_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
     v_interp_bulge = scp_interp.interp1d(tab_bulge_rad, tab_bulge_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
 
-
     ######################
 
     dict_stack = None
@@ -7352,7 +5775,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             if overwrite_dict_stack:
                 os.remove(f_save)
                 dict_stack = None
-
 
     if dict_stack is None:
         dict_stack = []
@@ -7386,17 +5808,15 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                         'Mbar_tot':     -99.,
                         'k3d':          np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            #invq_disk = 1./q
-
-            invq_disk = _invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
             q = 1./invq_disk
 
-            bt =        _bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
 
-            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
@@ -7427,8 +5847,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
 
             vcirc_disk = calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
                                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-            # vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(bt)*Mbaryon,
-            #                         Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
             vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
 
@@ -7439,15 +5857,11 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             vcirc_baryons_reff = np.sqrt(vcdiskre**2 + vcbulgere**2)
 
             halo_conc = 4.
-            Mhalo = _Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons_reff, fDMv=fdm,
+            Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons_reff, fDMv=fdm,
                             r=Reff_disk, conc=halo_conc, z=z)
 
-
-            #Mhalo =     _smhm_relation(z=z, lmstar=lmstar)
             Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
             lMhalo = np.log10(Mhalo)
-            #halo_conc = _halo_conc_relation(z=z, lmhalo=lMhalo)
-            #sigma0 = _int_disp_z_evol_U19(z=z)
 
             menc_halo = calcs.NFW_halo_enclosed_mass(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
             menc_tot = menc_bar + menc_halo
@@ -7484,9 +5898,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             print("     lMhalo={}".format(lMhalo))
             print("     vcirc_baryons_reff={}".format(vcirc_baryons_reff))
 
-
-            #val_bt_dict['q={}'.format(q)] = val_dict
-            ##
             dict_stack.append(val_dict)
 
     print("Re,disk={}".format(Reff_disk))
@@ -7506,7 +5917,6 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
 
             ax = axes[k]
 
-
             plot_cnt_lmstar = 0
             for mm, fdm in enumerate(fdm_arr):
                 plot_cnt_lmstar += 1
@@ -7514,26 +5924,16 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                         dict_stack[mm]['k3d'],
                            ls=ls_arr[mm], color=color_arr[mm], lw=lw, label=labels[mm], zorder=-1.)
 
-
-
-
             ######################
             if ylim is None:        ylim = ax.get_ylim()
 
             ax.axvline(x=1., ls=':', color='darkgrey', zorder=-20.)
-
-
             ax.axvline(x=Reff_bulge/dict_stack[j]['Reff_disk'], ls='-.', color='darkgrey', zorder=-20.)
-
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
 
-
             ########
-            # ax.xaxis.set_minor_locator(MultipleLocator(1.))
-            # ax.xaxis.set_major_locator(MultipleLocator(5.))
-
             ax.xaxis.set_minor_locator(MultipleLocator(0.2))
             ax.xaxis.set_major_locator(MultipleLocator(1.))
 
@@ -7543,20 +5943,14 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             if xlabel is not None:
                 ax.set_xlabel(xlabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
-            #if ylabel is not None:
             if (j == 0) & (ylabel is not None):
                 ax.set_ylabel(ylabel, fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
 
             ax.tick_params(labelsize=fontsize_ticks)
-
-            # if titles[j] is not None:
-            #     ax.set_title(titles[j], fontsize=fontsize_title)
 
             if k == 0:
                 handles, labels_leg = ax.get_legend_handles_labels()
@@ -7581,11 +5975,7 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                 fontsize_leg_tmp = fontsize_leg + 1#fontsize_leg
                 labelspacing=0.01 #0.15
                 handletextpad=0.25
-                #loc = 'lower left' #'upper right' #'lower right'
-                #loc = (0.02, 0.005) #0.015)
                 loc = 'upper right'
-                # leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
-                # fontsize_leg_title = fontsize_leg
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc=loc,
@@ -7593,11 +5983,10 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
                 legend1.set_zorder(-0.05)
-                    #title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
                     labelspacing=0.15
-                    loc2= (0.55, 0.635)#'lower right' # 'lower left'
+                    loc2= (0.55, 0.635)
                     legend2 = ax.legend(handles_arr2, labels_arr2,
                         labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                         loc=loc2,
@@ -7606,18 +5995,11 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
 
-
-
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
         plt.close()
     else:
         plt.show()
-
-    # if return_dict:
-    #     return dict_stack
-    # else:
-    #     return None
 
 
     mpl.rcParams['text.usetex'] = False
@@ -7629,18 +6011,27 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
             n_arr=[1.,4.]):
     """
     Plot the 3D virial coefficient as a function of radius, k3D(r),
-        for a range of intrinsic axis ratios q and Sersic indices n.
+    for a range of intrinsic axis ratios q and Sersic indices n.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        q_arr:      Range of intrinsic axis ratios to plot.   Default: q_arr = [0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.]  (mostly oblate, 2 prolate)
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        q_arr: array_like, optional
+            Range of intrinsic axis ratios to plot.
+            Default: q_arr = [0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.]  (mostly oblate, 2 prolate)
+        n_arr: array_like, optional
+            Range of Sersic indices to plot.
+            Default: n_arr = [1.,4.]
 
-    Output:         PDF plot saved to file.
+        fileout:str, optional
+            Override the default filename and explicitly choose the output filename (must include full path).
+
     """
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:      raise ValueError("Must set 'table_path' !")
@@ -7653,8 +6044,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
 
     ####################
     q_arr = np.array(q_arr)
-
-    #n_arr = np.array([1., 4.])
     n_arr = np.array(n_arr)
 
     color_arr = []
@@ -7665,8 +6054,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
         else:
             color_arr.append(cmapg(1./q))
         labels.append(r'$q_0={}$'.format(q))
-
-    #
 
     ls_arr = []
     labels_n = []
@@ -7700,12 +6087,10 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
                     if (q == 0.2) & (n == 1.):
                         ks_dict['Reff'] = tab['Reff']
 
-                    #
                     if (q == 0.2):
                         ks_dict['tot']['n={}'.format(n)]['rarr'] = tab['r']
                         ks_dict['3D']['n={}'.format(n)]['rarr'] = tab['r']
 
-                    #
                     ks_dict['tot']['n={}'.format(n)]['q={}'.format(q)]  = calcs.virial_coeff_tot(tab['r'], total_mass=tab['total_mass'],
                                                q=q, Reff=tab['Reff'], n=n, i=90., vc=tab['vcirc'])
                     ks_dict['3D']['n={}'.format(n)]['q={}'.format(q)]  = calcs.virial_coeff_3D(tab['r'], total_mass=tab['total_mass'],
@@ -7720,12 +6105,9 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
         pass
 
 
-
     types = ['3D']
-    #xlabel = r'$r$ [kpc]'
     xlabel = r'$r/R_e$'
     ylabels = [r'$k_{\mathrm{3D}}(r)$']
-    #xlim = [0., 15.]
     xlim = [0., 10.]
     ylims = [[0.8,1.3]]
 
@@ -7734,14 +6116,12 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
     ann_arr = [ r'$k_{\mathrm{3D}}(r) = \frac{M_{\mathrm{encl,3D}}(<r) G }{v_c(r)^2 r}$' ]
     ann_arr_pos = ['lowerright']
 
-
     ######################################
     # Setup plot:
     f = plt.figure()
     scale = 4.25
     n_cols = len(types)
     f.set_size_inches(1.15*scale*n_cols,scale)
-
 
     pad_outer = 0.2
 
@@ -7759,7 +6139,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
                 r_arr = ks_dict[types[i]]['n={}'.format(n)]['rarr']/ks_dict['Reff']
                 if len(k_arr) != len(r_arr):
                     raise ValueError
-
 
                 ls_tmp = ls_arr[k]
 
@@ -7783,10 +6162,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
                 ax.plot(r_arr, k_arr, ls=ls_tmp, color=col_tmp, lw=lw_arr[k], label=lbl_tmp, zorder=-k)
 
 
-
-
-        #
-        #ax.axvline(x=ks_dict['Reff'], ls='--', color='lightgrey', zorder=-20., label=r'$R_{e}$')
         ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
 
         ax.set_xlim(xlim)
@@ -7797,8 +6172,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
 
         if titles[i] is not None:   ax.set_title(titles[i], fontsize=fontsize_title)
 
-        # ax.xaxis.set_minor_locator(MultipleLocator(1.))
-        # ax.xaxis.set_major_locator(MultipleLocator(5.))
         ax.xaxis.set_minor_locator(MultipleLocator(0.5))
         ax.xaxis.set_major_locator(MultipleLocator(2.))
 
@@ -7841,10 +6214,6 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
 
 
 
-    #####
-
-
-#
 def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
              z_arr=[2.], lMstar_arr=[9.0, 9.5, 10., 10.5, 11.],
              n_disk=1., invq_disk=5.,
@@ -7853,44 +6222,53 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
              log_rmin=-0.6, log_rmax=2.2, nlogr = 101,
              logradius=False):
     """
-    Plot example enclosed mass and circular velocity profiles for different mass components, over a variety of B/T ratios
+    Plot fDM ratio vs r, over a variety of stellar masses.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        bt_arr:     Array of B/T ratios to plot, in separate panels.  Default: [0., 0.25, 0.5, 0.75]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z:          Redshift (to determine NFW halo properties)     [Default: z=2.]
-        Mbaryon:    Total baryon mass [Msun]                        [Default: 5.e10 Msun]
+        lMstar_arr: array_like, optional
+            Array of log stellar masses to plot, in separate panels.
+            Default: [9.0, 9.5, 10., 10.5, 11.]
+        z_arr: array_like, optional
+            Redshift (to determine NFW halo properties). Default: z=[2.]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        invq_disk: float, optional
+            Flattening of disk component. Default: invq_disk = 5.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc.
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
 
-        Reff_disk:  Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].   [Default: 5kpc]
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
-        invq_disk:  Flattening of disk component                    [Default: invq_disk = 5.]
+        logradius: bool, optional
+            Option whether to plot log radius or linear. Default: False (plot linear).
+        rmin: float, optional
+            Minimum radius, if doing linear radius.  Ignored if logradius=True. [kpc]
+        rmax: float, optional
+            Maximum radius, if doing linear radius.  Ignored if logradius=True. [kpc]
+        rstep: float, optional
+            Radius stepsize, if doing linear radius. Ignored if logradius=True. [kpc]
+        log_rmin: float, optional
+            Log of minimum radius, if doing log radius. Ignored if logradius=False. [log(kpc)]
+        log_rmax: float, optional
+            Log of maximum radius, if doing log radius. Ignored if logradius=False. [log(kpc)]
+        nlogr: int, optional
+            Number of log radius steps, if logradius=True. Ignored if logradius=False.
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-
-        Mhalo:      NFW halo mass within R200 (=M200) [Msun]        [Default: 1.e12 Msun]
-        halo_conc:  Concentration of NFW halo                       [Default: 4.]
-
-
-        logradius:  Option whether to plot log radius or linear     [Default: False  (plot linear)]
-
-        rmin:       Minimum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Maximum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Radius stepsize, if doing linear radius. Ignored if logradius=True.   [kpc]
-
-        log_rmin:   Log of minimum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        log_rmax:   Log of maximum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        nlogr:      Number of log radius steps, if logradius=True. Ignored if logradius=False.
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -7902,8 +6280,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
         fileout = output_path+'plot_fdm_calibration_radius'
         if logradius:  fileout += '_logradius'
         fileout += '.pdf'
-
-
 
     if logradius:
         r_arr = np.logspace(log_rmin, log_rmax, num=nlogr)
@@ -7919,8 +6295,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
 
     # ++++++++++++++++
     # plot:
-
-
     types = ['NFW', 'TPH0.0']
 
     labels = []
@@ -7994,7 +6368,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
     fac = 1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
-
     wspace = 0.025
     hspace = wspace
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
@@ -8002,7 +6375,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
     for i in range(n_rows):
         for j in range(n_cols):
             axes.append(plt.subplot(gs[i,j]))
-
 
     for i in range(n_rows):
         for j in range(n_cols):
@@ -8031,8 +6403,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
 
                     ###############
                     ## Get mass, velocity components:
-
-                    #####
                     menc_disk = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
                     menc_bulge = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(bt)*Mbaryon,
@@ -8060,10 +6430,7 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                     vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                     fdm_vsq = vcirc_halo**2/vcirc_tot**2
 
-
                     fdm_comp = fdm_vsq / fdm_menc
-
-
 
                     if jj == 0:
                         lbl_tmp = labels[mm]
@@ -8071,7 +6438,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                         lbl_tmp = labels_bt[jj]
                     else:
                         lbl_tmp = None
-
 
                     ax.plot(rarr_plot, fdm_comp, ls=ls_arr_bt[jj], color=color_arr[mm],
                             lw=lw_arr[mm], label=lbl_tmp)
@@ -8094,12 +6460,8 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
 
             if ylim is None:  ylim = ax.get_ylim()
 
-
-
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-
-
 
             ########
             if logradius:
@@ -8125,21 +6487,17 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                 ax.yaxis.set_major_locator(MultipleLocator(0.5))
                 ax.yaxis.set_minor_locator(MultipleLocator(0.1))
 
-
             ax.tick_params(labelsize=fontsize_ticks)
 
             if xlabels[k] is not None:
                 ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
             if ylabels[k] is not None:
                 ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
-
 
             if titles[k] is not None:
                 ax.set_title(titles[k], fontsize=fontsize_title)
@@ -8152,7 +6510,6 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                 for ii in neworder:
                     handles_arr.append(handles[ii])
                     labels_arr.append(labels_leg[ii])
-
 
                 ###############
                 frameon = True
@@ -8183,51 +6540,44 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
     else:
         plt.show()
 
-#
-#
+
 def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
              z_arr=[2.], lMstar_arr=[9.0, 9.5, 10., 10.5, 11.],
              n_disk=1., invq_disk=5.,
              Reff_bulge=1., n_bulge=4., invq_bulge=1.):
     """
-    Plot example enclosed mass and circular velocity profiles for different mass components, over a variety of B/T ratios
+    Plot DM ratio vs fDM_v(Reff), over a variety of stellar masses.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
-        bt_arr:     Array of B/T ratios to plot, in separate panels.  Default: [0., 0.25, 0.5, 0.75]
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        z:          Redshift (to determine NFW halo properties)     [Default: z=2.]
-        Mbaryon:    Total baryon mass [Msun]                        [Default: 5.e10 Msun]
+        lMstar_arr: array_like, optional
+            Array of log stellar masses to plot, in separate panels.
+            Default: [9.0, 9.5, 10., 10.5, 11.]
+        z_arr: array_like, optional
+            Redshift (to determine NFW halo properties). Default: z=[2.]
+        n_disk: float, optional
+            Sersic index of disk component. Default: n_disk = 1.
+        invq_disk: float, optional
+            Flattening of disk component. Default: invq_disk = 5.
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc.
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
 
-        Reff_disk:  Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].   [Default: 5kpc]
-        n_disk:     Sersic index of disk component                  [Default: n_disk = 1.]
-        invq_disk:  Flattening of disk component                    [Default: invq_disk = 5.]
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
-
-
-        Mhalo:      NFW halo mass within R200 (=M200) [Msun]        [Default: 1.e12 Msun]
-        halo_conc:  Concentration of NFW halo                       [Default: 4.]
-
-
-        logradius:  Option whether to plot log radius or linear     [Default: False  (plot linear)]
-
-        rmin:       Minimum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Maximum radius, if doing linear radius.  Ignored if logradius=True.   [kpc]
-        rmax:       Radius stepsize, if doing linear radius. Ignored if logradius=True.   [kpc]
-
-        log_rmin:   Log of minimum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        log_rmax:   Log of maximum radius, if doing log radius. Ignored if logradius=False.  [log(kpc)]
-        nlogr:      Number of log radius steps, if logradius=True. Ignored if logradius=False.
-
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
-
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -8250,8 +6600,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
 
     # ++++++++++++++++
     # plot:
-
-
     types = ['NFW', 'TPH']
 
     labels = []
@@ -8273,8 +6621,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
     labels_bt = []
     for bt in bt_arr:
         labels_bt.append(r'$B/T={:0.2f}$'.format(bt))
-
-
 
     titles = []
     vline_loc = []
@@ -8330,7 +6676,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
     fac = 1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
-
     wspace = 0.025
     hspace = wspace
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
@@ -8338,9 +6683,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
     for i in range(n_rows):
         for j in range(n_cols):
             axes.append(plt.subplot(gs[i,j]))
-
-
-
 
     for i in range(n_rows):
         for j in range(n_cols):
@@ -8367,7 +6709,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
 
                     ###############
                     ## Get mass, velocity components:
-
                     menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
                     menc_bulge = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(bt)*Mbaryon,
@@ -8383,18 +6724,18 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                     #####
                     fdm_comp_arr = np.ones(len(fDMvReff_arr)) * -99.
                     for ll, fDMvReff in enumerate(fDMvReff_arr):
-                        Mhalo_SMHM = _smhm_relation(z=z, lmstar=lmstar)
-                        halo_conc = _halo_conc_relation(z=z, lmhalo=np.log10(Mhalo_SMHM))
+                        Mhalo_SMHM = utils._smhm_relation(z=z, lmstar=lmstar)
+                        halo_conc = utils._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo_SMHM))
                         if fDMvReff == 0.:
                             Mhalo = 1.e2
                         elif fDMvReff == 1.:
                             Mhalo = 1.e18
                         else:
                             if halo_typ == 'NFW':
-                                Mhalo = _Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
+                                Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
                             elif halo_typ == 'TPH0.0':
                                 try:
-                                    Mhalo = _Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
+                                    Mhalo = utils._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
                                             r=Reff_disk, conc=halo_conc, z=z, alpha=0.)
                                 except:
                                     Mhalo = np.NaN
@@ -8409,9 +6750,8 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                                 Mhalo = 1.e18
                                 alphaTPH = 1.
                             else:
-                                alphaTPH = _alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
+                                alphaTPH = utils._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
                                                 r=Reff_disk, conc=halo_conc, z=z, Mhalo=Mhalo)
-
 
                         if np.isfinite(Mhalo):
                             if halo_typ == 'NFW':
@@ -8453,12 +6793,10 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                     ax.plot(fDMvReff_arr, fdm_comp_arr, ls=ls_arr_bt[jj], color=color_arr[mm],
                         lw=lw_arr[mm], label=lbl_tmp)
 
-                    #
                     if (jj == 0) & (mm == (len(lMstar_arr)-1)):
                         lbl_tmp = labels_bt[jj]
                         ax.plot(fDMvReff_arr*np.NaN, fdm_comp_arr*np.NaN, ls=ls_arr_bt[jj], color=color_arr[mm],
                                 lw=lw_arr[mm], label=lbl_tmp)
-
 
             ax.axhline(y=1., ls=':', color='lightgrey', zorder=-20.)
 
@@ -8466,8 +6804,6 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
-
-
 
             ########
             ax.xaxis.set_minor_locator(MultipleLocator(0.05))
@@ -8491,15 +6827,12 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
             if xlabels[k] is not None:
                 ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelbottom='off')
                 ax.set_xticklabels([])
 
             if ylabels[k] is not None:
                 ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
             else:
-                #ax.tick_params(labelleft='off')
                 ax.set_yticklabels([])
-
 
             if titles[k] is not None:
                 ax.set_title(titles[k], fontsize=fontsize_title)
@@ -8542,7 +6875,8 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
 def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
              fDMvReff_arr = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.],
              BT_arr = [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.],
-             Reff_disk_arr = [3., 5., 7., 10., 15.], invq_disk_arr=[1., 2., 3., 4., 5., 8.,10.],
+             Reff_disk_arr = [3., 5., 7., 10., 15.],
+             invq_disk_arr=[1., 2., 3., 4., 5., 8.,10.],
              n_disk_arr=[0.5, 1., 1.5, 2.],
              Reff_bulge=1., n_bulge=4.,
              invq_bulge=1.,
@@ -8558,22 +6892,44 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
              grid_fDM_ratio_stack = None,
              grid_fDM_ratio_pair=None):
     """
-    Plot example enclosed mass and circular velocity profiles for different mass components, over a variety of B/T ratios
+    Plot fDM ratio over a variety of fDM, B/T, Reff_disk, invq_disk, n_disk.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+        fDMvReff_arr: array_like, optional
+            fDMvReff array. Default: [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]
+        BT_arr: array_like, optional
+            B/T ratio array. Default: [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]
+        Reff_disk_arr: array_like, optional
+            Disk effective radius array [kpc]. Default: [3., 5., 7., 10., 15.] kpc
+        invq_disk_arr: array_like, optional
+            Flattening of disk component. Default: [1., 2., 3., 4., 5., 8.,10.]
+        n_disk_arr: array_like, optional
+            Sersic index of disk component. Default: [0.5, 1., 1.5, 2.]
 
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc.
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        Mbaryon: float, optional
+            Baryonic mass. Default: 1.e11 Msun
+        z: float, optional
+            Redshift (to determine NFW halo properties). Default: z=2.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -8587,7 +6943,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
             fileout += '_{}'.format(halo_typ)
         fileout += '.pdf'
 
-
     # Ensure all are np arrays:
     fDMvReff_arr = np.array(fDMvReff_arr)
     BT_arr = np.array(BT_arr)
@@ -8597,25 +6952,19 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
     q_disk_arr = 1./invq_disk_arr
 
-
-
-
     # ++++++++++++++++
     # plot:
-
     keys = [ 'fDMvReff', 'BT', 'Reff_disk', 'q_disk', 'n_disk' ]
     labels = [r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})$',
               r'$B/T$', r'$R_{e,\mathrm{disk}}$',
               r'$q_{0,\mathrm{disk}}$', r'$n_{\mathrm{disk}}$']
-    #
-    cmap = cmap_im
 
+    cmap = cmap_im
     ecrect = 'gainsboro'
 
     arr_stack = [fDMvReff_arr,
                  BT_arr, Reff_disk_arr,
                  invq_disk_arr, n_disk_arr]
-
 
     lims = [ [0.0, 1.0], [0.0, 1.0], [1.0, 15.0], [0.0, 1.0], [0.5, 2.0] ]
 
@@ -8632,7 +6981,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
     n_rows = len(keys) - 1
     fac = 1.02 #1.15
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
-
 
     wspace = 0.025
     hspace = wspace
@@ -8654,7 +7002,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
         stack_cnt = 0
         grid_fDM_ratio_pair = []
 
-        #
         for i in range(n_rows):
             keyy = keys[i+1]
             yarr = arr_stack[i+1]
@@ -8662,7 +7009,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
             for j in range(n_cols):
                 k = i*n_cols + j
                 keyx = keys[j]
-
                 xarr = arr_stack[j]
 
                 if (j <= i):
@@ -8702,7 +7048,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
                             ###############
                             ## Get mass, velocity components:
-
                             menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
                                                     Reff=Reff_disk_tmp, n=n_disk_tmp, invq=invq_disk_tmp, path=table_path)
                             menc_bulge = calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
@@ -8780,11 +7125,8 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                         grid_fDM_ratio_stack = []
                     grid_fDM_ratio_stack.append(grid_fDM_ratio)
                     grid_fDM_ratio_pair.append('{}-{}'.format(keyx, keyy))
-                    #
-
 
     stack_cnt = 0
-
     for i in range(n_rows):
         keyy = keys[i+1]
         ylim = lims[i+1]
@@ -8795,7 +7137,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
             ax = axes[k]
             keyx = keys[j]
             xlim = lims[j]
-
 
             xarr = arr_stack[j]
             # Reset each time
@@ -8808,8 +7149,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
             if j > 0:
                 ylabel = None
-
-
 
             if (j > i):
                 if (i == 0) & (j == 2):
@@ -8843,7 +7182,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                                 xycoords='axes fraction', va='center',
                                 ha='left', fontsize=fontsize_ann_lg)
 
-
                     ann_str = r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})'+r'={:0.1f}$'.format(np.log10(Mbaryon))
                     ann_str += '\n'
                     ann_str += r'$B/T={:0.2f}$'.format(BT_0)
@@ -8869,7 +7207,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                     if ax is not None:
                         ax.axis('off')
             else:
-
                 # Get fiducial values:
                 if keyx == 'fDMvReff':
                     xfid = fDMvReff_0
@@ -8893,10 +7230,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                 elif keyy == 'n_disk':
                     yfid = n_disk_0
 
-
-
-
-
                 ####
                 grid_fDM_ratio = grid_fDM_ratio_stack[stack_cnt]
                 grid_fDM_names = grid_fDM_ratio_pair[stack_cnt]
@@ -8908,7 +7241,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                     xarr = 1./xarr
                 if keyy == 'q_disk':
                     yarr = 1./yarr
-
 
                 ###
                 # ADAPTIVE GRID SIZE BASED ON X,Y SAMPLING:
@@ -8933,7 +7265,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
                 im_fDM_grid = ax.pcolormesh(xarr_edges, yarr_edges, grid_fDM_ratio, cmap=cmap, vmin=vmin_c, vmax=vmax_c)
 
-
                 whmx = np.where(xarr == xfid)[0]
                 whmy = np.where(yarr == yfid)[0]
                 if (len(whmx)==1) & (len(whmy)==1):
@@ -8941,12 +7272,7 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                                 xarr_edges[whmx[0]+1]-xarr_edges[whmx[0]],
                                 yarr_edges[whmy[0]+1]-yarr_edges[whmy[0]],
                                 angle=0., lw=1., edgecolor=ecrect, facecolor='None')
-                    #
                     ax.add_patch(rect)
-
-
-
-
 
                 ####
                 ax.xaxis.set_major_locator(FixedLocator(0.5*(xarr_edges[1:] + xarr_edges[:-1])))
@@ -8973,27 +7299,20 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                     yarr_tmp[1::2] = -99.
                     yarr_formatter[yarr_tmp==-99.] = ""
 
-
                 ax.xaxis.set_major_formatter(FixedFormatter(xarr_formatter.tolist()))
                 ax.yaxis.set_major_formatter(FixedFormatter(yarr_formatter.tolist()))
-
-
 
                 ax.tick_params(labelsize=fontsize_ticks)
 
                 if xlabels[k] is not None:
                     ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
                 else:
-                    #ax.tick_params(labelbottom='off')
                     ax.set_xticklabels([])
 
                 if ylabels[k] is not None:
                     ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
                 else:
-                    #ax.tick_params(labelleft='off')
                     ax.set_yticklabels([])
-
-
 
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
@@ -9003,9 +7322,6 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
     return grid_fDM_ratio_stack, grid_fDM_ratio_pair
 
-
-
-#
 
 def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
              lmass_arr = [9., 9.5, 10., 10.5, 11., 11.5],
@@ -9027,22 +7343,47 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
              grid_fDM_ratio_stack = None,
              grid_fDM_ratio_pair=None):
     """
-    Plot example enclosed mass and circular velocity profiles for different mass components, over a variety of B/T ratios
+    Plot virial coeffiecient ktot over a variety of lmstar, fDM, B/T,
+    Reff_disk, invq_disk, n_disk.
 
-    Input:
-        output_path:        Path to directory where the output plot will be saved.
-        table_path:         Path to directory containing the Sersic profile tables.
+    Saves plot to PDF.
 
-    Optional Input:
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
 
-        Reff_bulge: Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].  [Default: 1kpc]
-        n_bulge:    Sersic index of bulge component                 [Default: n_bulge = 4.]
-        invq_bulge: Flattening of bulge component                   [Default: invq_bulge = 1. // spherical]
+        lmass_arr: array_like, optional
+            Log stellar mass array. Default: [9., 9.5, 10., 10.5, 11., 11.5] logMsun
+        fDMvReff_arr: array_like, optional
+            fDMvReff array. Default: [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]
+        BT_arr: array_like, optional
+            B/T ratio array. Default: [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]
+        Reff_disk_arr: array_like, optional
+            Disk effective radius array [kpc]. Default: [3., 5., 7., 10., 15.] kpc
+        invq_disk_arr: array_like, optional
+            Flattening of disk component. Default: [1., 2., 3., 4., 5., 8.,10.]
+        n_disk_arr: array_like, optional
+            Sersic index of disk component. Default: [0.5, 1., 1.5, 2.]
 
+        Reff_bulge: float, optional
+            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
+            Default: 1kpc.
+        n_bulge: float, optional
+            Sersic index of bulge component. Default: n_bulge = 4.
+        invq_bulge: float, optional
+            Flattening of bulge component. Default: invq_bulge = 1. (spherical)
+        Mbaryon: float, optional
+            Baryonic mass. Default: 1.e11 Msun
+        z: float, optional
+            Redshift (to determine NFW halo properties). Default: z=2.
 
-        fileout:    Override the default filename and explicitly choose the output filename (must include full path).
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
 
-    Output:         PDF plot saved to file.
     """
 
     if (output_path is None) & (fileout is None):     raise ValueError("Must set 'output_path' if 'fileout' is not set !")
@@ -9056,7 +7397,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
             fileout += '_{}'.format(halo_typ)
         fileout += '.pdf'
 
-
     # Ensure all are np arrays:
     lmass_arr = np.array(lmass_arr)
     fDMvReff_arr = np.array(fDMvReff_arr)
@@ -9067,24 +7407,20 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
 
     q_disk_arr = 1./invq_disk_arr
 
-
     # ++++++++++++++++
     # plot:
-
     keys = [ 'lmass', 'fDMvReff', 'BT', 'Reff_disk', 'q_disk', 'n_disk' ]
     labels = [r'$\log_{10}(M_*/M_{\odot})$',
               r'$f_{\mathrm{DM}}^v(R_{e,\mathrm{disk}})$',
               r'$B/T$', r'$R_{e,\mathrm{disk}}$',
               r'$q_{0,\mathrm{disk}}$', r'$n_{\mathrm{disk}}$']
-    #
-    cmap = cmap_im2
 
-    ecrect = 'gainsboro' #'whitesmoke'
+    cmap = cmap_im2
+    ecrect = 'gainsboro'
 
     arr_stack = [lmass_arr, fDMvReff_arr,
                  BT_arr, Reff_disk_arr,
                  invq_disk_arr, n_disk_arr]
-
 
     lims = [ [9., 11.5], [0.0, 1.0], [0.0, 1.0], [1.0, 15.0], [0.0, 1.0], [0.5, 2.0] ]
 
@@ -9099,9 +7435,8 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
     scale = 2.75
     n_cols = len(keys) - 1
     n_rows = len(keys) - 1
-    fac = 1.02 #1.15
+    fac = 1.02
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
-
 
     wspace = 0.025
     hspace = wspace
@@ -9123,7 +7458,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
         stack_cnt = 0
         grid_fDM_ratio_pair = []
 
-        #
         for i in range(n_rows):
             keyy = keys[i+1]
             yarr = arr_stack[i+1]
@@ -9138,7 +7472,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     grid_fDM_ratio = np.ones((len(yarr), len(xarr))) * np.NaN
                     for mm, y in enumerate(yarr):
                         for jj, x in enumerate(xarr):
-
                             fDMvReff_tmp = fDMvReff_0
                             BT_tmp = BT_0
                             Reff_disk_tmp = Reff_disk_0
@@ -9174,12 +7507,11 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 n_disk_tmp = y
 
                             # Get Mbaryon:
-                            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmass_tmp)
+                            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmass_tmp)
                             Mbaryon =   np.power(10.,lmass_tmp)/(1.-fgas)
 
                             ###############
                             ## Get mass, velocity components:
-
                             # Get rhalf disk:
                             tab = table_io.read_profile_table(n=n_disk_tmp, invq=invq_disk_tmp,  path=table_path)
                             rhalf_disk = tab['rhalf3D_sph'] * (Reff_disk_tmp / tab['Reff'])
@@ -9195,7 +7527,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                             vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
                                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
 
-
                             menc_baryons = menc_disk + menc_bulge
                             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
 
@@ -9206,18 +7537,18 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 Mhalo = 1.e18
                             else:
                                 if halo_typ == 'NFW':
-                                    Mhalo = _Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                    Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                 r=Reff_disk_tmp, conc=halo_conc, z=z)
                                 elif halo_typ == 'TPH0.0':
                                     try:
-                                        Mhalo = _Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                        Mhalo = utils._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                 r=Reff_disk_tmp, conc=halo_conc, z=z, alpha=0.)
                                     except:
                                         Mhalo = np.NaN
 
                             #########
                             if halo_typ == 'TPH':
-                                Mhalo_SMHM = _smhm_relation(z=z, lmstar=lmass_tmp)
+                                Mhalo_SMHM = utils._smhm_relation(z=z, lmstar=lmass_tmp)
                                 Mhalo = Mhalo_SMHM
                                 if fDMvReff_tmp == 0.:
                                     Mhalo = 1.e2
@@ -9226,7 +7557,7 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                     Mhalo = 1.e18
                                     alphaTPH = 1.
                                 else:
-                                    alphaTPH = _alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                    alphaTPH = utils._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                     r=Reff_disk_tmp, conc=halo_conc, z=z, Mhalo=Mhalo)
 
                             #########
@@ -9239,7 +7570,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                     menc_halo = calcs.TPH_halo_enclosed_mass(r=rhalf_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
 
                                 menc_tot_half = menc_baryons + menc_halo
-
 
                                 ####
                                 if halo_typ == 'NFW':
@@ -9254,21 +7584,17 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 ktot_est = calcs.virial_coeff_tot(Reff_disk_tmp, total_mass=2.*menc_tot_half,
                                                vc=vcirc_tot, q=None, Reff=None, n=None, i=None)
 
-
                                 grid_fDM_ratio[mm, jj] = ktot_est
 
                             else:
                                 grid_fDM_ratio[mm, jj] = np.NaN
-                    #
+
                     if grid_fDM_ratio_stack is None:
                         grid_fDM_ratio_stack = []
                     grid_fDM_ratio_stack.append(grid_fDM_ratio)
                     grid_fDM_ratio_pair.append('{}-{}'.format(keyx, keyy))
-                    #
-
 
     stack_cnt = 0
-
     for i in range(n_rows):
         keyy = keys[i+1]
         ylim = lims[i+1]
@@ -9280,20 +7606,15 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
             keyx = keys[j]
             xlim = lims[j]
 
-
             xarr = arr_stack[j]
             # Reset each time
             yarr = arr_stack[i+1]
-
             if (i == n_rows-1):
                 xlabel = labels[j]
             else:
                 xlabel = None
-
             if j > 0:
                 ylabel = None
-
-
 
             if (j > i):
                 if (i == 0) & (j == 2):
@@ -9307,7 +7628,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     for sp in ['top', 'bottom', 'left', 'right']: ax.spines[sp].set_visible(False)
                     ax.set_xticklabels([])
                     ax.set_yticklabels([])
-
 
                     ############
                     bbox_props = dict(boxstyle="square", fc="None", ec=ecrect, lw=1)
@@ -9327,7 +7647,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     ax.annotate(ann_str, xy=(0.1, 0.5),
                                 xycoords='axes fraction', va='center',
                                 ha='left', fontsize=fontsize_ann_lg)
-
 
                     ann_str = r'$\log_{10}(M_{*}/M_{\odot})'+r'={:0.1f}$'.format(lmass_0)
                     ann_str += '\n'
@@ -9354,7 +7673,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     if ax is not None:
                         ax.axis('off')
             else:
-
                 # Get fiducial values:
                 if keyx == 'lmass':
                     xfid = lmass_0
@@ -9382,7 +7700,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                 elif keyy == 'n_disk':
                     yfid = n_disk_0
 
-
                 ####
                 grid_fDM_ratio = grid_fDM_ratio_stack[stack_cnt]
                 grid_fDM_names = grid_fDM_ratio_pair[stack_cnt]
@@ -9394,7 +7711,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     xarr = 1./xarr
                 if keyy == 'q_disk':
                     yarr = 1./yarr
-
 
                 ###
                 # ADAPTIVE GRID SIZE BASED ON X,Y SAMPLING:
@@ -9419,7 +7735,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
 
                 im_fDM_grid = ax.pcolormesh(xarr_edges, yarr_edges, grid_fDM_ratio, cmap=cmap, vmin=vmin_c, vmax=vmax_c)
 
-
                 whmx = np.where(xarr == xfid)[0]
                 whmy = np.where(yarr == yfid)[0]
                 if (len(whmx)==1) & (len(whmy)==1):
@@ -9427,9 +7742,7 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 xarr_edges[whmx[0]+1]-xarr_edges[whmx[0]],
                                 yarr_edges[whmy[0]+1]-yarr_edges[whmy[0]],
                                 angle=0., lw=1., edgecolor=ecrect, facecolor='None')
-                    #
                     ax.add_patch(rect)
-
 
                 ####
                 ax.xaxis.set_major_locator(FixedLocator(0.5*(xarr_edges[1:] + xarr_edges[:-1])))
@@ -9456,27 +7769,20 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                     yarr_tmp[1::2] = -99.
                     yarr_formatter[yarr_tmp==-99.] = ""
 
-
                 ax.xaxis.set_major_formatter(FixedFormatter(xarr_formatter.tolist()))
                 ax.yaxis.set_major_formatter(FixedFormatter(yarr_formatter.tolist()))
-
-
 
                 ax.tick_params(labelsize=fontsize_ticks)
 
                 if xlabels[k] is not None:
                     ax.set_xlabel(xlabels[k], fontsize=fontsize_labels)
                 else:
-                    #ax.tick_params(labelbottom='off')
                     ax.set_xticklabels([])
 
                 if ylabels[k] is not None:
                     ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
                 else:
-                    #ax.tick_params(labelleft='off')
                     ax.set_yticklabels([])
-
-
 
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
@@ -9490,14 +7796,19 @@ def make_all_paper_plots(output_path=None, table_path=None):
     """
     Wrapper function to make all plots for the paper.
 
-    Usage:  make_all_paper_plots(output_path=output_path, table_path=table_path)
+    Saves plots in PDF format.
 
-    Input:
-        output_path:        Path to the directory where the plots will be saved.
+    Parameters
+    ----------
+        output_path: str
+            Path to the directory where the plots will be saved.
 
-        table_path:         Path to the directory where the Sersic profile tables are located.
+        table_path: str
+            Path to the directory where the Sersic profile tables are located.
 
-    Output:                 Saved paper plots in PDF format.
+    Returns
+    -------
+
     """
 
     # Figure 1
@@ -9524,13 +7835,6 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 logradius=False, rmin=0., rmax=15., rstep=0.01)
 
     # Figure 6
-    # plot_fdm_calibration_3panel(Mbaryon_arr=[1.e10, 10**10.5, 1.e11],
-    #             q_disk_arr = [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.],
-    #             Mhalo_arr=[3.e11, 1.e12, 3.e12],
-    #             Reff_disk_arr=[3.,5.,7.],
-    #             halo_conc_arr=[4.,4.,4.],
-    #             output_path=output_path, table_path=table_path,
-    #             del_fDM=False)
     plot_fdm_calibration(Mbaryon_arr=[10**10.5],
                 q_disk_arr = [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.],
                 Mhalo_arr=[1.e12],
@@ -9555,7 +7859,7 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 q_arr=[1., 0.2],
                 n_arr=[0.5, 1., 2., 4.])
 
-    # FIgure 10
+    # Figure 10
 
 
     return None

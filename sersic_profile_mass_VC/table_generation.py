@@ -12,13 +12,9 @@ import astropy.constants as apy_con
 
 import logging
 
-try:
-    import table_io
-    import calcs
-except:
-    from . import table_io
-    from . import calcs
-
+from sersic_profile_mass_VC import table_io
+from sersic_profile_mass_VC import calcs
+from sersic_profile_mass_VC import utils
 
 __all__ = [ 'calculate_sersic_profile_table', 'wrapper_calculate_sersic_profile_tables',
             'wrapper_calculate_full_table_set' ]
@@ -28,48 +24,12 @@ G = apy_con.G
 Msun = apy_con.M_sun
 pc = apy_con.pc
 
-
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
-
-# def check_for_inf(n=1., invq=5.,
-#     fileout=None, fileout_base=None, orig_path=None):
-#
-#     if fileout_base is None: fileout_base = 'mass_VC_profile_sersic'
-#     fileorig = orig_path+fileout_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
-#
-#     # Load old file:
-#     table = table_io.read_profile_table(filename=fileorig)
-#
-#     status = 0
-#     #
-#     for i, r in enumerate(table['r']):
-#         if not np.isfinite(table['vcirc'][i]): status += 1
-#         if not np.isfinite(table['menc3D_sph'][i]): status += 1
-#         if not np.isfinite(table['menc3D_ellipsoid'][i]): status += 1
-#
-#     return status
-#
-#
-
-def check_for_inf(table=None):
-
-    status = 0
-    #
-    for i, r in enumerate(table['r']):
-        if not np.isfinite(table['vcirc'][i]): status += 1
-        if not np.isfinite(table['menc3D_sph'][i]): status += 1
-        if not np.isfinite(table['menc3D_ellipsoid'][i]): status += 1
-
-    return status
-
-
-
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
-
 
 def calculate_sersic_profile_table(n=1., invq=5.,
         Reff=1., total_mass=5.e10,
@@ -79,40 +39,48 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     """
     Calculate the Sersic profile table for a specific Sersic index n and inverse axis ratio invq.
 
-    Usage:  calculate_sersic_profile_table(n=n, invq=invq, output_path=output_path, **kwargs)
+    Parameters
+    ----------
+        n : float
+            Sersic index
+        invq : float
+            Inverse intrinsic axis ratio
+        output_path: str
+            Path to directory where the Sersic profile table will be saved
 
-    Input:
-        n:                  Sersic index
-        invq:               Inverse intrinsic axis ratio
-        output_path:        Path to directory where the Sersic profile table will be saved
+        Reff: float, optional
+            Effective radius [kpc]. Default: Reff = 1 kpc
+        total_mass: float, optional
+            Total mass of the Sersic profile [Msun].
+            Default: total_mass = 5.e10 Msun
+        logr_min: float, optional
+            Log of minimum radius to calculate, relative to Reff.
+            Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
+        logr_max: float, optional
+            Log of maximum radius to calculate, relative to Reff.
+            Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
+        nSteps: int, optional
+            Number of radii steps to calculate. Default: 101
+        i: float, optional
+            Inclination of model (to determin q_obs relative to the
+            intrinsic axis ratio q.) Default: i = 90 deg
+        cumulative: bool, optional
+            Shortcut option to only calculate the next annulus,
+            then add to the previous Menc(r-rdelt).
+            Default: Uses cumulative if n >= 2.
+        fileout_base: str, optional
+            Base filename to use, when combined with default naming convention:
+            `<fileout_base>_nX.X_invqX.XX.fits`.
+            Default: `mass_VC_profile_sersic`
+        fileout: str, optional
+            Option to override the default filename convention
+            and instead directly specify the file location.
+        overwrite: bool, optional
+            Option to overwrite the FITS file, if a previous version exists.
+            Default: False (will throw an error if the file already exists).
 
-    Optional input:
-        Reff:               Effective radius [kpc]. Default: Reff = 1 kpc
-        total_mass:         Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
-
-        logr_min:           Log of minimum radius to calculate, relative to Reff.
-                                Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
-        logr_max:           Log of maximum radius to calculate, relative to Reff.
-                                Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
-        nSteps:             Number of radii steps to calculate. Default: 101
-
-        i:                  Inclination of model (to determin q_obs relative to the intrinsic axis ratio q.)
-                                Default: i = 90 deg
-
-        cumulative:         Shortcut option to only calculate the next annulus, then add to the previous Menc(r-rdelt).
-                            Default: Uses cumulative if n >= 2.
-
-        fileout_base:       Base filename to use, when combined with default naming convention:
-                                <fileout_base>_nX.X_invqX.XX.fits
-                            Default: 'mass_VC_profile_sersic'
-
-        fileout:            Option to override the default filename convention and
-                                instead directly specify the file location.
-
-        overwrite:          Option to overwrite the FITS file, if a previous version exists.
-                            Default: False (will throw an error if the file already exists).
-
-    Output:                 Saved binary FITS table containing Sersic profile values.
+    Returns
+    -------
 
     """
 
@@ -156,7 +124,6 @@ def calculate_sersic_profile_table(n=1., invq=5.,
 
     dlnrho_dlnr =   calcs.dlnrho_dlnr(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
 
-
     # ---------------------
     # Setup table:
     table    = { 'r':                   rarr,
@@ -191,7 +158,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
 
     # ---------------------
     # Check that table calculated correctly:
-    status = check_for_inf(table=table)
+    status = utils.check_for_inf(table=table)
     if status > 0:
         raise ValueError("Problem in table calculation: n={:0.1f}, invq={:0.2f}: status={}".format(n, invq, status))
 
@@ -202,9 +169,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # Save extra version if cumulative to clarify which were calculated this way:
     if cumulative:
         fileout_cumul = output_path+fileout_base+'_n{:0.1f}_invq{:0.2f}.cumulative.fits'.format(n, invq)
-
         table_io.save_profile_table(table=table, filename=fileout_cumul, overwrite=overwrite)
-
 
     return None
 
@@ -219,39 +184,46 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
     """
     Wrapper function to calculate Sersic profile tables over a range of n and invq values.
 
-    Usage:  wrapper_calculate_sersic_profile_tables(n_arr=n_arr, invq_arr=invq_arr, output_path=output_path, **kwargs)
+    Parameters
+    ----------
+        n_arr: array_like
+            Array of Sersic indices
+        invq_arr: array_like
+            Array of inverse intrinsic axis ratio
+        output_path: str
+            Path to directory where the Sersic profile table will be saved
 
-    Input:
-        n_arr:              Array of Sersic indices
-        invq_arr:           Array of inverse intrinsic axis ratio
-        output_path:        Path to directory where the Sersic profile table will be saved
+        Reff: float, optional
+            Effective radius [kpc]. Default: Reff = 1 kpc
+        total_mass: float, optional
+            Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
+        logr_min: float, optional
+            Log of minimum radius to calculate, relative to Reff.
+            Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
+        logr_max: float, optional
+            Log of maximum radius to calculate, relative to Reff.
+            Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
+        nSteps: int, optional
+            Number of radii steps to calculate. Default: 101
+        i: float, optional
+            Inclination of model (to determin q_obs relative to the
+            intrinsic axis ratio q.) Default: i = 90 deg
+        cumulative: bool, optional
+            Shortcut option to only calculate the next annulus,
+            then add to the previous Menc(r-rdelt).
+            Default: Uses cumulative if n >= 2.
+        fileout_base: str, optional
+            Base filename to use, for the default naming convention:
+            ``<fileout_base>_nX.X_invqX.XX.fits`.
+            Default: `mass_VC_profile_sersic`
+        overwrite: bool, optional
+            Option to overwrite the FITS file, if a previous version exists.
+            Default: False (will throw an error if the file already exists).
+        f_log: str, optional
+            Filename of log file, to save information output while calculation is in progress.
 
-    Optional input:
-        Reff:               Effective radius [kpc]. Default: Reff = 1 kpc
-        total_mass:         Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
-
-        logr_min:           Log of minimum radius to calculate, relative to Reff.
-                                Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
-        logr_max:           Log of maximum radius to calculate, relative to Reff.
-                                Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
-        nSteps:             Number of radii steps to calculate. Default: 101
-
-        i:                  Inclination of model (to determin q_obs relative to the intrinsic axis ratio q.)
-                                Default: i = 90 deg
-
-        cumulative:         Shortcut option to only calculate the next annulus, then add to the previous Menc(r-rdelt).
-                            Default: Uses cumulative if n >= 2.
-
-        fileout_base:       Base filename to use, for the default naming convention:
-                                <fileout_base>_nX.X_invqX.XX.fits
-                            Default: 'mass_VC_profile_sersic'
-
-        overwrite:          Option to overwrite the FITS file, if a previous version exists.
-                            Default: False (will throw an error if the file already exists).
-
-        f_log:              Filename of log file, to save information output while calculation is in progress.
-
-    Output:                 Saved binary FITS tables containing Sersic profile values.
+    Returns
+    -------
 
     """
 
@@ -292,29 +264,40 @@ def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwr
     """
     Wrapper function to calculate the full set of Sersic profile tables.
 
-    Usage:  wrapper_calculate_full_table_set(output_path=output_path, **kwargs)
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the Sersic profile table will be saved
 
-    Input:
-        output_path:        Path to directory where the Sersic profile table will be saved
+        fileout_base: str, optional
+            Base filename to use, for the default naming convention:
+            `<fileout_base>_nX.X_invqX.XX.fits`.
+            Default: `mass_VC_profile_sersic`
 
-    Optional input:
-        fileout_base:       Base filename to use, for the default naming convention:
-                                <fileout_base>_nX.X_invqX.XX.fits
-                            Default: 'mass_VC_profile_sersic'
+        overwrite: bool, optional
+            Option to overwrite the FITS file, if a previous version exists.
+            Default: False (will throw an error if the file already exists).
 
-        overwrite:          Option to overwrite the FITS file, if a previous version exists.
-                            Default: False (will throw an error if the file already exists).
+        f_log: str, optional
+            Filename of log file, to save information output while
+            calculation is in progress. Default: None
 
-        f_log:              Filename of log file, to save information output while calculation is in progress.
+        indChunk: int, optional
+            Index of chunk to run. Default: None (only one chunk)
 
-        indChunk:           Index of chunk to run
-        nChunk:             Total number of chunks
-        invqstart:          Where to start with invq array
+        nChunk: int, optional
+            Total number of chunks. Default: None (only one chunk)
 
-        cumulative:         Shortcut option to only calculate the next annulus, then add to the previous Menc(r-rdelt).
-                            Default: Uses cumulative if n >= 2.
+        invqstart: int, optional
+            Where to start with invq array. Default: None (start at beginning)
 
-    Output:                 Saved binary FITS tables containing Sersic profile values.
+        cumulative: bool, optional
+            Shortcut option to only calculate the next annulus,
+            then add to the previous Menc(r-rdelt).
+            Default: Uses cumulative if n >= 2.
+
+    Returns
+    -------
 
     """
 
@@ -338,9 +321,6 @@ def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwr
     #                      2., 1.5]
 
     if (indChunk is not None) & (nChunk is not None):
-        #stepChunk = np.int(np.round(len(invq_arr)/(1.*nChunk)))
-        #invq_arr = invq_arr[indChunk*stepChunk:(indChunk+1)*stepChunk]
-
         stepChunk = np.int(np.round(len(n_arr)/(1.*nChunk)))
         n_arr = n_arr[indChunk*stepChunk:(indChunk+1)*stepChunk]
 
@@ -360,8 +340,6 @@ def wrapper_calculate_full_table_set(fileout_base=None, output_path=None, overwr
     return None
 
 
-#
-
 if __name__ == "__main__":
     # From the command line, call the wrapper to make full *default table set.
     #   Input args: output_path
@@ -373,7 +351,6 @@ if __name__ == "__main__":
     indChunk = None
     nChunk = None
     invqstart = None
-    #cumulative = False
 
     if len(sys.argv) == 3:
         f_log = sys.argv[2]
@@ -389,14 +366,6 @@ if __name__ == "__main__":
             invqstart = np.float(sys.argv[5])
         except:
             invqstart = None
-
-        # try:
-        #     if sys.argv[6].lower().strip() == 'cumulative':
-        #         cumulative = True
-        #     else:
-        #         cumulative = False
-        # except:
-        #     cumulative = False
 
     f_log_tmp = output_path+'sersic_table_calc_{}.log'.format(indChunk+1)
     print("Starting chunk: indChunk={}, nChunk={}".format(indChunk, nChunk))

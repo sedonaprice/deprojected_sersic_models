@@ -16,8 +16,6 @@ from sersic_profile_mass_VC import table_io
 from sersic_profile_mass_VC import calcs
 from sersic_profile_mass_VC import utils
 
-
-
 __all__ = [ 'calculate_sersic_profile_table', 'wrapper_calculate_sersic_profile_tables',
             'wrapper_calculate_full_table_set' ]
 
@@ -26,15 +24,12 @@ G = apy_con.G
 Msun = apy_con.M_sun
 pc = apy_con.pc
 
-
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
-
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
-
 
 def calculate_sersic_profile_table(n=1., invq=5.,
         Reff=1., total_mass=5.e10,
@@ -132,6 +127,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
                  'q':                   q,
                  'n':                   n }
 
+
     # ---------------------
     # Get pre-calculated profiles:
     keys_copy = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid',
@@ -139,6 +135,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
                 'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
     for key in keys_copy:
         table[key] = tabin[key]
+
+
 
     # ---------------------
     # Check that table calculated correctly:
@@ -149,6 +147,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # ---------------------
     # Save table:
     table_io.save_profile_table(table=table, filename=fileout, overwrite=overwrite)
+
+
 
     return None
 
@@ -282,6 +282,9 @@ def wrapper_calculate_full_table_set(fileout_base=None, input_path=None, output_
     #                      2., 1.5]
 
     if (indChunk is not None) & (nChunk is not None):
+        #stepChunk = np.int(np.round(len(invq_arr)/(1.*nChunk)))
+        #invq_arr = invq_arr[indChunk*stepChunk:(indChunk+1)*stepChunk]
+
         stepChunk = np.int(np.round(len(n_arr)/(1.*nChunk)))
         n_arr = n_arr[indChunk*stepChunk:(indChunk+1)*stepChunk]
 
