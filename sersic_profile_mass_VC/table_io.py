@@ -11,7 +11,13 @@ from astropy.table import Table
 
 __all__ = [ 'save_profile_table', 'read_profile_table' ]
 
-def save_profile_table(table=None, filename=None, overwrite=False):
+
+def _default_table_fname(path, filename_base, n, invq):
+    return path+filename_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
+
+def save_profile_table(table=None,
+        path=None, filename_base='mass_VC_profile_sersic',
+        filename=None, overwrite=False):
     """
     Save the table of Sersic profile values in a binary FITS table.
 
@@ -19,13 +25,20 @@ def save_profile_table(table=None, filename=None, overwrite=False):
     ----------
         table: dict
             The dictionary of the table for a particular n, invq
-        filename: str
-            Output filename (FITS format)
 
+        path: str or None
+            Path to directory containing the saved Sersic profile tables.
+
+        filename_base: str, optional
+            Base filename to use, when combined with default naming convention:
+            `<filename_base>_nX.X_invqX.XX.fits`.
+            Default: `mass_VC_profile_sersic`
+        filename: str, optional
+            Option to override the default filename convention and
+            instead directly specify the file location. (FITS format)
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
             Default: False (will throw an error if the file already exists).
-
 
     Notes
     -----
@@ -66,7 +79,10 @@ def save_profile_table(table=None, filename=None, overwrite=False):
     """
 
     if table is None:       raise ValueError("Must set 'table'!")
-    if filename is None:    raise ValueError("Must set 'filename'!")
+    if filename is None:
+        if path is None:    raise ValueError("Must set 'path' if 'filename' is not set !")
+
+        filename = _default_table_fname(path, filename_base, table['n'], table['invq'])
 
     # Setup FITS recarray:
     fmt_arr = '{}D'.format(len(table['r']))
@@ -88,8 +104,8 @@ def save_profile_table(table=None, filename=None, overwrite=False):
     hdu.writeto(filename, overwrite=overwrite)
 
 
-def read_profile_table(filename=None,
-        n=None, invq=None, path=None, filename_base=None):
+def read_profile_table(n=None, invq=None, path=None,
+        filename_base='mass_VC_profile_sersic', filename=None):
     """
     Read the table of Sersic profile values from the binary FITS table.
 
@@ -106,7 +122,7 @@ def read_profile_table(filename=None,
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-
+            Default: `mass_VC_profile_sersic`
         filename: str, optional
             Option to override the default filename convention and
             instead directly specify the file location.
@@ -126,8 +142,7 @@ def read_profile_table(filename=None,
         # Ensure output path ends in trailing slash:
         if (path[-1] != '/'): path += '/'
 
-        if filename_base is None: filename_base = 'mass_VC_profile_sersic'
-        filename = path+filename_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
+        filename = filename = _default_table_fname(path, filename_base, n, inv)
 
     t = Table.read(filename)
 
