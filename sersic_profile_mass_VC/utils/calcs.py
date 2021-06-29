@@ -47,6 +47,9 @@ logger = logging.getLogger('SersicProfileMassVC')
 
 
 def check_for_inf(table=None):
+    """
+    Check core table quantities for non-finite entries, to determine if numerical errors occured.
+    """
     status = 0
 
     for i, r in enumerate(table['r']):

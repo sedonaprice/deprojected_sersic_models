@@ -1,7 +1,7 @@
 API
 ===
 
-.. automodapi:: sersic_profile_mass_VC.core
+.. automodapi:: sersic_profile_mass_VC
    :no-inheritance-diagram:
    :no-inherited-members:
 

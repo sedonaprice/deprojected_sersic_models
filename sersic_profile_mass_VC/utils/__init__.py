@@ -5,8 +5,8 @@
 # ---------------------------------------------------------------
 
 from sersic_profile_mass_VC.utils.calcs import *
-from sersic_profile_mass_VC.utils.interp_profiles import *
 
+import sersic_profile_mass_VC.utils.interp_profiles
 import sersic_profile_mass_VC.utils.calcs
 import sersic_profile_mass_VC.utils.scaling_rel
 

@@ -211,8 +211,7 @@ class _SersicDistBase:
 
 class DeprojSersicDist(_SersicDistBase):
     """
-    Object that contains the attributes and methods to specify a deprojected
-    Sersic mass distribution, with arbitrary flattening (or prolateness).
+    Deprojected Sersic mass distribution, with arbitrary flattening (or prolateness).
 
     Parameters
     ----------
@@ -242,7 +241,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def enclosed_mass(self, r, cumulative=False):
         """
-        Evalutation of the 3D mass enclosed within a sphere of radius r,
+        Enclosed 3D mass within a sphere of radius r,
         assuming a constant M/L ratio Upsilon.
 
         Parameters
@@ -292,7 +291,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def v_circ(self, r):
         """
-        Evalutation of the circular velocity in the midplane of the Sersic mass distribution.
+        Circular velocity in the midplane of the Sersic mass distribution.
 
         Parameters
         ----------
@@ -328,7 +327,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def density(self, r):
         """
-        Evalutation of the density profile (at distance r=m) of the Sersic mass distribution.
+        Density profile (at distance r=m) of the Sersic mass distribution.
 
         Parameters
         ----------
@@ -355,7 +354,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def dlnrho_dlnr(self, r):
         """
-        Evalutation of the slope of the density profile, :math:`d\\ln\\rho/d\\ln{}r`,
+        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
         at distance :math:`r=m` of the Sersic mass distribution.
 
         Parameters
@@ -406,7 +405,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def projected_enclosed_mass(self, r):
         """
-        Evalutation of the 2D projected mass enclosed within an ellipse
+        Projected 2D mass enclosed within an ellipse
         (or elliptical shell), assuming a constant M/L ratio Upsilon.
 
         Parameters
@@ -426,7 +425,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def enclosed_mass_ellipsoid(self, r, cumulative=False):
         """
-        Evalutation of the 3D mass enclosed within an ellpsoid of
+        Enclosed 3D mass within an ellpsoid of
         major axis radius r and intrinsic axis ratio q
         (e.g. the same as the Sersic profile isodensity contours),
         assuming a constant M/L ratio Upsilon.
@@ -478,7 +477,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def virial_coeff_tot(self, r, vc=None):
         """
-        Evalutation of the "total" virial coefficient ktot, which satisfies
+        The "total" virial coefficient ktot, which satisfies
 
         .. math::
 
@@ -510,7 +509,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def virial_coeff_3D(self, r, m3D=None, vc=None):
         """
-        Evalutation of the "total" virial coefficient ktot, which satisfies
+        The "3D" virial coefficient k3D, which satisfies
 
         .. math::
 
@@ -548,7 +547,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def profile_table(self, r, cumulative=None, add_reff_table_values=True):
         """
-        Return a set of profiles as a dictionary, calculated over the specified radii.
+        Create a set of profiles as a dictionary, calculated over the specified radii.
         Also includes constants for the specified Sersic profile parameters,
         and information about values at Reff or the 3D half mass radius.
 

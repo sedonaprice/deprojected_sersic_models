@@ -36,7 +36,7 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None):
     """
-    Determine the Menc3D_sphere(r) profile at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate Menc3D_sphere(r) at arbitrary radii r, for arbitrary Mtot and Reff.
 
     Uses the saved table of Menc3D_sphere(r) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
@@ -118,7 +118,7 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None):
     """
-    Determine the vcirc(r) profile at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate vcirc(r) at arbitrary radii r, for arbitrary Mtot and Reff.
 
     Uses the saved table of vcirc(r) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
@@ -202,7 +202,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None):
     """
-    Determine the Rho(r) profile at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate Rho(r) at arbitrary radii r, for arbitrary Mtot and Reff.
 
     Uses the saved table of rho(r) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
@@ -288,7 +288,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
 def interpolate_sersic_profile_alpha(r=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None, table=None):
     """
-    Determine the alpha=-dlnrho/dlnr profile at arbitrary radii r, for arbitrary Reff.
+    Interpolate alpha=-dlnrho/dlnr at arbitrary radii r, for arbitrary Reff.
 
     Uses the saved table of rho(r) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Reff.
@@ -379,7 +379,7 @@ def interpolate_sersic_profile_alpha(r=None, Reff=None, n=1., invq=5.,
 
 def nearest_n_invq(n=None, invq=None):
     """
-    Function to find the nearest value of n and invq for which a Sersic profile table
+    Nearest value of n and invq for which a Sersic profile table
     has been calculated, using the *DEFAULT* array of n and invq which have been used here.
 
     A similar function can be defined if a different set of Sersic profile tables
@@ -418,7 +418,7 @@ def nearest_n_invq(n=None, invq=None):
 def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Determine the Menc3D_sphere(r) profile at arbitrary radii r, for arbitrary Mtot and Reff,
+    Interpolate Menc3D_sphere(r) at arbitrary radii r, for arbitrary Mtot and Reff,
     using the **nearest values** of n and invq that are included
     in the Sersic profile table collection.
 
@@ -469,7 +469,7 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
 def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Determine the vcirc(r) profile at arbitrary radii r, for arbitrary Mtot and Reff,
+    Interpolate vcirc(r) at arbitrary radii r, for arbitrary Mtot and Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
@@ -520,7 +520,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
 def interpolate_sersic_profile_alpha_nearest(r=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Determine the alpha(r)=-dlnrho_g/dlnr profile at arbitrary radii r, for arbitrary Reff,
+    Interpolate alpha(r)=-dlnrho_g/dlnr at arbitrary radii r, for arbitrary Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
@@ -573,7 +573,7 @@ def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
         Reff_bulge=1.,  n_bulge=4., invq_bulge=1.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Determine the alpha(r)=-dlnrho_g/dlnr profile at arbitrary radii r,
+    Interpolate alpha(r)=-dlnrho_g/dlnr at arbitrary radii r,
     for a composite DISK+BULGE system. Both disk and bulge can have arbitary Reff,
     but this uses the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
