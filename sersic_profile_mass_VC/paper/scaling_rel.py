@@ -1,5 +1,5 @@
 ##################################################################################
-# sersic_profile_mass_VC/scaling_rel.py                                          #
+# sersic_profile_mass_VC/paper/scaling_rel.py                                    #
 #                                                                                #
 # Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #

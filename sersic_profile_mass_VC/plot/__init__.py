@@ -5,6 +5,6 @@
 # ---------------------------------------------------------------
 
 from sersic_profile_mass_VC.plot.plots import *
-import sersic_profile_mass_VC.plot.paper_plots
+from sersic_profile_mass_VC.plot.plots import plot_profiles_single_type
 
 # ---------------------------------------------------------------
