@@ -15,7 +15,7 @@ Before installing the package, you will need to install python (v3)
 and the dependent packages.
 
 .. tip::
-    To handle dependencies (and possible dependency clashes for different packages),
+    To handle dependencies (including possible clashes with other packages),
     we recommend using a separate python environment (such as an Anaconda python environment).
 
     The Anaconda `installation`_ and `environments`_ guides lead through the necessary steps

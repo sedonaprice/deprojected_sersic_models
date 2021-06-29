@@ -1,5 +1,5 @@
 ##################################################################################
-# sersic_profile_mass_VC/paper_plots.py                                          #
+# sersic_profile_mass_VC/plot/paper_plots.py                                     #
 #                                                                                #
 # Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
@@ -11,41 +11,24 @@ import copy
 import dill as pickle
 
 import numpy as np
-
 import scipy.interpolate as scp_interp
-
-import astropy.cosmology as apy_cosmo
-import astropy.constants as apy_con
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, FixedLocator, FixedFormatter, LogLocator
-import matplotlib.markers as mks
-from matplotlib.legend_handler import HandlerLine2D
+from matplotlib.ticker import MultipleLocator, FixedLocator, FixedFormatter
 import matplotlib.cm as cm
-from matplotlib.colors import ListedColormap
 from matplotlib import colorbar
 from matplotlib.patches import Rectangle
 
-
-from sersic_profile_mass_VC import table_io
-from sersic_profile_mass_VC import calcs
-from sersic_profile_mass_VC import utils
-
+from sersic_profile_mass_VC import io
+from sersic_profile_mass_VC.utils import calcs as util_calcs
 
 __all__ = [ 'make_all_paper_plots' ]
 
 
-# CONSTANTS
-G = apy_con.G
-Msun = apy_con.M_sun
-pc = apy_con.pc
-
 # ---------------------
 # Plot settings
-#mpl.rcParams['text.usetex'] = True
-## displaystyle
 
 fontsize_leg = 9.
 fontsize_leg_sm = 8.
@@ -81,8 +64,85 @@ cmap_im2.set_over('#b4396f')
 cmap_fdm = cm.Blues
 
 
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 
-# ---------------------
+
+def make_all_paper_plots(output_path=None, table_path=None):
+    """
+    Wrapper function to make all plots for the paper.
+
+    Saves plots in PDF format.
+
+    Parameters
+    ----------
+        output_path: str
+            Path to the directory where the plots will be saved.
+        table_path: str
+            Path to the directory where the Sersic profile tables are located.
+
+    Returns
+    -------
+
+    """
+
+    # Figure 1
+    plot_compare_mencl(output_path=output_path, table_path=table_path, q_arr=[1., 0.4, 0.2])
+
+    # Figure 2
+    plot_rhalf_3D_sersic_potential(output_path=output_path, table_path=table_path)
+
+    # Figure 3
+    plot_composite_menc_vcirc_profile_invert(output_path=output_path, table_path=table_path,
+                q_arr=[1., 0.4, 0.2], n_arr=[1., 4.])
+
+    # Figure 4
+    plot_virial_coeff(output_path=output_path, table_path=table_path,
+                q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.])
+
+    # Figure 5
+    plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.0],
+                output_path=output_path, table_path=table_path,
+                z=2., Mbaryon=5.e10,
+                Reff_disk=5., n_disk=1., invq_disk=5.,
+                Reff_bulge=1., n_bulge=4., invq_bulge=1.,
+                Mhalo=1.e12, halo_conc=4.,
+                logradius=False, rmin=0., rmax=15., rstep=0.01)
+
+    # Figure 6
+    plot_fdm_calibration(Mbaryon_arr=[10**10.5],
+                q_disk_arr = [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.],
+                Mhalo_arr=[1.e12],
+                Reff_disk_arr=[5.],
+                halo_conc_arr=[4.],
+                output_path=output_path, table_path=table_path,
+                del_fDM=False)
+
+
+    # Figure 7
+    plot_toy_impl_fDM_calibration_z_evol(output_path=output_path, table_path=table_path,
+                n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
+                del_fDM=False)
+
+    # Figure 8
+    plot_alpha_vs_r(output_path=output_path, table_path=table_path,
+                n_arr=[0.5, 1., 2., 4., 8.])
+
+    # Figure 9
+    plot_AD_sersic_potential_alpha_vs_r(output_path=output_path, table_path=table_path,
+                sigma0_arr = [30., 60., 90.],
+                q_arr=[1., 0.2],
+                n_arr=[0.5, 1., 2., 4.])
+
+    # Figure 10
+
+
+    return None
+
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
 
 def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1., 0.4, 0.2]):
     """
@@ -154,7 +214,7 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
             n_cnt = 0
             for n in n_arr:
                 try:
-                    tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                    tab = io.read_profile_table(n=n, invq=invq, path=table_path)
                     if n == 1.:
                         ks_dict['r_arr'] = tab['r']
                         ks_dict['Reff'] = tab['Reff']
@@ -453,9 +513,9 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
                     n = v2
                 try:
                     invq = 1./q
-                    tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                    tab = io.read_profile_table(n=n, invq=invq, path=table_path)
 
-                    rhalf3D_arr[j] = calcs.find_rhalf3D_sphere(r=tab['r'], menc3D_sph=tab['menc3D_sph'],
+                    rhalf3D_arr[j] = util_calcs.find_rhalf3D_sphere(r=tab['r'], menc3D_sph=tab['menc3D_sph'],
                                             total_mass=tab['total_mass'])
 
                 except:
@@ -672,22 +732,22 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
             try:
                 # read fits tables, construct ks dict.....
                 invq = 1./q
-                tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                tab = io.read_profile_table(n=n, invq=invq, path=table_path)
 
                 ks_dict = {}
                 ks_dict['r_arr'] = tab['r']
                 ks_dict['Reff'] = tab['Reff']
                 ks_dict['total_mass'] = tab['total_mass']
-                ks_dict['menc2D_ellip']  =   calcs.M_encl_2D(tab['r'], total_mass=tab['total_mass'],
-                                                    q=q, n=n, Reff=tab['Reff'],i=90.)
+                ks_dict['menc2D_ellip']  =   util_calcs.total_mass2D_direct(tab['r'],
+                                total_mass=tab['total_mass'], q=q, n=n, Reff=tab['Reff'],i=90.)
                 ks_dict['menc3D_sph']  =     tab['menc3D_sph']
                 ks_dict['menc3D_ellip']  =   tab['menc3D_ellipsoid']
                 ks_dict['vcirc']  =          tab['vcirc']
 
-                ks_dict['v_menc3D_sph'] =   calcs.vcirc_spherical_symmetry(r=tab['r'], menc=tab['menc3D_sph'])
-                ks_dict['v_menc3D_ellip'] = calcs.vcirc_spherical_symmetry(r=tab['r'], menc=tab['menc3D_ellipsoid'])
+                ks_dict['v_menc3D_sph'] =   util_calcs.vcirc_spherical_symmetry(r=tab['r'], menc=tab['menc3D_sph'])
+                ks_dict['v_menc3D_ellip'] = util_calcs.vcirc_spherical_symmetry(r=tab['r'], menc=tab['menc3D_ellipsoid'])
 
-                ks_dict['m_invert_vcirc']  = calcs.menc_spherical_symmetry(r=tab['r'], vcirc=tab['vcirc'])
+                ks_dict['m_invert_vcirc']  = util_calcs.menc_spherical_symmetry(r=tab['r'], vcirc=tab['vcirc'])
 
                 ks_dict['mass_plot'] = tab['total_mass']
             except:
@@ -1105,16 +1165,16 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
             ktot_narr = np.ones(len(n_arr)) * -99.
             k3D_narr =  np.ones(len(n_arr)) * -99.
             for j, n in enumerate(n_arr):
-                tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                tab = io.read_profile_table(n=n, invq=invq, path=table_path)
                 if (q == 0.2) & (n == 1.):
                     ks_dict['Reff'] = tab['Reff']
                     ks_dict['tot']['narr'] = n_arr
                     ks_dict['3D']['narr'] = n_arr
 
-                ktot_narr[j] = calcs.virial_coeff_tot(tab['Reff'], total_mass=tab['total_mass'],
-                                       q=q, Reff=tab['Reff'], n=n, i=90., vc=tab['vcirc_Reff'])
-                k3D_narr[j]  = calcs.virial_coeff_3D(tab['Reff'], total_mass=tab['total_mass'],
-                                       q=q, Reff=tab['Reff'], n=n, i=90., vc=tab['vcirc_Reff'], m3D=tab['menc3D_sph_Reff'])
+                ktot_narr[j] = util_calcs.virial_coeff_tot(tab['Reff'],
+                                total_mass=tab['total_mass'], vc=tab['vcirc_Reff'])
+                k3D_narr[j]  = util_calcs.virial_coeff_3D(tab['Reff'],
+                                vc=tab['vcirc_Reff'], m3D=tab['menc3D_sph_Reff'])
 
 
             ks_dict['tot']['q={}'.format(q)] = ktot_narr
@@ -1300,7 +1360,7 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
         invq = 1.
         q = 1.
         for j, n in enumerate(n_arr):
-            tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+            tab = io.read_profile_table(n=n, invq=invq, path=table_path)
             if (q == 1.) & (n == 1.):
                 ks_dict['Reff'] = tab['Reff']
                 ks_dict['alpha']['narr'] = n_arr
@@ -1593,7 +1653,7 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
             ks_dict_q = {}
             for j, n in enumerate(n_arr):
                 ks_dict_q['n={}'.format(n)] = {}
-                tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                tab = io.read_profile_table(n=n, invq=invq, path=table_path)
                 if (q == q_arr.min()) & (n == n_arr.min()):
                     ks_dict['Reff'] = Reff
                     ks_dict['narr'] = n_arr
@@ -1601,9 +1661,9 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                     ks_dict['r'] = rarr
                     ks_dict['total_mass'] = total_mass
 
-                ks_dict_q['n={}'.format(n)]['alpha'] = calcs.interpolate_sersic_profile_alpha_nearest(r=rarr,
+                ks_dict_q['n={}'.format(n)]['alpha'] = util_calcs.interpolate_sersic_profile_alpha_nearest(r=rarr,
                             Reff=Reff, n=n, invq=invq, path=table_path)
-                ks_dict_q['n={}'.format(n)]['vcirc'] = calcs.interpolate_sersic_profile_VC_nearest(r=rarr,
+                ks_dict_q['n={}'.format(n)]['vcirc'] = util_calcs.interpolate_sersic_profile_VC_nearest(r=rarr,
                             total_mass=total_mass, Reff=Reff, n=n, invq=invq, path=table_path)
                 #tab['vcirc']
                 #raise ValueError
@@ -1969,14 +2029,15 @@ def plot_AD_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None
         Reff_bulge = 1.
         halo_conc = ks_dict[key]['halo_conc']
         z = ks_dict[key]['z']
-        alpha_gas = calcs.interpolate_sersic_profile_alpha_nearest(r=rarr,
+        alpha_gas = util_calcs.interpolate_sersic_profile_alpha_nearest(r=rarr,
                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
 
-        vcirc_disk = calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(1.-bt)*Mbaryon,
+        vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(1.-bt)*Mbaryon,
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-        vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(bt)*Mbaryon,
+        vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=rarr, total_mass=(bt)*Mbaryon,
                                 Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
-        vcirc_halo = calcs.NFW_halo_vcirc(r=rarr, Mvirial=Mhalo, conc=halo_conc, z=z)
+        nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+        vcirc_halo = nfw.v_circ(rarr)
         vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
         vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
         fdm_vsq = fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -2387,7 +2448,8 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
 
 
             if logradius:
-                vline_loc.append([np.log10(Reff_disk),  np.log10(2.2/1.676 * Reff_disk), np.log10(calcs.halo_rvir(Mvirial=Mhalo, z=z))])
+                nfw = core.NFW(z=z, Mvir=Mhalo)
+                vline_loc.append([np.log10(Reff_disk),  np.log10(2.2/1.676 * Reff_disk), np.log10(nfw.rvir)])
                 vline_lss.append(['--', '-.', ':'])
                 if ((i == 0) & (j == 1)):
                     vline_labels.append([r'$r=R_{e,\mathrm{disk}}$', r'$r=1.3 R_{e,\mathrm{disk}}$', r'$r_{\mathrm{vir}}$'])
@@ -2439,21 +2501,22 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
             ## Get mass, velocity components:
 
             #####
-            menc_disk = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(1.-bt)*Mbaryon,
+            menc_disk = util_calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(1.-bt)*Mbaryon,
                                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-            menc_bulge = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(bt)*Mbaryon,
+            menc_bulge = util_calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(bt)*Mbaryon,
                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
-            menc_halo = calcs.NFW_halo_enclosed_mass(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
+            nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+            menc_halo = nfw.enclosed_mass(r_arr)
             menc_baryons = menc_disk + menc_bulge
             menc_tot = menc_baryons + menc_halo
             fdm_menc = menc_halo/menc_tot
 
             #####
-            vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(1.-bt)*Mbaryon,
+            vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(1.-bt)*Mbaryon,
                                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-            vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(bt)*Mbaryon,
+            vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(bt)*Mbaryon,
                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
-            vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
+            vcirc_halo = nfw.v_circ(r_arr)
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
             fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -2714,11 +2777,11 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
         for Mstar in Mstar_arr:
             lmstar = np.log10(Mstar)
 
-            Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-            fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
-            Mhalo = _smhm_relation(z=z, lmstar=lmstar)
-            halo_conc = _halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
+            Mhalo = utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
+            halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
 
             Mbaryon_arr.append(Mstar/(1.-fgas))
             Mhalo_arr.append(Mhalo)
@@ -2800,7 +2863,7 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -2825,7 +2888,7 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
             ## Get mass, velocity components:
             # FASTER:
             ######################
-            tab_disk =  table_io.read_profile_table(n=n_disk, invq=invq_disk, path=table_path)
+            tab_disk =  io.read_profile_table(n=n_disk, invq=invq_disk, path=table_path)
             tab_disk_menc =    tab_disk['menc3D_sph']
             tab_disk_vcirc =   tab_disk['vcirc']
             tab_disk_rad =     tab_disk['r']
@@ -2869,12 +2932,14 @@ def plot_fdm_calibration_3panel(Mstar_arr=None,
                         menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
                         vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-                        menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                        nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                        menc_halo = nfw.enclosed_mass(Reff_disk)
+
                         menc_baryons = menc_disk + menc_bulge
                         menc_tot = menc_baryons + menc_halo
                         fdm_menc[ll] = menc_halo/menc_tot
 
-                        vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                        vcirc_halo = nfw.v_circ(Reff_disk)
                         vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                         vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                         fdm_vsq[ll] = vcirc_halo**2/vcirc_tot**2
@@ -3133,11 +3198,11 @@ def plot_fdm_calibration(Mstar_arr=None,
         for Mstar in Mstar_arr:
             lmstar = np.log10(Mstar)
 
-            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
-            Mhalo = utils._smhm_relation(z=z, lmstar=lmstar)
-            halo_conc = utils._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
+            Mhalo = utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
+            halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
 
             Mbaryon_arr.append(Mstar/(1.-fgas))
             Mhalo_arr.append(Mhalo)
@@ -3219,7 +3284,7 @@ def plot_fdm_calibration(Mstar_arr=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -3244,7 +3309,7 @@ def plot_fdm_calibration(Mstar_arr=None,
             ## Get mass, velocity components:
             # FASTER:
             ######################
-            tab_disk =  table_io.read_profile_table(n=n_disk, invq=invq_disk, path=table_path)
+            tab_disk =  io.read_profile_table(n=n_disk, invq=invq_disk, path=table_path)
             tab_disk_menc =    tab_disk['menc3D_sph']
             tab_disk_vcirc =   tab_disk['vcirc']
             tab_disk_rad =     tab_disk['r']
@@ -3288,12 +3353,14 @@ def plot_fdm_calibration(Mstar_arr=None,
                         menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
                         vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-                        menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                        nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                        menc_halo = nfw.enclosed_mass(Reff_disk)
+
                         menc_baryons = menc_disk + menc_bulge
                         menc_tot = menc_baryons + menc_halo
                         fdm_menc[ll] = menc_halo/menc_tot
 
-                        vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                        vcirc_halo = nfw.v_circ(Reff_disk)
                         vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                         vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                         fdm_vsq[ll] = vcirc_halo**2/vcirc_tot**2
@@ -3682,7 +3749,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -3747,22 +3814,23 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                         }
             for ll, z in enumerate(z_arr):
                 print("  z={}".format(z))
-                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+                invq_disk = utils.scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 lMbar = np.log10(Mbaryon)
 
-                bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+                bt =        utils.scaling_rel._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
-                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+                Mhalo =     utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
+                halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=lMhalo)
+                nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                Rvir = nfw.rvir
 
                 val_dict['bt'][ll] = bt
                 val_dict['Reff_disk'][ll] = Reff_disk
@@ -3777,26 +3845,28 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 ######
                 nearest_n, nearest_invq = n_disk, invq_disk
                 try:
-                    menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                    menc_disk = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                    vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
 
                 except:
-                    menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-                    vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+                    sprof = core.DeprojSersicDist(total_mass=(1.-bt)*Mbaryon, Reff=Reff_disk,
+                                n=n_disk, q=1./invq_disk)
+                    menc_disk = sprof.enclosed_mass(Reff_disk)
+                    vcirc_disk = sprof.v_circ(Reff_disk)
 
                 menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
                 vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-                menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                menc_halo = nfw.enclosed_mass(Reff_disk)
+
                 menc_baryons = menc_disk + menc_bulge
                 menc_tot = menc_baryons + menc_halo
                 fdm_menc = menc_halo/menc_tot
 
-                vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                vcirc_halo = nfw.v_circ(Reff_disk)
                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -3887,22 +3957,23 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 print("  z={}".format(z))
 
                 lmstar = val_dict['lmstar'][ll]
-                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+                invq_disk = utils.scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils.scaling_rel._fgas_utils.scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 lMbar = np.log10(Mbaryon)
 
-                bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+                bt =        utils.scaling_rel._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
-                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+                Mhalo =     utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
+                halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=lMhalo)
+                nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                Rvir = nfw.rvir
 
                 val_dict['bt'][ll] = bt
                 val_dict['Reff_disk'][ll] = Reff_disk
@@ -3917,26 +3988,28 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 ######
                 nearest_n, nearest_invq = n_disk, invq_disk
                 try:
-                    menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                    menc_disk = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
+                    vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
 
                 except:
-                    menc_disk = calcs.M_encl_3D(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
-                    vcirc_disk = calcs.v_circ(Reff_disk, total_mass=((1.-bt)*Mbaryon),
-                                Reff=Reff_disk, n=n_disk, q=1./invq_disk, i=90.)
+                    sprof = core.DeprojSersicDist(total_mass=(1.-bt)*Mbaryon, Reff=Reff_disk,
+                                n=n_disk, q=1./invq_disk)
+                    menc_disk = sprof.enclosed_mass(Reff_disk)
+                    vcirc_disk = sprof.v_circ(Reff_disk)
 
                 menc_bulge = (m_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
                 vcirc_bulge = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-                menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                menc_halo = nfw.enclosed_mass(Reff_disk)
+                vcirc_halo = nfw.v_circ(Reff_disk)
+
                 menc_baryons = menc_disk + menc_bulge
                 menc_tot = menc_baryons + menc_halo
                 fdm_menc = menc_halo/menc_tot
 
-                vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -4280,7 +4353,7 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -4339,24 +4412,27 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                         'vrot_alphan':  np.ones(len(r_arr)) * -99.,
                         'vrot_SG':      np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils.scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
             Mgas = Mbaryon * fgas
             lMbar = np.log10(Mbaryon)
 
-            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils.scaling_rel._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
-            Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+            Mhalo =     utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
             lMhalo = np.log10(Mhalo)
-            halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
-            sigma0 =    utils._int_disp_z_evol_U19(z=z)
+            halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=lMhalo)
+            nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+            Rvir = nfw.rvir
+
+
+            sigma0 =    utils.scaling_rel._int_disp_z_evol_U19(z=z)
 
             val_dict['bt'] = bt
             val_dict['Reff_disk'] = Reff_disk
@@ -4370,18 +4446,19 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
 
             ######
             # JUST USE LOOKUP
-            nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
-            vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
+            nearest_n, nearest_invq = util_calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+            vcirc_disk = util_calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
                             total_mass=((1.-bt)*Mbaryon),
                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
 
-            vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+            vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * \
+                    np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+            vcirc_halo = nfw.v_circ(r_arr)
 
-            vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
 
-            alphan = calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
+            alphan = util_calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
                     BT=bt,  total_mass=Mgas,
                     Reff_disk=Reff_disk, n_disk=n_disk, invq_disk=invq_disk,
                     Reff_bulge=Reff_bulge,  n_bulge=n_bulge, invq_bulge=invq_bulge,
@@ -4680,7 +4757,7 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -4743,24 +4820,27 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
                         'vcirc_corr_alphan': np.ones(len(r_arr)) * -99.,
                         'vcirc_corr_SG':     np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils.scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
 
-            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
             Mgas = Mbaryon * fgas
             lMbar = np.log10(Mbaryon)
 
-            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils.scaling_rel._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
-            Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+            Mhalo =     utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
             lMhalo = np.log10(Mhalo)
-            halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
-            sigma0 =    utils._int_disp_z_evol_U19(z=z)
+            halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=lMhalo)
+            nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+            Rvir = nfw.rvir
+
+
+            sigma0 =    utils.scaling_rel._int_disp_z_evol_U19(z=z)
 
             val_dict['bt'] = bt
             val_dict['Reff_disk'] = Reff_disk
@@ -4774,20 +4854,20 @@ def plot_toy_AD_corr_z(lmstar = None, z_arr=None,
 
             ######
             # JUST USE LOOKUP
-            nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
-            vcirc_disk = calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
+            nearest_n, nearest_invq = util_calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+            vcirc_disk = util_calcs.interpolate_sersic_profile_VC_nearest(r=r_arr,
                             total_mass=((1.-bt)*Mbaryon),
                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
 
-            vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+            vcirc_bulge = (v_interp_bulge(r_arr / Reff_bulge * tab_bulge_Reff) * \
+                        np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
 
-
-            vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
+            vcirc_halo = nfw.v_circ(r_arr)
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
 
 
-            alphan = calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
+            alphan = util_calcs.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
                     BT=bt,  total_mass=Mgas,
                     Reff_disk=Reff_disk, n_disk=n_disk, invq_disk=invq_disk,
                     Reff_bulge=Reff_bulge,  n_bulge=n_bulge, invq_bulge=invq_bulge,
@@ -5081,7 +5161,7 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -5133,11 +5213,11 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
                             'menc_bar':     np.ones(len(r_arr)) * -99.,
                             'Mbar_tot':     -99.
                             }
-                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
                 invq_disk = 1./q
 
-                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
@@ -5155,8 +5235,8 @@ def plot_menc_frac_bulge_disk(fileout=None, output_path=None, table_path=None,
 
 
                 # JUST USE LOOKUP
-                nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
-                menc_disk = calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
+                nearest_n, nearest_invq = util_calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+                menc_disk = util_calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
                                 total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
                 menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
@@ -5401,7 +5481,7 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -5467,21 +5547,23 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                             'Mbar_tot':     -99.,
                             'k3d':          np.ones(len(r_arr)) * -99.
                             }
-                Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
                 invq_disk = 1./q
 
-                fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 Mgas = Mbaryon * fgas
                 lMbar = np.log10(Mbaryon)
 
-                Mhalo =     utils._smhm_relation(z=z, lmstar=lmstar)
-                Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+
+                Mhalo =     utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
                 lMhalo = np.log10(Mhalo)
-                halo_conc = utils._halo_conc_relation(z=z, lmhalo=lMhalo)
+                halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=lMhalo)
+                nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+                Rvir = nfw.rvir
 
                 val_dict['bt'] = bt
                 val_dict['Reff_disk'] = Reff_disk
@@ -5497,21 +5579,22 @@ def plot_k3D_bulge_disk_halo(fileout=None, output_path=None, table_path=None,
                 val_dict['r_arr'] = r_arr.copy() * Reff_disk
 
                 # JUST USE LOOKUP
-                nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
-                menc_disk = calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
+                nearest_n, nearest_invq = util_calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+                menc_disk = util_calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
                                 total_mass=((1.-bt)*Mbaryon),
                                 Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
-                menc_halo = calcs.NFW_halo_enclosed_mass(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
-
+                menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * \
+                            ((bt*Mbaryon) / tab_bulge_mass) )
+                menc_halo = nfw.enclosed_mass(val_dict['r_arr'])
                 menc_bar = menc_disk + menc_bulge
-
                 menc_tot = menc_bar + menc_halo
 
-                vcirc_disk = calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
-                                        Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
-                vcirc_halo = calcs.NFW_halo_vcirc(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
+                vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'],
+                                total_mass=(1.-bt)*Mbaryon, Reff=Reff_disk, n=n_disk,
+                                invq=invq_disk, path=table_path)
+                vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * \
+                    np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
+                vcirc_halo = nfw.v_circ(val_dict['r_arr'])
                 vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
 
@@ -5747,7 +5830,7 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
 
     ######################
     # Load bulge: n, invq don't change.
-    tab_bulge = table_io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
+    tab_bulge = io.read_profile_table(n=n_bulge, invq=invq_bulge, path=table_path)
     tab_bulge_menc =    tab_bulge['menc3D_sph']
     tab_bulge_vcirc =   tab_bulge['vcirc']
     tab_bulge_rad =     tab_bulge['r']
@@ -5808,15 +5891,15 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
                         'Mbar_tot':     -99.,
                         'k3d':          np.ones(len(r_arr)) * -99.
                         }
-            Reff_disk = utils._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+            Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
 
-            invq_disk = utils._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
+            invq_disk = utils.scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
             q = 1./invq_disk
 
-            bt =        utils._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
+            bt =        utils.scaling_rel._bt_lmstar_relation(z=z, lmstar=lmstar, galtype='sf')
 
 
-            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
 
             Mstar =     np.power(10., lmstar)
             Mbaryon =   Mstar / (1.-fgas)
@@ -5836,8 +5919,8 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
 
 
             # JUST USE LOOKUP
-            nearest_n, nearest_invq = calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
-            menc_disk = calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
+            nearest_n, nearest_invq = util_calcs.nearest_n_invq(n=n_disk, invq=invq_disk)
+            menc_disk = util_calcs.interpolate_sersic_profile_menc_nearest(r=val_dict['r_arr'],
                             total_mass=((1.-bt)*Mbaryon),
                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
             menc_bulge = (m_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * ((bt*Mbaryon) / tab_bulge_mass) )
@@ -5845,28 +5928,28 @@ def plot_k3D_vary_fdm(fileout=None, output_path=None, table_path=None,
             menc_bar = menc_disk + menc_bulge
 
 
-            vcirc_disk = calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
+            vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=val_dict['r_arr'], total_mass=(1.-bt)*Mbaryon,
                                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
             vcirc_bulge = (v_interp_bulge(val_dict['r_arr'] / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
 
 
-            vcdiskre = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
+            vcdiskre = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
                                     Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
             vcbulgere = (v_interp_bulge(Reff_disk / Reff_bulge * tab_bulge_Reff) * np.sqrt((bt*Mbaryon) / tab_bulge_mass) * np.sqrt(tab_bulge_Reff / Reff_bulge))
             vcirc_baryons_reff = np.sqrt(vcdiskre**2 + vcbulgere**2)
 
             halo_conc = 4.
-            Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons_reff, fDMv=fdm,
+            Mhalo = util_calcs._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons_reff, fDMv=fdm,
                             r=Reff_disk, conc=halo_conc, z=z)
-
-            Rvir = calcs.halo_rvir(Mvirial=Mhalo, z=z)
+            nfw = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
+            Rvir = nfw.rvir
             lMhalo = np.log10(Mhalo)
 
-            menc_halo = calcs.NFW_halo_enclosed_mass(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
+            menc_halo = nfw.enclosed_mass(val_dict['r_arr'])
             menc_tot = menc_bar + menc_halo
 
-            vcirc_halo = calcs.NFW_halo_vcirc(r=val_dict['r_arr'], Mvirial=Mhalo, conc=halo_conc, z=z)
+            vcirc_halo = menc_halo = nfw.v_circ(val_dict['r_arr'])
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
             ####
 
@@ -6083,7 +6166,7 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
                 invq = 1./q
 
                 try:
-                    tab = table_io.read_profile_table(n=n, invq=invq, path=table_path)
+                    tab = io.read_profile_table(n=n, invq=invq, path=table_path)
                     if (q == 0.2) & (n == 1.):
                         ks_dict['Reff'] = tab['Reff']
 
@@ -6091,10 +6174,10 @@ def plot_k3D_r_vir_coeff(fileout=None, output_path=None, table_path=None,
                         ks_dict['tot']['n={}'.format(n)]['rarr'] = tab['r']
                         ks_dict['3D']['n={}'.format(n)]['rarr'] = tab['r']
 
-                    ks_dict['tot']['n={}'.format(n)]['q={}'.format(q)]  = calcs.virial_coeff_tot(tab['r'], total_mass=tab['total_mass'],
-                                               q=q, Reff=tab['Reff'], n=n, i=90., vc=tab['vcirc'])
-                    ks_dict['3D']['n={}'.format(n)]['q={}'.format(q)]  = calcs.virial_coeff_3D(tab['r'], total_mass=tab['total_mass'],
-                                               q=q, Reff=tab['Reff'], n=n, i=90., vc=tab['vcirc'], m3D=tab['menc3D_sph'])
+                    ks_dict['tot']['n={}'.format(n)]['q={}'.format(q)]  = util_calcs.virial_coeff_tot(tab['r'],
+                                        total_mass=tab['total_mass'], vc=tab['vcirc'])
+                    ks_dict['3D']['n={}'.format(n)]['q={}'.format(q)]  = util_calcs.virial_coeff_3D(tab['r'],
+                                        vc=tab['vcirc'], m3D=tab['menc3D_sph'])
                 except:
                     ks_dict['tot']['n={}'.format(n)]['q={}'.format(q)] = np.ones(len(ks_dict['3D']['n={}'.format(n)]['rarr']))*np.NaN
                     ks_dict['3D']['n={}'.format(n)]['q={}'.format(q)] = np.ones(len(ks_dict['3D']['n={}'.format(n)]['rarr']))*np.NaN
@@ -6394,38 +6477,36 @@ def plot_fDMratio_vs_r(output_path=None, table_path=None, fileout=None,
                 for jj, bt in enumerate(bt_arr):
 
                     bt = bt_arr[jj]
-                    Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-                    fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                    Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                    fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
                     Mbaryon = np.power(10.,lmstar)/(1.-fgas)
-                    Mhalo = _smhm_relation(z=z, lmstar=lmstar)
-                    halo_conc = _halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
+                    Mhalo = utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
+                    halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo))
 
 
                     ###############
                     ## Get mass, velocity components:
-                    menc_disk = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(1.-bt)*Mbaryon,
+                    menc_disk = util_calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    menc_bulge = calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(bt)*Mbaryon,
+                    menc_bulge = util_calcs.interpolate_sersic_profile_menc(r=r_arr, total_mass=(bt)*Mbaryon,
                                             Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
                     if halo_typ == 'NFW':
-                        menc_halo = calcs.NFW_halo_enclosed_mass(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
+                        halo = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
                     elif halo_typ == 'TPH0.0':
-                        menc_halo = calcs.TPH_halo_enclosed_mass(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
+                        halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=0.)
 
+                    menc_halo = halo.enclosed_mass(r_arr)
                     menc_baryons = menc_disk + menc_bulge
                     menc_tot = menc_baryons + menc_halo
                     fdm_menc = menc_halo/menc_tot
 
                     #####
-                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(1.-bt)*Mbaryon,
+                    vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(bt)*Mbaryon,
+                    vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=r_arr, total_mass=(bt)*Mbaryon,
                                             Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
-                    if halo_typ == 'NFW':
-                        vcirc_halo = calcs.NFW_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z)
-                    elif halo_typ == 'TPH0.0':
-                        vcirc_halo = calcs.TPH_halo_vcirc(r=r_arr, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
 
+                    vcirc_halo = halo.v_circ(r_arr)
                     vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
                     vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                     fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -6702,21 +6783,21 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                 for jj, bt in enumerate(bt_arr):
 
                     bt = bt_arr[jj]
-                    Reff_disk = _mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
-                    fgas =      _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+                    Reff_disk = utils.scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
+                    fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
                     Mbaryon = np.power(10.,lmstar)/(1.-fgas)
 
 
                     ###############
                     ## Get mass, velocity components:
-                    menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
+                    menc_disk = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    menc_bulge = calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(bt)*Mbaryon,
+                    menc_bulge = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk, total_mass=(bt)*Mbaryon,
                                             Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
                     #
-                    vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
+                    vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(1.-bt)*Mbaryon,
                                             Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
-                    vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(bt)*Mbaryon,
+                    vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk, total_mass=(bt)*Mbaryon,
                                             Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
 
                     menc_baryons = menc_disk + menc_bulge
@@ -6724,18 +6805,18 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                     #####
                     fdm_comp_arr = np.ones(len(fDMvReff_arr)) * -99.
                     for ll, fDMvReff in enumerate(fDMvReff_arr):
-                        Mhalo_SMHM = utils._smhm_relation(z=z, lmstar=lmstar)
-                        halo_conc = utils._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo_SMHM))
+                        Mhalo_SMHM = utils.scaling_rel._smhm_relation(z=z, lmstar=lmstar)
+                        halo_conc = utils.scaling_rel._halo_conc_relation(z=z, lmhalo=np.log10(Mhalo_SMHM))
                         if fDMvReff == 0.:
                             Mhalo = 1.e2
                         elif fDMvReff == 1.:
                             Mhalo = 1.e18
                         else:
                             if halo_typ == 'NFW':
-                                Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
+                                Mhalo = util_calcs._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff, r=Reff_disk, conc=halo_conc, z=z)
                             elif halo_typ == 'TPH0.0':
                                 try:
-                                    Mhalo = utils._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
+                                    Mhalo = util_calcs._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
                                             r=Reff_disk, conc=halo_conc, z=z, alpha=0.)
                                 except:
                                     Mhalo = np.NaN
@@ -6750,32 +6831,26 @@ def plot_fDMratio_vs_fDMvReff(output_path=None, table_path=None, fileout=None,
                                 Mhalo = 1.e18
                                 alphaTPH = 1.
                             else:
-                                alphaTPH = utils._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
+                                alphaTPH = util_calcs._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff,
                                                 r=Reff_disk, conc=halo_conc, z=z, Mhalo=Mhalo)
 
                         if np.isfinite(Mhalo):
                             if halo_typ == 'NFW':
-                                menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                                halo = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
                             elif halo_typ == 'TPH0.0':
-                                menc_halo = calcs.TPH_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
+                                halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=0.)
                             elif halo_typ == 'TPH':
-                                menc_halo = calcs.TPH_halo_enclosed_mass(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
+                                halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=alphaTPH)
+
+                            menc_halo = halo.enclosed_mass(Reff_disk)
 
                             menc_tot = menc_baryons + menc_halo
                             fdm_menc = menc_halo/menc_tot
 
                             #####
-
-                            if halo_typ == 'NFW':
-                                vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
-                            elif halo_typ == 'TPH0.0':
-                                vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
-                            elif halo_typ == 'TPH':
-                                vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
-
+                            vcirc_halo = halo.v_circ(Reff_disk)
                             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                             fdm_vsq = vcirc_halo**2/vcirc_tot**2
-
 
                             fdm_comp_arr[ll] = fdm_vsq/fdm_menc
 
@@ -7048,14 +7123,14 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
 
                             ###############
                             ## Get mass, velocity components:
-                            menc_disk = calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
+                            menc_disk = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
                                                     Reff=Reff_disk_tmp, n=n_disk_tmp, invq=invq_disk_tmp, path=table_path)
-                            menc_bulge = calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
+                            menc_bulge = util_calcs.interpolate_sersic_profile_menc(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
                                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
                             #
-                            vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
+                            vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
                                                     Reff=Reff_disk_tmp, n=n_disk_tmp, invq=invq_disk_tmp, path=table_path)
-                            vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
+                            vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
                                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
 
                             menc_baryons = menc_disk + menc_bulge
@@ -7095,22 +7170,19 @@ def plot_fDMratio_grid(output_path=None, table_path=None, fileout=None,
                             #########
                             if np.isfinite(Mhalo):
                                 if halo_typ == 'NFW':
-                                    menc_halo = calcs.NFW_halo_enclosed_mass(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z)
+                                    halo = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
                                 elif halo_typ == 'TPH0.0':
-                                    menc_halo = calcs.TPH_halo_enclosed_mass(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
+                                    halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=0.)
                                 elif halo_typ == 'TPH':
-                                    menc_halo = calcs.TPH_halo_enclosed_mass(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
+                                    halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=alphaTPH)
+
+                                menc_halo = halo.enclosed_mass(Reff_disk_tmp)
 
                                 menc_tot = menc_baryons + menc_halo
                                 fdm_menc = menc_halo/menc_tot
 
                                 ####
-                                if halo_typ == 'NFW':
-                                    vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z)
-                                elif halo_typ == 'TPH0.0':
-                                    vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
-                                elif halo_typ == 'TPH':
-                                    vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
+                                vcirc_halo = halo.v_circ(Reff_disk_tmp)
 
                                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
@@ -7507,24 +7579,24 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 n_disk_tmp = y
 
                             # Get Mbaryon:
-                            fgas =      utils._fgas_scaling_relation_MS(z=z, lmstar=lmass_tmp)
+                            fgas =      utils.scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmass_tmp)
                             Mbaryon =   np.power(10.,lmass_tmp)/(1.-fgas)
 
                             ###############
                             ## Get mass, velocity components:
                             # Get rhalf disk:
-                            tab = table_io.read_profile_table(n=n_disk_tmp, invq=invq_disk_tmp,  path=table_path)
+                            tab = io.read_profile_table(n=n_disk_tmp, invq=invq_disk_tmp,  path=table_path)
                             rhalf_disk = tab['rhalf3D_sph'] * (Reff_disk_tmp / tab['Reff'])
                             tab = None
 
-                            menc_disk = calcs.interpolate_sersic_profile_menc(r=rhalf_disk, total_mass=(1.-BT_tmp)*Mbaryon,
+                            menc_disk = util_calcs.interpolate_sersic_profile_menc(r=rhalf_disk, total_mass=(1.-BT_tmp)*Mbaryon,
                                                     Reff=Reff_disk_tmp, n=n_disk_tmp, invq=invq_disk_tmp, path=table_path)
-                            menc_bulge = calcs.interpolate_sersic_profile_menc(r=rhalf_disk, total_mass=(BT_tmp)*Mbaryon,
+                            menc_bulge = util_calcs.interpolate_sersic_profile_menc(r=rhalf_disk, total_mass=(BT_tmp)*Mbaryon,
                                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
                             #
-                            vcirc_disk = calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
+                            vcirc_disk = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(1.-BT_tmp)*Mbaryon,
                                                     Reff=Reff_disk_tmp, n=n_disk_tmp, invq=invq_disk_tmp, path=table_path)
-                            vcirc_bulge = calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
+                            vcirc_bulge = util_calcs.interpolate_sersic_profile_VC(r=Reff_disk_tmp, total_mass=(BT_tmp)*Mbaryon,
                                                     Reff=Reff_bulge, n=n_bulge, invq=invq_bulge, path=table_path)
 
                             menc_baryons = menc_disk + menc_bulge
@@ -7537,18 +7609,18 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                 Mhalo = 1.e18
                             else:
                                 if halo_typ == 'NFW':
-                                    Mhalo = utils._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                    Mhalo = util_calcs._Mhalo_from_fDMv_NFW(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                 r=Reff_disk_tmp, conc=halo_conc, z=z)
                                 elif halo_typ == 'TPH0.0':
                                     try:
-                                        Mhalo = utils._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                        Mhalo = util_calcs._Mhalo_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                 r=Reff_disk_tmp, conc=halo_conc, z=z, alpha=0.)
                                     except:
                                         Mhalo = np.NaN
 
                             #########
                             if halo_typ == 'TPH':
-                                Mhalo_SMHM = utils._smhm_relation(z=z, lmstar=lmass_tmp)
+                                Mhalo_SMHM = utils.scaling_rel._smhm_relation(z=z, lmstar=lmass_tmp)
                                 Mhalo = Mhalo_SMHM
                                 if fDMvReff_tmp == 0.:
                                     Mhalo = 1.e2
@@ -7557,32 +7629,27 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
                                     Mhalo = 1.e18
                                     alphaTPH = 1.
                                 else:
-                                    alphaTPH = utils._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
+                                    alphaTPH = util_calcs._alpha_from_fDMv_TPH(vcirc_baryons=vcirc_baryons, fDMv=fDMvReff_tmp,
                                                     r=Reff_disk_tmp, conc=halo_conc, z=z, Mhalo=Mhalo)
 
                             #########
                             if np.isfinite(Mhalo):
                                 if halo_typ == 'NFW':
-                                    menc_halo = calcs.NFW_halo_enclosed_mass(r=rhalf_disk, Mvirial=Mhalo, conc=halo_conc, z=z)
+                                    halo = core.NFW(z=z, Mvir=Mhalo, conc=halo_conc)
                                 elif halo_typ == 'TPH0.0':
-                                    menc_halo = calcs.TPH_halo_enclosed_mass(r=rhalf_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
+                                    halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=0.)
                                 elif halo_typ == 'TPH':
-                                    menc_halo = calcs.TPH_halo_enclosed_mass(r=rhalf_disk, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
+                                    halo = core.TPH(z=z, Mvir=Mhalo, conc=halo_conc, alpha=alphaTPH)
+                                menc_halo = halo.enclosed_mass(rhalf_disk)
 
                                 menc_tot_half = menc_baryons + menc_halo
 
                                 ####
-                                if halo_typ == 'NFW':
-                                    vcirc_halo = calcs.NFW_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z)
-                                elif halo_typ == 'TPH0.0':
-                                    vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=0.)
-                                elif halo_typ == 'TPH':
-                                    vcirc_halo = calcs.TPH_halo_vcirc(r=Reff_disk_tmp, Mvirial=Mhalo, conc=halo_conc, z=z, alpha=alphaTPH)
-
+                                vcirc_halo = halo.v_circ(rhalf_disk)
                                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
 
-                                ktot_est = calcs.virial_coeff_tot(Reff_disk_tmp, total_mass=2.*menc_tot_half,
-                                               vc=vcirc_tot, q=None, Reff=None, n=None, i=None)
+                                ktot_est = util_calcs.virial_coeff_tot(Reff_disk_tmp,
+                                            total_mass=2.*menc_tot_half, vc=vcirc_tot)
 
                                 grid_fDM_ratio[mm, jj] = ktot_est
 
@@ -7792,77 +7859,6 @@ def plot_ktot_inf_grid(output_path=None, table_path=None, fileout=None,
 
     return grid_fDM_ratio_stack, grid_fDM_ratio_pair
 
-def make_all_paper_plots(output_path=None, table_path=None):
-    """
-    Wrapper function to make all plots for the paper.
-
-    Saves plots in PDF format.
-
-    Parameters
-    ----------
-        output_path: str
-            Path to the directory where the plots will be saved.
-
-        table_path: str
-            Path to the directory where the Sersic profile tables are located.
-
-    Returns
-    -------
-
-    """
-
-    # Figure 1
-    plot_compare_mencl(output_path=output_path, table_path=table_path, q_arr=[1., 0.4, 0.2])
-
-    # Figure 2
-    plot_rhalf_3D_sersic_potential(output_path=output_path, table_path=table_path)
-
-    # Figure 3
-    plot_composite_menc_vcirc_profile_invert(output_path=output_path, table_path=table_path,
-                q_arr=[1., 0.4, 0.2], n_arr=[1., 4.])
-
-    # Figure 4
-    plot_virial_coeff(output_path=output_path, table_path=table_path,
-                q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.])
-
-    # Figure 5
-    plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.0],
-                output_path=output_path, table_path=table_path,
-                z=2., Mbaryon=5.e10,
-                Reff_disk=5., n_disk=1., invq_disk=5.,
-                Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-                Mhalo=1.e12, halo_conc=4.,
-                logradius=False, rmin=0., rmax=15., rstep=0.01)
-
-    # Figure 6
-    plot_fdm_calibration(Mbaryon_arr=[10**10.5],
-                q_disk_arr = [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1.],
-                Mhalo_arr=[1.e12],
-                Reff_disk_arr=[5.],
-                halo_conc_arr=[4.],
-                output_path=output_path, table_path=table_path,
-                del_fDM=False)
-
-
-    # Figure 7
-    plot_toy_impl_fDM_calibration_z_evol(output_path=output_path, table_path=table_path,
-                n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-                del_fDM=False)
-
-    # Figure 8
-    plot_alpha_vs_r(output_path=output_path, table_path=table_path,
-                n_arr=[0.5, 1., 2., 4., 8.])
-
-    # Figure 9
-    plot_AD_sersic_potential_alpha_vs_r(output_path=output_path, table_path=table_path,
-                sigma0_arr = [30., 60., 90.],
-                q_arr=[1., 0.2],
-                n_arr=[0.5, 1., 2., 4.])
-
-    # Figure 10
-
-
-    return None
 
 
 if __name__ == "__main__":

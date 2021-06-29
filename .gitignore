@@ -36,7 +36,8 @@ docs/_build
 .__afs*
 
 # Private data
-tests/test_data/PYTEST_OUTPUT/
+tests/PYTEST_OUTPUT/
 wrapper_add_r0.py
 wrapper_add_rho_calcs.py
 plot_spiral.py
+docs/_static/logo/alts/

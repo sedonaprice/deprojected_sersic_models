@@ -226,8 +226,9 @@ html_sidebars = {
 # pixels large.
 
 # Logo and favicons
-#html_logo = '_static/dpy_logo_spiral/DPy_v_under_wh.png'
-#html_favicon = '_static/dpy_logo_spiral/DPy_favicon_blk-diag-32.png'
+html_logo = '_static/logo/sersicprof-white-red.png'
+#html_favicon = '_static/logo/sersicprof-red-thick-32.png'
+html_favicon = '_static/logo/sersicprof-red-thick-64.png'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
