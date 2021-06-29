@@ -300,6 +300,8 @@ def wrapper_calculate_full_table_set(output_path=None,
         f_log = output_path+'sersic_table_calc_{}.log'.format(indChunk+1)
 
         if invqstart is not None:
+            f_log = output_path+'sersic_table_calc_{}_invqstart_{:0.2f}.log'.format(indChunk+1,
+                                                                                    invqstart)
             whinvq = np.where(invq_arr == invqstart)[0]
             if len(whinvq) == 1:
                 invq_arr = invq_arr[whinvq[0]:]

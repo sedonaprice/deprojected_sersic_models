@@ -9,9 +9,9 @@ import math
 
 import numpy as np
 
-# Supress warnings: Runtime & integration warnings are frequent
-import warnings
-warnings.filterwarnings("ignore")
+# # Supress warnings: Runtime & integration warnings are frequent
+# import warnings
+# warnings.filterwarnings("ignore")
 
 
 from sersic_profile_mass_VC import core, io
@@ -20,7 +20,7 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 
 class TestSersicSavedTable:
     ftol = 1.e-9
-    ftol_high = 3.e-9
+    #ftol_high = 3.e-9
 
     def setup_table_sprof_rarr(self, n=1., invq=2.5):
         table = io.read_profile_table(n=n, invq=invq)
@@ -53,19 +53,19 @@ class TestSersicSavedTable:
                                     table['k3D_sph_Reff'], rel_tol=ftol)
 
     # def test_saved_table_n1_invq1(self):
-    #     self.check_saved_table_n_invq(n=1., invq=1.)
+    #     self.check_saved_table_n_invq(n=1., invq=1., ftol=1.e-9)
     #
     # def test_saved_table_n1_invq25(self):
-    #     self.check_saved_table_n_invq(n=1., invq=2.5)
+    #     self.check_saved_table_n_invq(n=1., invq=2.5, ftol=1.e-9)
     #
     # def test_saved_table_n1_invq5(self):
-    #     self.check_saved_table_n_invq(n=1., invq=5.)
+    #     self.check_saved_table_n_invq(n=1., invq=5., ftol=1.e-9)
     #
     # def test_saved_table_n4_invq1(self):
-    #     self.check_saved_table_n_invq(n=4., invq=1.)
+    #     self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-9)
     #
     # def test_saved_table_n05_invq4(self):
-    #     self.check_saved_table_n_invq(n=0.5, invq=4.)
+    #     self.check_saved_table_n_invq(n=0.5, invq=4., ftol=1.e-9)
 
 
 
