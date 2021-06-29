@@ -1,5 +1,5 @@
 ##################################################################################
-# sersic_profile_mass_VC/plot/paper_plots.py                                     #
+# sersic_profile_mass_VC/plot/plots.py                                           #
 #                                                                                #
 # Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
@@ -11,9 +11,7 @@ import copy
 import dill as pickle
 
 import numpy as np
-
 import scipy.interpolate as scp_interp
-
 import astropy.cosmology as apy_cosmo
 import astropy.constants as apy_con
 from astropy.table import Table, Row
@@ -36,7 +34,6 @@ __all__ = [ 'plot_profiles', 'plot_enclosed_mass', 'plot_vcirc',
             'plot_density', 'plot_dlnrho_dlnr',
             'plot_surface_density', 'plot_projected_enclosed_mass']
 
-
 # ---------------------
 # Plot settings
 
@@ -49,7 +46,6 @@ _aliases_profiles_table = {'enclosed_mass': 'menc3D_sph',
                           'dlnrho_dlnr': 'dlnrho_dlnr',
                           'surface_density': None,
                           'projected_enclosed_mass': None}
-
 
 # Without '$':
 _labels_profiles = {'enclosed_mass': r'M_{\mathrm{enc}}',

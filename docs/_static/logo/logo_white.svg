@@ -8,9 +8,9 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="logo_white.svg"
-   width="54.782333mm"
-   height="27.017136mm"
-   viewBox="0 0 54.782333 27.017136"
+   width="109.56467mm"
+   height="54.034241mm"
+   viewBox="0 0 54.782332 27.01712"
    version="1.1"
    id="svg5"
    inkscape:version="1.0.1 (c497b03c, 2020-09-10)"
@@ -40,12 +40,12 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="3"
-     inkscape:cx="95.875241"
-     inkscape:cy="67.687587"
+     inkscape:cx="95.875246"
+     inkscape:cy="67.687594"
      inkscape:window-width="1371"
      inkscape:window-height="825"
-     inkscape:window-x="-9"
-     inkscape:window-y="23"
+     inkscape:window-x="1622"
+     inkscape:window-y="155"
      inkscape:window-maximized="0"
      inkscape:current-layer="g4048"
      inkscape:snap-global="false"
@@ -55,12 +55,13 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     lock-margins="true">
+     lock-margins="true"
+     scale-x="0.5">
     <inkscape:grid
        type="xygrid"
        id="grid35977"
-       originx="-13.357544"
-       originy="-13.280002" />
+       originx="-6.6787712"
+       originy="-6.6399996" />
   </sodipodi:namedview>
   <defs
      id="defs2" />
@@ -68,7 +69,7 @@
      inkscape:label="grey"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:inline"
      sodipodi:insensitive="true">
     <g
@@ -367,7 +368,7 @@
      inkscape:label="blue line"
      inkscape:groupmode="layer"
      id="g2820"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:none"
      sodipodi:insensitive="true">
     <g
@@ -419,7 +420,7 @@
      inkscape:label="purple line"
      inkscape:groupmode="layer"
      id="g4004"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:none"
      sodipodi:insensitive="true">
     <g
@@ -471,7 +472,7 @@
      inkscape:label="teal line"
      inkscape:groupmode="layer"
      id="g4026"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:none"
      sodipodi:insensitive="true">
     <g
@@ -523,7 +524,7 @@
      inkscape:label="red line"
      inkscape:groupmode="layer"
      id="g4048"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:inline"
      sodipodi:insensitive="true">
     <g
@@ -575,7 +576,7 @@
      inkscape:label="white"
      inkscape:groupmode="layer"
      id="g2704"
-     transform="translate(-13.357546,-13.280003)"
+     transform="translate(-13.357546,-13.28)"
      style="display:inline"
      sodipodi:insensitive="true">
     <ellipse
