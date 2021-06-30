@@ -27,6 +27,9 @@ pc = apy_con.pc
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
 class _SersicDistBase:
     """
     Base class that specifies a Sersic distribution.
@@ -206,7 +209,6 @@ class _SersicDistBase:
     @property
     def Ie(self):
         return self._Ie
-
 
 
 class DeprojSersicDist(_SersicDistBase):
@@ -569,14 +571,16 @@ class DeprojSersicDist(_SersicDistBase):
             table: dict
                 Dictionary containing the various profiles & values.
         """
-
+        # ---------------------
+        # Set default cumulative behavior:
         if cumulative is None:
             if self.n >= 2.:
                 cumulative = True
             else:
                 cumulative = False
 
-
+        # ---------------------
+        # Calculate profiles:
         vcirc =         self.v_circ(r)
         menc3D_sph =    self.enclosed_mass(r, cumulative=cumulative)
         menc3D_ellip =  self.enclosed_mass_ellipsoid(r, cumulative=cumulative)
@@ -626,6 +630,5 @@ class DeprojSersicDist(_SersicDistBase):
         if status > 0:
             raise ValueError("Problem in table calculation: n={:0.1f}, invq={:0.2f}: status={}".format(self.n,
                             self.invq, status))
-
 
         return table

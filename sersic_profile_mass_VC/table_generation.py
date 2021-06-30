@@ -9,7 +9,6 @@ import os
 import sys
 
 import numpy as np
-import astropy.constants as apy_con
 
 import logging
 
@@ -19,11 +18,6 @@ from sersic_profile_mass_VC.io import _sersic_profile_filename_base
 
 __all__ = [ 'calculate_sersic_profile_table', 'wrapper_calculate_sersic_profile_tables',
             'wrapper_calculate_full_table_set' ]
-
-# CONSTANTS
-G = apy_con.G
-Msun = apy_con.M_sun
-pc = apy_con.pc
 
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)

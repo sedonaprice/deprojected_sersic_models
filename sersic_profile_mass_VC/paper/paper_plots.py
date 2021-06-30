@@ -18,8 +18,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator, FixedLocator, FixedFormatter
 import matplotlib.cm as cm
-from matplotlib import colorbar
-from matplotlib.patches import Rectangle
 
 from sersic_profile_mass_VC import core, io
 from sersic_profile_mass_VC.utils import calcs as util_calcs

@@ -5,9 +5,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
-import numpy as np
-
 import os
+
+# Supress warnings: Runtime & integration warnings are frequent
+import warnings
+warnings.filterwarnings("ignore")
+
 import numpy as np
 import scipy.integrate as scp_integrate
 import scipy.misc as scp_misc

@@ -5,29 +5,15 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
-import numpy as np
-
 import os
 import numpy as np
-import scipy.integrate as scp_integrate
-import scipy.misc as scp_misc
 import scipy.special as scp_spec
-import scipy.interpolate as scp_interp
 import astropy.units as u
-import astropy.constants as apy_con
 import astropy.cosmology as apy_cosmo
 
 import logging
 
 from sersic_profile_mass_VC.utils import calcs as util_calcs
-
-# CONSTANTS
-G = apy_con.G
-Msun = apy_con.M_sun
-pc = apy_con.pc
-
-deg2rad = np.pi/180.
-
 
 # DEFAULT COSMOLOGY
 _default_cosmo = apy_cosmo.FlatLambdaCDM(H0=70., Om0=0.3)
