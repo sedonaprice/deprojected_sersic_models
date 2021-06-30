@@ -298,7 +298,8 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
     if rlim is not None:
         ax.set_xlim(rlim)
 
-        if ylim is None:
+        # Add ylim to plot bound, if ylog=True: otherwise can have very squished plots
+        if (ylim is None) & ylog:
             ylo = 1.e100
             yhi = -1.e100
             for rplot, paramprof in zip(rs, paramprofs):
