@@ -18,9 +18,13 @@ Sersic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
 Further details about the calculations included in this package
 are described in `Price et al., in prep 2021`_.
 
-.. _Noordermeer: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price: tofix
+.. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
+.. _Price et al., in prep 2021: tofix
 
+Please see `the documentation`_ for this package for detailed information about installation,
+usage, and to download the set of **_pre-computed_** Sersic profile tables.
+
+.. _the documentation: https://sersic_profile_mass_VC.github.io/
 
 
 Usage
