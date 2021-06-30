@@ -1,23 +1,25 @@
 ##################################################################################
-# sersic_profile_mass_VC/table_io.py                                             #
+# sersic_profile_mass_VC/io.py                                                   #
 #                                                                                #
 # Copyright 2018-2020 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
+import os
 import numpy as np
 from astropy.io import fits
 from astropy.table import Table
 
 __all__ = [ 'save_profile_table', 'read_profile_table' ]
 
+_dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
+_sersic_profile_filename_base = 'mass_VC_profile_sersic'
 
 def _default_table_fname(path, filename_base, n, invq):
     return path+filename_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
 
-def save_profile_table(table=None,
-        path=None, filename_base='mass_VC_profile_sersic',
-        filename=None, overwrite=False):
+def save_profile_table(table=None, path=None, filename_base=_sersic_profile_filename_base,
+                       filename=None, overwrite=False):
     """
     Save the table of Sersic profile values in a binary FITS table.
 
@@ -26,9 +28,10 @@ def save_profile_table(table=None,
         table: dict
             The dictionary of the table for a particular n, invq
 
-        path: str or None
+        path: str, optional
             Path to directory containing the saved Sersic profile tables.
-
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
@@ -80,7 +83,11 @@ def save_profile_table(table=None,
 
     if table is None:       raise ValueError("Must set 'table'!")
     if filename is None:
-        if path is None:    raise ValueError("Must set 'path' if 'filename' is not set !")
+        if path is None:
+            if _dir_sersic_profile_mass_VC is not None:
+                path = _dir_sersic_profile_mass_VC
+            else:
+                raise ValueError("Must set 'path' if 'filename' is not set !")
 
         filename = _default_table_fname(path, filename_base, table['n'], table['invq'])
 
@@ -91,7 +98,8 @@ def save_profile_table(table=None,
 
     key_list = ['r', 'invq', 'q', 'n', 'total_mass', 'Reff',
                 'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr', 'vcirc',
-                'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff', 'vcirc_Reff', 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
+                'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff', 'vcirc_Reff',
+                'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
     fmt_list = [fmt_arr, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt,
                 fmt_arr, fmt_arr, fmt_arr, fmt_arr, fmt_arr,
                 fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt]
@@ -105,7 +113,7 @@ def save_profile_table(table=None,
 
 
 def read_profile_table(n=None, invq=None, path=None,
-        filename_base='mass_VC_profile_sersic', filename=None):
+                       filename_base=_sersic_profile_filename_base, filename=None):
     """
     Read the table of Sersic profile values from the binary FITS table.
 
@@ -115,10 +123,11 @@ def read_profile_table(n=None, invq=None, path=None,
             Sersic index
         invq: float
             Inverse intrinsic axis ratio
-        path: str or None
-            Path to directory containing the saved Sersic profile tables.
-            If `None`, assumes current directory.
 
+        path: str or None, optional
+            Path to directory containing the saved Sersic profile tables.
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
@@ -135,14 +144,18 @@ def read_profile_table(n=None, invq=None, path=None,
     """
 
     if filename is None:
-        if path is None:    raise ValueError("Must set 'path' if 'filename' is not set !")
+        if path is None:
+            if _dir_sersic_profile_mass_VC is not None:
+                path = _dir_sersic_profile_mass_VC
+            else:
+                raise ValueError("Must set 'path' if 'filename' is not set !")
         if n is None:       raise ValueError("Must set 'n' if 'filename' is not set !")
         if invq is None:    raise ValueError("Must set 'invq' if 'filename' is not set !")
 
         # Ensure output path ends in trailing slash:
         if (path[-1] != '/'): path += '/'
 
-        filename = filename = _default_table_fname(path, filename_base, n, inv)
+        filename = filename = _default_table_fname(path, filename_base, n, invq)
 
     t = Table.read(filename)
 
