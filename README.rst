@@ -31,6 +31,8 @@ usage, and to download the set of ***pre-computed*** Sersic profile tables.
 Usage
 #####
 
+.. code-block:: python
+
     import os
     import numpy as np
     import sersic_profile_mass_VC as spm
