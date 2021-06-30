@@ -15,7 +15,7 @@ Before installing the package, you will need to install python (v3)
 and the dependent packages.
 
 .. tip::
-    To handle dependencies (and possible dependency clashes for different packages),
+    To handle dependencies (including possible clashes with other packages),
     we recommend using a separate python environment (such as an Anaconda python environment).
 
     The Anaconda `installation`_ and `environments`_ guides lead through the necessary steps
@@ -26,8 +26,7 @@ and the dependent packages.
 
 
 
-From a terminal, change directories to where the package was downloaded
-and type:
+The package can be installed from the command line as follows:
 
 .. code-block:: console
 
@@ -35,13 +34,22 @@ and type:
     $ cd sersic_profile_mass_VC-N.N.N
     $ python setup.py install
 
-N.N.N is the current version. After the installation is complete, you should
-be able to run `import sersic_profile_mass_VC` within python (including IPython or a Jupyter notebook).
+where N.N.N should be replaced with the current version number.
+After the installation is complete, you should be able to access the module by running
+`import sersic_profile_mass_VC` within python.
 
 
 .. _clone_repo:
 
-Cloning the GitHub repo
------------------------
+Development Repository
+----------------------
 
-<TO WRITE>
+The most up-to-date version of the code can be obtained
+by cloning the repository on GitHub. 
+From within the target code location directory, run:
+
+ .. code-block:: console
+
+    $ git clone git://github.com/sedonaprice/sersic_profile_mass_VC.git
+
+This installation directory should also be added to your system `$PYTHONPATH` variable.

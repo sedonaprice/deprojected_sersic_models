@@ -5,28 +5,25 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
-import os, sys
+import os
+import sys
 
 import numpy as np
-import astropy.constants as apy_con
 
 import logging
 
-from sersic_profile_mass_VC import table_io
-from sersic_profile_mass_VC import calcs
-from sersic_profile_mass_VC import utils
+from sersic_profile_mass_VC import io
+from sersic_profile_mass_VC import core
+from sersic_profile_mass_VC.io import _sersic_profile_filename_base
 
 __all__ = [ 'calculate_sersic_profile_table', 'wrapper_calculate_sersic_profile_tables',
             'wrapper_calculate_full_table_set' ]
 
-# CONSTANTS
-G = apy_con.G
-Msun = apy_con.M_sun
-pc = apy_con.pc
-
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
+
+_dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
@@ -37,7 +34,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
         logr_min = -2., logr_max = 2., nSteps=101,
         include_r0 = True, i=90.,
         cumulative=None,
-        filename_base='mass_VC_profile_sersic', fileout=None,
+        filename_base=_sersic_profile_filename_base, fileout=None,
         overwrite=False):
     """
     Calculate the Sersic profile table for a specific Sersic index n and
@@ -51,6 +48,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
             Inverse intrinsic axis ratio
         output_path: str
             Path to directory where the Sersic profile table will be saved
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
 
         total_mass: float, optional
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
@@ -88,20 +87,16 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     -------
 
     """
-
     if fileout is None:
-        if output_path is None: raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+        if output_path is None:
+            if _dir_sersic_profile_mass_VC is not None:
+                output_path = _dir_sersic_profile_mass_VC
+            else:
+                raise ValueError("Must set 'output_path' if 'filename' is not set !")
 
         # Ensure output path ends in trailing slash:
         if (output_path[-1] != '/'): output_path += '/'
 
-
-
-    if cumulative is None:
-        if n >= 2.:
-            cumulative = True
-        else:
-            cumulative = False
 
     # ---------------------
     # Define q:
@@ -121,55 +116,12 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     if include_r0:
         rarr = np.append(0., rarr)
 
-    vcirc =         calcs.v_circ(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
-    menc3D_sph =    calcs.M_encl_3D(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
-    menc3D_ellip =  calcs.M_encl_3D_ellip(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i, cumulative=cumulative)
-
-    rho =           calcs.rho(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
-
-    dlnrho_dlnr =   calcs.dlnrho_dlnr(rarr, q=q, n=n, total_mass=total_mass, Reff=Reff, i=i)
-
-    # ---------------------
-    # Setup table:
-    table    = { 'r':                   rarr,
-                 'vcirc':               vcirc,
-                 'menc3D_sph':          menc3D_sph,
-                 'menc3D_ellipsoid':    menc3D_ellip,
-                 'rho':                 rho,
-                 'dlnrho_dlnr':         dlnrho_dlnr,
-                 'total_mass':          total_mass,
-                 'Reff':                Reff,
-                 'invq':                invq,
-                 'q':                   q,
-                 'n':                   n }
-
-    # ---------------------
-    # Calculate selected values at Reff:
-    wh_reff = np.where(table['r'] == table['Reff'])[0]
-
-    table['menc3D_sph_Reff'] =          table['menc3D_sph'][wh_reff]
-    table['menc3D_ellipsoid_Reff'] =    table['menc3D_ellipsoid'][wh_reff]
-    table['vcirc_Reff'] =               table['vcirc'][wh_reff]
-
-    table['ktot_Reff'] = (table['total_mass'] * Msun.cgs.value) * G.cgs.value / \
-                              (( table['Reff']*1.e3*pc.cgs.value ) * (table['vcirc_Reff']*1.e5)**2)
-    table['k3D_sph_Reff'] = (table['menc3D_sph_Reff'] * Msun.cgs.value) * G.cgs.value / \
-                              (( table['Reff']*1.e3*pc.cgs.value ) * (table['vcirc_Reff']*1.e5)**2)
-
-    # ---------------------
-    # 3D Spherical half total_mass radius, for reference:
-    table['rhalf3D_sph'] = calcs.find_rhalf3D_sphere(r=table['r'], menc3D_sph=table['menc3D_sph'],
-                                       total_mass=table['total_mass'])
-
-    # ---------------------
-    # Check that table calculated correctly:
-    status = utils.check_for_inf(table=table)
-    if status > 0:
-        raise ValueError("Problem in table calculation: n={:0.1f}, invq={:0.2f}: status={}".format(n, invq, status))
+    sersicprof = core.DeprojSersicDist(total_mass=total_mass, Reff=Reff, n=n, q=q, i=i)
+    table = sersicprof.profile_table(rarr, cumulative=cumulative, add_reff_table_values=True)
 
     # ---------------------
     # Save table:
-    table_io.save_profile_table(table=table, filename_base=filename_base, path=output_path,
+    io.save_profile_table(table=table, filename_base=filename_base, path=output_path,
                 filename=fileout, overwrite=overwrite)
 
     return None
@@ -181,7 +133,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
         logr_min = -2., logr_max = 2., nSteps=101,
         include_r0 = True, i=90.,
         cumulative=None,
-        filename_base='mass_VC_profile_sersic', overwrite=False,
+        filename_base=_sersic_profile_filename_base, overwrite=False,
         f_log=None):
 
     """
@@ -195,6 +147,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             Array of inverse intrinsic axis ratio
         output_path: str
             Path to directory where the Sersic profile table will be saved
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
 
         total_mass: float, optional
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
@@ -219,7 +173,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             Default: Uses cumulative if n >= 2.
         filename_base: str, optional
             Base filename to use, for the default naming convention:
-            ``<filename_base>_nX.X_invqX.XX.fits`.
+            `<filename_base>_nX.X_invqX.XX.fits`.
             Default: `mass_VC_profile_sersic`
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
@@ -232,9 +186,13 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
 
     """
 
+    if output_path is None:
+        if _dir_sersic_profile_mass_VC is not None:
+            output_path = _dir_sersic_profile_mass_VC
+        else:
+            raise ValueError("Must set 'output_path' if 'filename' is not set !")
     # Ensure output path ends in trailing slash:
     if (output_path[-1] != '/'): output_path += '/'
-    if filename_base is None: filename_base = 'mass_VC_profile_sersic'
 
     if f_log is not None:
         # Clean up existing log file:
@@ -250,7 +208,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
         for invq in invq_arr:
             logger.info("      Calculating invq={:0.2f}".format(invq))
 
-            if (not overwrite) & (os.path.isfile(table_io._default_table_fname(output_path, filename_base, n, invq))):
+            if (not overwrite) & (os.path.isfile(io._default_table_fname(output_path, filename_base, n, invq))):
                 logger.info("       Calculation already completed.")
                 continue
             else:
@@ -265,7 +223,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
 
 
 def wrapper_calculate_full_table_set(output_path=None,
-        filename_base='mass_VC_profile_sersic',
+        filename_base=_sersic_profile_filename_base,
         overwrite=False, f_log=None,
         indChunk=None, nChunk=None,
         invqstart=None, cumulative=None):
@@ -275,30 +233,26 @@ def wrapper_calculate_full_table_set(output_path=None,
     Parameters
     ----------
         output_path: str
-            Path to directory where the Sersic profile table will be saved
+            Path to directory where the Sersic profile table will be saved.
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
 
         filename_base: str, optional
             Base filename to use, for the default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
             Default: `mass_VC_profile_sersic`
-
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
             Default: False (will throw an error if the file already exists).
-
         f_log: str, optional
             Filename of log file, to save information output while
             calculation is in progress. Default: None
-
         indChunk: int, optional
             Index of chunk to run. Default: None (only one chunk)
-
         nChunk: int, optional
             Total number of chunks. Default: None (only one chunk)
-
         invqstart: int, optional
             Where to start with invq array. Default: None (start at beginning)
-
         cumulative: bool, optional
             Shortcut option to only calculate the next annulus,
             then add to the previous Menc(r-rdelt).
@@ -308,6 +262,11 @@ def wrapper_calculate_full_table_set(output_path=None,
     -------
 
     """
+    if output_path is None:
+        if _dir_sersic_profile_mass_VC is not None:
+            output_path = _dir_sersic_profile_mass_VC
+        else:
+            raise ValueError("Must set 'output_path' if 'filename' is not set !")
 
     # Default settings:
     Reff =          1.      # kpc
@@ -335,6 +294,8 @@ def wrapper_calculate_full_table_set(output_path=None,
         f_log = output_path+'sersic_table_calc_{}.log'.format(indChunk+1)
 
         if invqstart is not None:
+            f_log = output_path+'sersic_table_calc_{}_invqstart_{:0.2f}.log'.format(indChunk+1,
+                                                                                    invqstart)
             whinvq = np.where(invq_arr == invqstart)[0]
             if len(whinvq) == 1:
                 invq_arr = invq_arr[whinvq[0]:]
