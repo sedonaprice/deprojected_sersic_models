@@ -9,6 +9,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+
+# Supress warnings: Runtime & integration warnings are frequent
+import warnings
+warnings.filterwarnings("ignore")
+
 import numpy as np
 import scipy.interpolate as scp_interp
 
@@ -32,9 +37,11 @@ __all__ = [ 'interpolate_entire_table',
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
 
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 # Interpolation functions:
-
 
 def interpolate_entire_table(r=None, table=None,
         total_mass=None, Reff=None, n=1., invq=5.,

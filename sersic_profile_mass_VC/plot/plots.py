@@ -8,30 +8,15 @@
 import os
 import copy
 
-import warnings
-warnings.filterwarnings("ignore")
-
 import dill as pickle
 
 import numpy as np
-import scipy.interpolate as scp_interp
-import astropy.cosmology as apy_cosmo
-import astropy.constants as apy_con
 from astropy.table import Table, Row
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter, FixedLocator, FixedFormatter, LogLocator
-import matplotlib.markers as mks
-from matplotlib.legend_handler import HandlerLine2D
-import matplotlib.cm as cm
-from matplotlib.colors import ListedColormap
-from matplotlib import colorbar
-from matplotlib.patches import Rectangle
 
 from sersic_profile_mass_VC import core
-
 
 __all__ = [ 'plot_profiles', 'plot_enclosed_mass', 'plot_vcirc',
             'plot_density', 'plot_dlnrho_dlnr',
@@ -39,9 +24,6 @@ __all__ = [ 'plot_profiles', 'plot_enclosed_mass', 'plot_vcirc',
 
 # ---------------------
 # Plot settings
-
-fontsize_leg = 7.
-fontsize_labels = 14.
 
 _aliases_profiles_table = {'enclosed_mass': 'menc3D_sph',
                           'v_circ': 'vcirc',
@@ -56,6 +38,9 @@ _labels_profiles = {'enclosed_mass': r'Enclosed mass [$M_{\odot}$]',
                     'dlnrho_dlnr': r'Log density slope',
                     'surface_density': r'Projected mass surface density [$M_{\odot}/\mathrm{kpc}^2$]',
                     'projected_enclosed_mass': r'Projected enclosed mass [$M_{\odot}$]'}
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 
 def plot_profiles(sersic_profs, r=np.arange(0., 6., 1.),
                   rlim=None, rlog=True, ylog=None,
@@ -105,29 +90,15 @@ def plot_profiles(sersic_profs, r=np.arange(0., 6., 1.),
          prof_names = prof_names_defaults
     nProfs = len(prof_names)
 
-    # ncols = 2
-    # nrows = np.int(np.ceil(nProfs/(1.*ncols)))
-    #
-    # padx = pady = 0.35
-    #
-    # xextra = 0.
-    # yextra = 0.25
-    #
-    # scale = 3.
-    #
-    # f = plt.figure()
-    # f.set_size_inches((ncols+(ncols-1)*padx+xextra)*scale, (nrows+pady+yextra)*scale)
-    #
-    # gs = gridspec.GridSpec(nrows, ncols, wspace=padx, hspace=pady)
-    # axes = []
-    # for i in range(nrows):
-    #     for j in range(ncols):
-    #         axes.append(plt.subplot(gs[i,j]))
-
-
     ncols = 2
     nrows = np.int(np.ceil(nProfs/(1.*ncols)))
-    f = plt.figure(figsize=(4.5*ncols,4.*nrows))
+    fac = 4.
+    figsize_default = (fac*ncols,8./9.*fac*nrows)
+    if fig_kwargs is not None:
+        figsize = fig_kwargs.get('figsize', figsize_default)
+    else:
+        figsize = figsize_default
+    f = plt.figure(figsize=figsize)
     axes = []
     for i in range(nrows):
         for j in range(ncols):
@@ -179,7 +150,7 @@ def plot_profiles(sersic_profs, r=np.arange(0., 6., 1.),
 
 
 def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
-                              r=np.arange(0., 6., 1.), rlim=None, ylim=None, rlog=True, ylog=True,
+                              r=np.arange(0., 6., 1.), rlim=None, ylim=None, rlog=False, ylog=False,
                               plot_kwargs=None, fig_kwargs=None, fileout=None, ax=None):
     """
     Base function to plot single parameter profile(s) for the Sersic mass distribution(s).
@@ -201,9 +172,9 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
         ylim: array_like or None, optional
             If set, spefcify y plot bounds. Default: None (default bounds)
         rlog: bool, optional
-            Option to plot log of radius instead of linear. Default: True
+            Option to plot log of radius instead of linear. Default: False
         ylog: bool, optional
-            Option to plot log of profile instead of linear. Default: True
+            Option to plot log of profile instead of linear. Default: False
         plot_kwargs: array_like or dict, optional
             Option to pass plotting keyword arguments.
             Should include either dict or list of dicts, to match number of input profiles.
@@ -221,15 +192,16 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
             Default: None
 
     """
-
     if ax is None:
         ax_in = False
         # Create axis:
-        xextra = 0.
-        yextra = 0.
-        scale = 3.
-        f = plt.figure()
-        f.set_size_inches((1+xextra)*scale, (1+yextra)*scale)
+        fac = 4.
+        figsize_default = (fac,8./9.*fac)
+        if fig_kwargs is not None:
+            figsize = fig_kwargs.get('figsize', figsize_default)
+        else:
+            figsize = figsize_default
+        f = plt.figure(figsize=figsize)
         ax = plt.subplot(111)
     else:
         ax_in = True
@@ -263,16 +235,17 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
             if keyalias is not None:
                 paramprof = sprof[keyalias]
             else:
-                sprof_tmp = core.DeprojSersicDist(total_mass=sprof['total_mass'],
-                        Reff=sprof['Reff'], n=sprof['n'], q=sprof['q'])
-                paramprof = getattr(sprof_tmp, prof_name)(rplot)
+                paramprof = sprof.get(prof_name, None)
+                if paramprof is None:
+                    sprof_tmp = core.DeprojSersicDist(total_mass=sprof['total_mass'],
+                            Reff=sprof['Reff'], n=sprof['n'], q=sprof['q'])
+                    paramprof = getattr(sprof_tmp, prof_name)(rplot)
             total_mass, Reff, n, q = sprof['total_mass'], sprof['Reff'], sprof['n'], sprof['invq']
 
         rs.append(rplot)
         paramprofs.append(paramprof)
 
         lbl = 'totM={:0.1e}, Reff={:0.1f}, n={:0.1f}, invq={:0.1f}'.format(total_mass, Reff, n, q)
-
         if plot_kwargs is not None:
             if 'label' not in plot_kwargs[i].keys():
                 plot_kwargs[i]['label'] = lbl
@@ -280,12 +253,14 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
         else:
             ax.plot(rplot, paramprof, label=lbl, lw=1., ls='-')
 
-
     # Add legend:
-    legend_title = None
+    legend_kwargs = {'frameon': True, 'numpoints': 1, 'scatterpoints': 1}
     if fig_kwargs is not None:
-        legend_title = fig_kwargs.get('legend_title', None)
-    legend = ax.legend(frameon=True, numpoints=1, scatterpoints=1, title=legend_title)
+        for kw in fig_kwargs.keys():
+            if 'legend_' in kw:
+                kwsplit = kw.split('legend_')
+                legend_kwargs[kwsplit[1]] = fig_kwargs.get(kw, None)
+    legend = ax.legend(**legend_kwargs)
 
     # Set scale
     if rlog:
@@ -293,11 +268,9 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
     if ylog:
         ax.set_yscale('log')
 
-
     # Add bounds:
     if rlim is not None:
         ax.set_xlim(rlim)
-
         # Add ylim to plot bound, if ylog=True: otherwise can have very squished plots
         if (ylim is None) & ylog:
             ylo = 1.e100
@@ -322,7 +295,6 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
     # Return axis, if it was input:
     if ax_in:
         return ax
-
     else:
         if fileout is not None:
             # Save to file:
@@ -333,12 +305,10 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
             plt.tight_layout()
             plt.draw()
             plt.show()
-
         return None
 
 
-
-def plot_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, ylog=True,
+def plot_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylog=False,
                        fileout=None, ax=None):
     """
     Function to show enclosed mass profile(s) for the Sersic mass distribution(s).
@@ -356,9 +326,9 @@ def plot_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=Tr
         rlim: array_like or None, optional
             If set, spefcify r plot bounds. Default: None (default bounds)
         rlog: bool, optional
-            Option to plot log of radius instead of linear. Default: True
+            Option to plot log of radius instead of linear. Default: False
         ylog: bool, optional
-            Option to plot log of profile instead of linear. Default: True
+            Option to plot log of profile instead of linear. Default: False
 
         fileout: str or None, optional
             Filename for saving file. If set to `None`, figure is returned to display.
@@ -372,7 +342,7 @@ def plot_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=Tr
     plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
                               r=r, rlim=rlim, rlog=rlog, ylog=ylog, fileout=fileout, ax=ax)
 
-def plot_vcirc(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, ylog=False,
+def plot_vcirc(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylog=False,
                fileout=None, ax=None):
     """
     Function to show circular velocity profile(s) for the Sersic mass distribution(s).
@@ -390,7 +360,7 @@ def plot_vcirc(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, ylog
         rlim: array_like or None, optional
             If set, spefcify r plot bounds. Default: None (default bounds)
         rlog: bool, optional
-            Option to plot log of radius instead of linear. Default: True
+            Option to plot log of radius instead of linear. Default: False
         ylog: bool, optional
             Option to plot log of profile instead of linear. Default: False
 
@@ -442,7 +412,7 @@ def plot_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, yl
                               r=r, rlim=rlim, rlog=rlog, ylog=ylog, fileout=fileout, ax=ax)
 
 
-def plot_dlnrho_dlnr(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, ylog=False,
+def plot_dlnrho_dlnr(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylog=False,
                      fileout=None, ax=None):
     """
     Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).
@@ -460,9 +430,9 @@ def plot_dlnrho_dlnr(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True
         rlim: array_like or None, optional
             If set, spefcify r plot bounds. Default: None (default bounds)
         rlog: bool, optional
-            Option to plot log of radius instead of linear. Default: True
+            Option to plot log of radius instead of linear. Default: False
         ylog: bool, optional
-            Option to plot log of profile instead of linear. Default: True
+            Option to plot log of profile instead of linear. Default: False
 
         fileout: str or None, optional
             Filename for saving file. If set to `None`, figure is returned to display.
@@ -512,7 +482,7 @@ def plot_surface_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=
                               r=r, rlim=rlim, rlog=rlog, ylog=ylog, fileout=fileout, ax=ax)
 
 def plot_projected_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.),
-                                 rlim=None, rlog=True, ylog=True,
+                                 rlim=None, rlog=False, ylog=False,
                                  fileout=None, ax=None):
     """
     Function to show projected (2D) enclosed mass profile(s) for the Sersic mass distribution(s).
@@ -531,9 +501,9 @@ def plot_projected_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.),
             If set, spefcify r plot bounds.
             Default: None (default bounds)
         rlog: bool, optional
-            Option to plot log of radius instead of linear. Default: True
+            Option to plot log of radius instead of linear. Default: False
         ylog: bool, optional
-            Option to plot log of profile instead of linear. Default: True
+            Option to plot log of profile instead of linear. Default: False
 
         fileout: str or None, optional
             Filename for saving file. If set to `None`, figure is returned to display.
