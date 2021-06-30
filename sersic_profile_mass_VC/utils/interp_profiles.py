@@ -526,10 +526,9 @@ def nearest_n_invq(n=None, invq=None):
 
     return nearest_n, nearest_invq
 
-def interpolate_entire_table_nearest(r=None, table=None,
-        total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
-        filename=None):
+        filename=None, table=None):
     """
     Interpolate entire table, returning new profiles sampled at r,
     using the **nearest values** of n and invq that are included
