@@ -31,37 +31,22 @@ usage, and to download the set of ***pre-computed*** Sersic profile tables.
 Usage
 #####
 
-.. plot::
-    :include-source:
-
     import os
     import numpy as np
-    import matplotlib.pyplot as plt
     import sersic_profile_mass_VC as spm
     table_dir = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR')
 
-    # Sersic profile properties
+    # Sersic profile properties & radius array
     total_mass = 1.e11
     Reff = 5.0
     n = 1.0
+    invq = 5.
+
     r = np.arange(0., 30.1, 0.1)
 
-    # Flattening array (invq = 1/q)
-    invq_arr = [1., 2.5, 3.33, 5., 10.]
-
-    # Calculate & plot interpolated circular velocity profiles at r for each invq
-    plt.figure(figsize=(4,3.5))
-    for invq in invq_arr:
-        vc = spm.interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
-                                           n=n, invq=invq, path=table_dir)
-        plt.plot(r, vc, '-', label='q={:0.2f}'.format(1./invq))
-
-    plt.xlabel('Radius [kpc]')
-    plt.ylabel('Circular velocity [km/s]')
-    plt.legend(title='Intrinic axis ratio')
-
-    plt.tight_layout()
-    plt.show()
+    # Load & interpolate all profiles in saved table:
+    table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+                                                n=n, invq=invq, path=table_dir)
 
 
 Dependencies
