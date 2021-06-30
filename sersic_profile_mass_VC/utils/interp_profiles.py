@@ -17,11 +17,14 @@ import copy
 
 from sersic_profile_mass_VC.io import read_profile_table, _sersic_profile_filename_base
 
-__all__ = [ 'interpolate_sersic_profile_menc', 'interpolate_sersic_profile_VC',
-            'interpolate_sersic_profile_rho', 'interpolate_sersic_profile_alpha',
+__all__ = [ 'interpolate_entire_table',
+            'interpolate_sersic_profile_menc', 'interpolate_sersic_profile_VC',
+            'interpolate_sersic_profile_rho', 'interpolate_sersic_profile_dlnrho_dlnr',
+            'interpolate_entire_table_nearest',
             'interpolate_sersic_profile_menc_nearest', 'interpolate_sersic_profile_VC_nearest',
-            'interpolate_sersic_profile_alpha_nearest',
-            'interpolate_sersic_profile_alpha_bulge_disk_nearest',
+            'interpolate_sersic_profile_rho_nearest',
+            'interpolate_sersic_profile_dlnrho_dlnr_nearest',
+            'interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest',
             'nearest_n_invq']
 
 
@@ -32,9 +35,102 @@ logger = logging.getLogger('SersicProfileMassVC')
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 # Interpolation functions:
 
+
+def interpolate_entire_table(r=None, table=None,
+        total_mass=None, Reff=None, n=1., invq=5.,
+        path=None, filename_base=_sersic_profile_filename_base,
+        filename=None):
+    """
+    Interpolate entire table, returning new profiles sampled at r.
+
+    Parameters
+    ----------
+        r: float or array_like
+            Radius at which to interpolate Menc3D_sphere [kpc]
+
+        total_mass: float
+            Total mass of the component [Msun]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+
+        n: float, optional
+            Sersic index
+            Must be specified if `table=None`.
+        invq: float, optional
+            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q
+            Must be specified if `table=None`.
+
+        path: str, optional
+            Path to directory containing the saved Sersic profile tables.
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+        filename_base: str, optional
+            Base filename to use, when combined with default naming convention:
+            `<path>/<filename_base>_nX.X_invqX.XX.fits`
+            Default: `mass_VC_profile_sersic`
+        filename: str, optional
+            Option to override the default filename convention and
+            instead directly specify the file location.
+
+        table: dict, optional
+            Option to pass the Sersic profile table, if already loaded.
+
+    Returns
+    -------
+        table_interp: dict
+
+    """
+    if table is None:
+        if n is None:
+            raise ValueError("Must specify 'n' if 'table' is not set!")
+        if invq is None:
+            raise ValueError("Must specify 'n' if 'table' is not set!")
+        table = read_profile_table(filename=filename, n=n, invq=invq, path=path, filename_base=filename_base)
+
+    vcirc =         interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+                                                  n=table['n'], invq=table['invq'], table=table)
+    menc3D_sph =    interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+                                                    n=table['n'], invq=table['invq'], table=table)
+    menc3D_ellip =  interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+                                                    n=table['n'], invq=table['invq'], table=table,
+                                                    sphere=False)
+    rho =           interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+                                                   n=table['n'], invq=table['invq'], table=table)
+    dlnrho_dlnr =   interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff, n=table['n'],
+                                                           invq=table['invq'], table=table)
+
+    # ---------------------
+    # Setup table:
+    table_interp = { 'r':                   r,
+                     'total_mass':          total_mass,
+                     'Reff':                Reff,
+                     'vcirc':               vcirc,
+                     'menc3D_sph':          menc3D_sph,
+                     'menc3D_ellipsoid':    menc3D_ellip,
+                     'rho':                 rho,
+                     'dlnrho_dlnr':         dlnrho_dlnr }
+
+
+    # Scale at Reff:
+    table_interp['menc3D_sph_Reff'] = table['menc3D_sph_Reff'] * \
+                                      table_interp['total_mass']/table['total_mass']
+    table_interp['menc3D_ellipsoid_Reff'] = table['menc3D_ellipsoid_Reff'] * \
+                                  table_interp['total_mass']/table['total_mass']
+    table_interp['vcirc_Reff'] = table['vcirc_Reff'] * \
+                                 np.sqrt(table_interp['total_mass']/table['total_mass']) * \
+                                 np.sqrt(table_interp['Reff']/table['Reff'])
+
+    keys_copy = [ 'invq', 'q', 'n', 'rhalf3D_sph', 'ktot_Reff', 'k3D_sph_Reff']
+    for key in keys_copy:
+        table_interp[key] = table[key]
+
+    return table_interp
+
+
 def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
-        filename=None, table=None):
+        filename=None, table=None,
+        sphere=True):
     """
     Interpolate Menc3D_sphere(r) at arbitrary radii r, for arbitrary Mtot and Reff.
 
@@ -69,6 +165,10 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
         table: dict, optional
             Option to pass the Sersic profile table, if already loaded.
 
+        sphere: bool, optional
+            Flag to calculate enclosed mass in sphere (True) vs spheroid/ellipsoid (False).
+            Default: True
+
     Returns
     -------
         menc_interp: float or array_like
@@ -77,7 +177,11 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
     if table is None:
         table = read_profile_table(filename=filename, n=n, invq=invq, path=path, filename_base=filename_base)
 
-    table_menc =    table['menc3D_sph']
+    if sphere:
+        table_menc =    table['menc3D_sph']
+    else:
+        table_menc =    table['menc3D_ellipsoid']
+
     table_rad =     table['r']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
@@ -285,12 +389,12 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
             return rho_interp
 
 
-def interpolate_sersic_profile_alpha(r=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None, table=None):
     """
-    Interpolate alpha=-dlnrho/dlnr at arbitrary radii r, for arbitrary Reff.
+    Interpolate dlnrho/dlnr at arbitrary radii r, for arbitrary Reff.
 
-    Uses the saved table of rho(r) values for a given Sersic index n and invq,
+    Uses the saved table of dlnrho/dlnr(r) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Reff.
     (by mapping the radius using r' = (r/Reff * table_Reff) )
 
@@ -321,7 +425,7 @@ def interpolate_sersic_profile_alpha(r=None, Reff=None, n=1., invq=5.,
 
     Returns
     -------
-        alpha_interp: float or array_like
+        dlnrho_dlnr_interp: float or array_like
 
     """
     if table is None:
@@ -364,14 +468,14 @@ def interpolate_sersic_profile_alpha(r=None, Reff=None, n=1., invq=5.,
     dlnrho_dlnr_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) )
 
     if (len(rarr) > 1):
-        return -1. * dlnrho_dlnr_interp
+        return dlnrho_dlnr_interp
     else:
         if isinstance(r*1., float):
             # Float input
-            return -1. * dlnrho_dlnr_interp[0]
+            return dlnrho_dlnr_interp[0]
         else:
             # Length 1 array input
-            return -1. * dlnrho_dlnr_interp
+            return dlnrho_dlnr_interp
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -414,6 +518,62 @@ def nearest_n_invq(n=None, invq=None):
     nearest_invq = table_invq[ np.argmin( np.abs( table_invq - invq) ) ]
 
     return nearest_n, nearest_invq
+
+def interpolate_entire_table_nearest(r=None, table=None,
+        total_mass=None, Reff=None, n=1., invq=5.,
+        path=None, filename_base=_sersic_profile_filename_base,
+        filename=None):
+    """
+    Interpolate entire table, returning new profiles sampled at r,
+    using the **nearest values** of n and invq that are included
+    in the Sersic profile table collection.
+
+    Parameters
+    ----------
+        r: float or array_like
+            Radius at which to interpolate Menc3D_sphere [kpc]
+
+        total_mass: float
+            Total mass of the component [Msun]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+
+        n: float, optional
+            Sersic index
+            Must be specified if `table=None`.
+        invq: float, optional
+            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q
+            Must be specified if `table=None`.
+
+        path: str, optional
+            Path to directory containing the saved Sersic profile tables.
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+        filename_base: str, optional
+            Base filename to use, when combined with default naming convention:
+            `<path>/<filename_base>_nX.X_invqX.XX.fits`
+            Default: `mass_VC_profile_sersic`
+        filename: str, optional
+            Option to override the default filename convention and
+            instead directly specify the file location.
+
+        table: dict, optional
+            Option to pass the Sersic profile table, if already loaded.
+
+    Returns
+    -------
+        table_interp_nearest: dict
+
+    """
+
+    # Use the "typical" collection of table values:
+    nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
+
+    table_interp_nearest = interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+                    n=nearest_n, invq=nearest_invq,
+                    path=path, filename_base=filename_base, filename=filename)
+
+    return table_interp_nearest
 
 def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
@@ -517,15 +677,66 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
     return vcirc_interp_nearest
 
 
-def interpolate_sersic_profile_alpha_nearest(r=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Interpolate alpha(r)=-dlnrho_g/dlnr at arbitrary radii r, for arbitrary Reff,
+    Interpolate Rho(r) at arbitrary radii r, for arbitrary Mtot and Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
     Finds the nearest n, invq for the "default" table collection,
-    then calls `interpolate_sersic_profile_alpha()` with these values.
+    then calls `interpolate_sersic_profile_rho()` with these values.
+
+    Parameters
+    ----------
+        r: float or array_like
+            Radius at which to interpolate Menc3D_sphere [kpc]
+        total_mass: float
+            Total mass of the component [Msun]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        invq: float
+            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q.
+
+        path: str, optional
+            Path to directory containing the saved Sersic profile tables.
+            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+        filename_base: str, optional
+            Base filename to use, when combined with default naming convention:
+            `<path>/<filename_base>_nX.X_invqX.XX.fits`.
+            Default: `mass_VC_profile_sersic`
+        filename: str, optional
+            Option to override the default filename convention and
+            instead directly specify the file location.
+
+    Returns
+    -------
+        rho_interp_nearest: float or array_like
+
+    """
+
+    # Use the "typical" collection of table values:
+    nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
+
+    rho_interp_nearest = interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+                    n=nearest_n, invq=nearest_invq,
+                    path=path, filename_base=filename_base, filename=filename)
+
+    return rho_interp_nearest
+
+
+def interpolate_sersic_profile_dlnrho_dlnr_nearest(r=None, Reff=None, n=1., invq=5.,
+        path=None, filename_base=_sersic_profile_filename_base, filename=None):
+    """
+    Interpolate dlnrho_g/dlnr at arbitrary radii r, for arbitrary Reff,
+    using the **nearest values of n and invq** that are included
+    in the Sersic profile table collection.
+
+    Finds the nearest n, invq for the "default" table collection,
+    then calls `interpolate_sersic_profile_dlnrho_dlnr()` with these values.
 
     Parameters
     ----------
@@ -552,34 +763,33 @@ def interpolate_sersic_profile_alpha_nearest(r=None, Reff=None, n=1., invq=5.,
 
     Returns
     -------
-        alpha_interp_nearest: float or array_like
+        dlnrho_dlnr_interp_nearest: float or array_like
 
     """
-
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    alpha_interp_nearest = interpolate_sersic_profile_alpha(r=r, Reff=Reff,
+    dlnrho_dlnr_interp_nearest = interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename)
 
-    return alpha_interp_nearest
+    return dlnrho_dlnr_interp_nearest
 
 
 
-def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
+def interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=None,
         BT=0.,  total_mass=1.e11,
         Reff_disk=None, n_disk=1., invq_disk=5.,
         Reff_bulge=1.,  n_bulge=4., invq_bulge=1.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None):
     """
-    Interpolate alpha(r)=-dlnrho_g/dlnr at arbitrary radii r,
+    Interpolate dlnrho_g/dlnr at arbitrary radii r,
     for a composite DISK+BULGE system. Both disk and bulge can have arbitary Reff,
     but this uses the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
     Finds the nearest n, invq for the "default" table collection,
-    then returns `alpha_interp_nearest()` for the total DISK+BULGE system.
+    then returns `dlnrho_dlnr_interp_nearest()` for the total DISK+BULGE system.
 
     Parameters
     ----------
@@ -617,7 +827,7 @@ def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
 
     Returns
     -------
-        alpha_interp_nearest: float or array_like
+        dlnrho_dlnr_interp_nearest: float or array_like
 
     """
 
@@ -626,12 +836,12 @@ def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
 
     # Use the "typical" collection of table values:
     rho_t = r * 0.
-    rhoalphasum = r * 0.
+    rho_dlnrho_dlnr_sum = r * 0.
     for n, invq, Reff, M in zip([n_disk, n_bulge], [invq_disk, invq_bulge],
             [Reff_disk, Reff_bulge], [Mdisk, Mbulge]):
         nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-        alpha_interp_nearest = interpolate_sersic_profile_alpha(r=r, Reff=Reff,
+        dlnrho_dlnr_interp_nearest = interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename)
 
@@ -639,8 +849,8 @@ def interpolate_sersic_profile_alpha_bulge_disk_nearest(r=None,
                 Reff=Reff, n=nearest_n, invq=nearest_invq, path=path,
                 filename_base=filename_base, filename=filename)
         rho_t += rho_interp_nearest
-        rhoalphasum += rho_interp_nearest * alpha_interp_nearest
+        rho_dlnrho_dlnr_sum += rho_interp_nearest * dlnrho_dlnr_interp_nearest
 
-    alpha_interp_total = (1./rho_t) * rhoalphasum
+    dlnrho_dlnr_interp_total = (1./rho_t) * rho_dlnrho_dlnr_sum
 
-    return alpha_interp_total
+    return dlnrho_dlnr_interp_total
