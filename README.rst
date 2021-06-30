@@ -23,7 +23,7 @@ are described in `Price et al., in prep, 2021`_.
 .. _Price et al., in prep, 2021: tofix
 
 Please see `the documentation`_ for this package for detailed information about installation,
-usage, and to download the set of ***pre-computed*** Sersic profile tables.
+usage, and to download the set of **pre-computed** Sersic profile tables.
 
 .. _the documentation: https://sersic_profile_mass_VC.github.io/
 
@@ -47,8 +47,9 @@ Usage
     r = np.arange(0., 30.1, 0.1)
 
     # Load & interpolate all profiles in saved table:
-    table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
-                                                n=n, invq=invq, path=table_dir)
+    table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass,
+                                                Reff=Reff, n=n, invq=invq,
+                                                path=table_dir)
 
 
 Dependencies
