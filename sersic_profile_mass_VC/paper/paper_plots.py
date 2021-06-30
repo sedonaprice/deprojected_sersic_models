@@ -2238,7 +2238,7 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                     ks_dict['r'] = rarr
                     ks_dict['total_mass'] = total_mass
 
-                ks_dict_q['n={}'.format(n)]['alpha'] = interp_profiles.interpolate_sersic_profile_alpha_nearest(r=rarr,
+                ks_dict_q['n={}'.format(n)]['alpha'] = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_nearest(r=rarr,
                             Reff=Reff, n=n, invq=invq, path=table_path)
                 ks_dict_q['n={}'.format(n)]['vcirc'] = interp_profiles.interpolate_sersic_profile_VC_nearest(r=rarr,
                             total_mass=total_mass, Reff=Reff, n=n, invq=invq, path=table_path)
@@ -2628,7 +2628,7 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
             vcirc_baryons = np.sqrt(vcirc_disk**2 + vcirc_bulge**2)
             vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
 
-            alphan = interp_profiles.interpolate_sersic_profile_alpha_bulge_disk_nearest(r=r_arr,
+            alphan = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=r_arr,
                     BT=bt,  total_mass=Mgas,
                     Reff_disk=Reff_disk, n_disk=n_disk, invq_disk=invq_disk,
                     Reff_bulge=Reff_bulge,  n_bulge=n_bulge, invq_bulge=invq_bulge,

@@ -21,7 +21,7 @@ import warnings
 from os import path
 
 import sphinx
-import sphinx_rtd_theme
+#import sphinx_rtd_theme
 from distutils.version import LooseVersion
 
 from pkg_resources import DistributionNotFound, get_distribution
@@ -143,10 +143,10 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_automodapi.automodapi',
     'sphinx_automodapi.smart_resolver',
-    'nbsphinx',
-    'sphinx_rtd_theme'
+    'nbsphinx'
 ]
-
+#,
+#'sphinx_rtd_theme'
 
 # if on_rtd:
 #     extensions.append('sphinx.ext.mathjax')

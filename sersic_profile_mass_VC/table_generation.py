@@ -179,7 +179,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             Default: Uses cumulative if n >= 2.
         filename_base: str, optional
             Base filename to use, for the default naming convention:
-            ``<filename_base>_nX.X_invqX.XX.fits`.
+            `<filename_base>_nX.X_invqX.XX.fits`.
             Default: `mass_VC_profile_sersic`
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
