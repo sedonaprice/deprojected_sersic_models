@@ -9,10 +9,6 @@ import math
 
 import numpy as np
 
-import warnings
-warnings.filterwarnings("ignore")
-
-
 from sersic_profile_mass_VC import core, io
 from sersic_profile_mass_VC.utils import calcs as util_calcs
 

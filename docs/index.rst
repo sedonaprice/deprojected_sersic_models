@@ -40,6 +40,7 @@ Quickstart
     invq_arr = [1., 2.5, 3.33, 5., 10.]
 
     # Calculate & plot interpolated circular velocity profiles at r for each invq
+    plt.figure(figsize=(4,3.5))
     for invq in invq_arr:
         vc = spm.interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
                                            n=n, invq=invq, path=table_dir)
