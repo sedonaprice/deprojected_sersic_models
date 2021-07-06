@@ -15,7 +15,6 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 
 class TestSersicSavedTable:
     ftol = 1.e-9
-    #ftol_high = 3.e-9
 
     def setup_table_sprof_rarr(self, n=1., invq=2.5):
         table = io.read_profile_table(n=n, invq=invq)
@@ -31,13 +30,10 @@ class TestSersicSavedTable:
         table, sprof, rarr = self.setup_table_sprof_rarr(n=n, invq=invq)
         for r in rarr:
             i = np.where(table['r'] == r)[0][0]
-            mencr = sprof.enclosed_mass(r)
-            vcircr = sprof.v_circ(r)
-            assert math.isclose(mencr, table['menc3D_sph'][i], rel_tol=ftol)
-            assert math.isclose(vcircr, table['vcirc'][i], rel_tol=ftol)
+            assert math.isclose(sprof.enclosed_mass(r), table['menc3D_sph'][i], rel_tol=ftol)
+            assert math.isclose(sprof.v_circ(r), table['vcirc'][i], rel_tol=ftol)
             assert math.isclose(sprof.density(r), table['rho'][i], rel_tol=ftol)
-            assert math.isclose(sprof.dlnrho_dlnr(r), table['dlnrho_dlnr'][i],
-                                rel_tol=ftol) #ftol_high
+            assert math.isclose(sprof.dlnrho_dlnr(r), table['dlnrho_dlnr'][i], rel_tol=ftol)
 
             if r == table['Reff']:
                 assert math.isclose(util_calcs.virial_coeff_tot(sprof.Reff,

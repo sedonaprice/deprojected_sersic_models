@@ -7,9 +7,9 @@
 
 import os
 
-# # Supress warnings: Runtime & integration warnings are frequent
-# import warnings
-# warnings.filterwarnings("ignore")
+# Supress warnings: Runtime & integration warnings are frequent
+import warnings
+warnings.filterwarnings("ignore")
 
 import numpy as np
 import scipy.integrate as scp_integrate
@@ -18,7 +18,6 @@ import scipy.special as scp_spec
 import scipy.interpolate as scp_interp
 import astropy.units as u
 import astropy.constants as apy_con
-import astropy.cosmology as apy_cosmo
 
 import logging
 
@@ -34,9 +33,6 @@ G = apy_con.G
 Msun = apy_con.M_sun
 pc = apy_con.pc
 deg2rad = np.pi/180.
-
-# DEFAULT COSMOLOGY
-_default_cosmo = apy_cosmo.FlatLambdaCDM(H0=70., Om0=0.3)
 
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
@@ -823,10 +819,7 @@ def total_mass2D_direct(r, total_mass=1., Reff=1., n=1., q=0.4, i=90., rinner=0.
 
     return total_mass*integ
 
-####################
 
-
-####################
 
 def lnrho_m(lnm, Reff, n, q, Ie, i, Upsilon):
     """
@@ -861,7 +854,6 @@ def lnrho_m(lnm, Reff, n, q, Ie, i, Upsilon):
     return np.log(rhom)
 
 
-# dlnrhom_dlnm_scipy_derivative
 def dlnrhom_dlnm_scipy_derivative(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
     """
     Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,
@@ -898,102 +890,6 @@ def dlnrhom_dlnm_scipy_derivative(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon
 
 
 
-
-
-
-###################################################################################################
-###################################################################################################
-###################################################################################################
-#
-# def _rho_rz(r, z, Reff, n, q, Ie, i, Upsilon):
-#     m = np.sqrt(r**2 + (z/q)**2)
-#     return rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
-#
-# def _rho_fixedz(r, z, Reff, n, q, Ie, i, Upsilon):
-#     return rho_rz(r, z, Reff, n, q, Ie, i, Upsilon)
-#
-# def _rho_fixedr(z, r, Reff, n, q, Ie, i, Upsilon):
-#     return rho_rz(r, z, Reff, n, q, Ie, i, Upsilon)
-#
-# def drho_dr_scipy_derivative(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
-#     """
-#     Numerical evalutation of derivative of the density profile, :math:`d\rho/dr`,
-#     at midplane distance and vertical height :math:`(r, z)` of a deprojected Sersic mass distribution
-#     with intrinsic axis ratio q.
-#
-#     Parameters
-#     ----------
-#         r: float
-#             Midplane radius [kpc]
-#         z: float
-#             Height above midplane [kpc]
-#         Reff: float
-#             Effective radius of Sersic profile [kpc]
-#         n: float
-#             Sersic index
-#         q: float
-#             Intrinsic axis ratio of Sersic profile
-#         Ie: float
-#             Normalization of Sersic profile
-#         i: float
-#             Inclination of system [deg]
-#
-#         Upsilon: float, optional
-#             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
-#
-#     Returns
-#     -------
-#         dlnrho_dlnr: float
-#             Derivative of log density profile at r
-#
-#     """
-#
-#     deriv = scp_misc.derivative(_rho_fixedz, r, args=(z, Reff, n, q, Ie, i, Upsilon),
-#                                 dx=dx, n=1, order=order)
-#     return deriv
-#
-#
-# def drho_dz_scipy_derivative(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
-#     """
-#     Numerical evalutation of derivative of the density profile, :math:`d\rho/dz`,
-#     at midplane distance and vertical height :math:`(r, z)` of a deprojected Sersic mass distribution
-#     with intrinsic axis ratio q.
-#
-#     Parameters
-#     ----------
-#         r: float
-#             Midplane radius [kpc]
-#         z: float
-#             Height above midplane [kpc]
-#         Reff: float
-#             Effective radius of Sersic profile [kpc]
-#         n: float
-#             Sersic index
-#         q: float
-#             Intrinsic axis ratio of Sersic profile
-#         Ie: float
-#             Normalization of Sersic profile
-#         i: float
-#             Inclination of system [deg]
-#
-#         Upsilon: float, optional
-#             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
-#
-#     Returns
-#     -------
-#         dlnrho_dlnr: float
-#             Derivative of log density profile at r
-#
-#     """
-#
-#     deriv = scp_misc.derivative(_rho_fixedr, z, args=(r, Reff, n, q, Ie, i, Upsilon),
-#                                 dx=dx, n=1, order=order)
-#     return deriv
-
-
-###################################################################################################
-###################################################################################################
-###################################################################################################
 
 def drhom_dm_scipy_derivative(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
     """
@@ -1045,6 +941,7 @@ def drhoI_du_integrand(x, u, n, bn):
 
     return drhoIdu_intgrnd
 
+
 def drhom_dm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
     Evalutation of derivative :math:`d\rho(m)/dm` of deprojected Sersic density profile
@@ -1088,6 +985,7 @@ def drhom_dm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     return drhomdm
 
+
 def dlnrhom_dlnm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
     """
     Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,
@@ -1121,6 +1019,7 @@ def dlnrhom_dlnm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1
     rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     drho_dm = drhom_dm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     return (m/rho)* drho_dm
+
 
 def force_r_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
     """
