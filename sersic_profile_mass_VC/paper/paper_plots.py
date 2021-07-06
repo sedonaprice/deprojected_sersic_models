@@ -158,6 +158,8 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 
     """
 
+    mpl.rcParams['text.usetex'] = True
+
     if (output_path is None) & (fileout is None):
         raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:
@@ -356,6 +358,10 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 
     plt.savefig(fileout, bbox_inches='tight', dpi=600)
     plt.close()
+
+    mpl.rcParams['text.usetex'] = True
+
+    return None
 
 
 # ----------------------------------------------------------------------------------------------------

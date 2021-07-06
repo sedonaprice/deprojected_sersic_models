@@ -10,6 +10,7 @@ import numpy as np
 import scipy.special as scp_spec
 import astropy.units as u
 import astropy.cosmology as apy_cosmo
+import astropy.constants as apy_con
 
 import logging
 
@@ -18,6 +19,11 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 # DEFAULT COSMOLOGY
 _default_cosmo = apy_cosmo.FlatLambdaCDM(H0=70., Om0=0.3)
 
+# CONSTANTS
+G = apy_con.G
+Msun = apy_con.M_sun
+pc = apy_con.pc
+deg2rad = np.pi/180.
 
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
