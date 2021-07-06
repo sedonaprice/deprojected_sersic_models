@@ -284,6 +284,16 @@ class DeprojSersicDist(_SersicDistBase):
                         menc[j] = util_calcs.total_mass3D_integral(r[j], Reff=self.Reff,
                                         n=self.n, q=self.q, Ie=Ie, i=self.i,
                                         rinner=0., Upsilon=self.Upsilon)
+
+                # Perform some garbage collection, in the case of very small q
+                #     and smaller n. Sometimes integrated to greater than 1,
+                #     and then fell off to small numbers.....
+                if (self.q <= 0.01) & (self.n <= 1.0):
+                    # Use a tolerance of 1.e-9:
+                    whgtone = np.where((menc-1.) > 1.e-9)[0]
+                    if whgtone[0] < (len(menc) - 1):
+                        menc[whgtone[0]:] = 1.
+
             else:
                 menc = util_calcs.total_mass3D_integral(r[0], Reff=self.Reff,
                                 n=self.n, q=self.q, Ie=Ie, i=self.i,
