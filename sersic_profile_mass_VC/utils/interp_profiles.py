@@ -10,9 +10,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-# Supress warnings: Runtime & integration warnings are frequent
-import warnings
-warnings.filterwarnings("ignore")
+# # Supress warnings: Runtime & integration warnings are frequent
+# import warnings
+# warnings.filterwarnings("ignore")
 
 import numpy as np
 import scipy.interpolate as scp_interp
@@ -53,7 +53,7 @@ def interpolate_entire_table(r=None, table=None,
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate table [kpc]
 
         total_mass: float
             Total mass of the component [Msun]
@@ -148,7 +148,7 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -239,7 +239,7 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate vcirc [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -322,7 +322,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -408,7 +408,7 @@ def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate vcirc [kpc]
+            Radius at which to interpolate profile [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -537,7 +537,7 @@ def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., i
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate table [kpc]
 
         total_mass: float
             Total mass of the component [Msun]
@@ -594,7 +594,7 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -645,7 +645,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -696,7 +696,7 @@ def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
         Reff: float
@@ -747,7 +747,7 @@ def interpolate_sersic_profile_dlnrho_dlnr_nearest(r=None, Reff=None, n=1., invq
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -800,7 +800,7 @@ def interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=None,
     Parameters
     ----------
         r: float or array_like
-            Radius at which to interpolate Menc3D_sphere [kpc]
+            Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]    [Default: 10^11 Msun]
         BT: float

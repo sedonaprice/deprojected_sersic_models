@@ -11,6 +11,7 @@ import numpy as np
 
 from sersic_profile_mass_VC import core, io
 from sersic_profile_mass_VC.utils import calcs as util_calcs
+from sersic_profile_mass_VC.paper import plot_calcs
 
 
 # TESTING DIRECTORY
@@ -92,8 +93,8 @@ class TestSersic:
 
 
 class TestHalos:
-    nfw = util_calcs.NFW(z=2., Mvir=1.e12, conc=4.)
-    tph = util_calcs.TPH(z=2., Mvir=1.e12, conc=4., alpha=0., beta=3.)
+    nfw = plot_calcs.NFW(z=2., Mvir=1.e12, conc=4.)
+    tph = plot_calcs.TPH(z=2., Mvir=1.e12, conc=4., alpha=0., beta=3.)
     rarr = np.array([0.,5.,10.,15.,20.])
     ftol = 1.e-9
 
