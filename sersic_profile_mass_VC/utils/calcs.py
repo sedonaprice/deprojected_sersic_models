@@ -47,10 +47,11 @@ def check_for_inf(table=None):
     """
     status = 0
 
+    keys = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr']
+
     for i, r in enumerate(table['r']):
-        if not np.isfinite(table['vcirc'][i]): status += 1
-        if not np.isfinite(table['menc3D_sph'][i]): status += 1
-        if not np.isfinite(table['menc3D_ellipsoid'][i]): status += 1
+        for key in keys:
+            if not np.isfinite(table[key][i]): status += 1
 
     return status
 
