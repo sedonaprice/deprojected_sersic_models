@@ -7,9 +7,9 @@
 
 import os
 
-# Supress warnings: Runtime & integration warnings are frequent
-import warnings
-warnings.filterwarnings("ignore")
+# # Supress warnings: Runtime & integration warnings are frequent
+# import warnings
+# warnings.filterwarnings("ignore")
 
 import numpy as np
 import scipy.integrate as scp_integrate
@@ -21,6 +21,8 @@ import astropy.constants as apy_con
 import astropy.cosmology as apy_cosmo
 
 import logging
+
+from sersic_profile_mass_VC.utils.interp_profiles import interpolate_sersic_profile_rho
 
 __all__ = [ 'vcirc_spherical_symmetry', 'menc_spherical_symmetry',
             'virial_coeff_tot', 'virial_coeff_3D',
@@ -111,7 +113,7 @@ def menc_spherical_symmetry(r=None, vcirc=None):
     Parameters
     ----------
         r: float or array_like
-            Radi[us/i] at which to calculate the circular velocity [kpc]
+            Radi[us/i] at which to calculate the enclosed mass [kpc]
         vcirc: float or array_like
             Circular velocity at the given radii  [km/s]
 
@@ -141,7 +143,7 @@ def virial_coeff_tot(r, total_mass=1., vc=None):
     Parameters
     ----------
         r: float or array_like
-            Major axis radius within which to determine total enclosed 2D projected mass [kpc]
+            Major axis radius at which to evaluate virial coefficient [kpc]
         total_mass: float
             Total mass of the component [Msun]
         vc: float or array_like
@@ -178,7 +180,7 @@ def virial_coeff_3D(r, m3D=None, vc=None):
     Parameters
     ----------
         r: float or array_like
-            Major axis radius within which to determine total enclosed 2D projected mass [kpc]
+            Major axis radius at which to evaluate virial coefficient [kpc]
         m3D: float or array_like
             Pre-calculated evaluation of Menc3D_sphere(r)
             (saves time to avoid recalculating Menc3D_sphere(r)) [Msun]
@@ -286,7 +288,7 @@ def qobs_func(q=None, i=None):
     """
     return np.sqrt(q**2 + (1-q**2)*np.cos(i*deg2rad)**2)
 
-def get_Ie(total_mass=1., Reff=1., n=1., q=0.4, i=90., Upsilon = 1.):
+def get_Ie(total_mass=1., Reff=1., n=1., q=0.4, i=90., Upsilon=1.):
     """
     Evalutation of Ie, normalization of the Sersic intensity profile at kap = Reff,
     using the total mass (to infinity) and assuming a constant M/L ratio Upsilon.
@@ -409,15 +411,14 @@ def rho_m_integrand(kap, m, Reff, n, Ie):
     integ = dIdkap(kap, n=n, Ie=Ie, Reff=Reff) * 1./np.sqrt(kap**2 - m**2)
     return integ
 
-
-def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon = 1.):
+def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
-    Evalutation of Sersic density profile at radius m.
+    Evalutation of deprojected Sersic density profile at distance m.
 
     Parameters
     ----------
         m: float or array_like
-            Radius at which to evaluate rho(m)
+            Distance at which to evaluate rho(m)
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -449,7 +450,9 @@ def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon = 1.):
     return rhom
 
 
-def vel_integrand(m, r, Reff, n, q, Ie, i):
+
+
+def vel_integrand(m, r, Reff, n, q, Ie, i, Upsilon):
     """
     Integrand rho(m) * m^2 / sqrt(r^2 - (1-qint^2) * m^2) as part of numerical integration to find vcirc(r)
 
@@ -469,6 +472,8 @@ def vel_integrand(m, r, Reff, n, q, Ie, i):
             Normalization of Sersic intensity profile at kap = Reff
         i: float
             Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
 
     Returns
     -------
@@ -476,10 +481,11 @@ def vel_integrand(m, r, Reff, n, q, Ie, i):
             rho(m) * m^2 / sqrt(r^2 - (1-qint^2) * m^2)
 
     """
-    integ = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i) * ( m**2 / np.sqrt(r**2 - m**2 * (1.- q**2)) )
+    integ = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon) * \
+                ( m**2 / np.sqrt(r**2 - m**2 * (1.- q**2)) )
     return integ
 
-def vel_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90.):
+def vel_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
     Evalutation of integrand rho(m) * m^2 / sqrt(r^2 - (1-qint^2) * m^2) from m=0 to r,
     as part of numerical integration to find vcirc(r)
@@ -499,6 +505,9 @@ def vel_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90.):
         i: float
             Inclination of system [deg]
 
+        Upsilon: float, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
     Returns
     -------
         integral: float or array_like
@@ -506,10 +515,10 @@ def vel_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90.):
 
     """
     # integrate outer from m=0 to r
-    intgrl, _ = scp_integrate.quad(vel_integrand, 0, r, args=(r, Reff, n, q, Ie, i))
+    intgrl, _ = scp_integrate.quad(vel_integrand, 0, r, args=(r, Reff, n, q, Ie, i, Upsilon))
     return intgrl
 
-def total_mass3D_integrand_ellipsoid(m, Reff, n, q, Ie, i):
+def total_mass3D_integrand_ellipsoid(m, Reff, n, q, Ie, i, Upsilon):
     """
     Integrand m^2 * rho(m)  as part of numerical integration to find M_3D,ellipsoid(<r)
 
@@ -527,6 +536,8 @@ def total_mass3D_integrand_ellipsoid(m, Reff, n, q, Ie, i):
             Normalization of Sersic intensity profile at kap = Reff
         i: float
             Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
 
     Returns
     -------
@@ -535,11 +546,12 @@ def total_mass3D_integrand_ellipsoid(m, Reff, n, q, Ie, i):
 
     """
 
-    integ =  m**2 * rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i)
+    integ =  m**2 * rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     return integ
 
 
-def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90., rinner=0.):
+def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90.,
+                                    rinner=0., Upsilon=1.):
     """
     Evalutation of integrand m^2 * rho(m) from m=0 to r,
     as part of numerical integration to find M_3D_ellipsoid(<r)
@@ -561,6 +573,8 @@ def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90., rinner
 
         rinner: float, optional
             Calculate radius in annulus instead of sphere, using rinner>0. [kpc]. Default: 0.
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
     Returns
     -------
@@ -572,11 +586,11 @@ def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90., rinner
 
     # integrate from m=0 to r
     intgrl, _ = scp_integrate.quad(total_mass3D_integrand_ellipsoid, rinner, r,
-                                   args=(Reff, n, q, Ie, i))
+                                   args=(Reff, n, q, Ie, i, Upsilon))
     return 4.*np.pi*q*intgrl
 
 
-def total_mass3D_integrand_sph_z(z, m, Reff, n, q, Ie, i):
+def total_mass3D_integrand_sph_z(z, m, Reff, n, q, Ie, i, Upsilon):
     """
     Integrand rho(sqrt(m^2 + (z/qintr)^2) [the arc of a circle with
     cylindrical coords (m, z)] as part of numerical integration
@@ -598,6 +612,8 @@ def total_mass3D_integrand_sph_z(z, m, Reff, n, q, Ie, i):
             Normalization of Sersic intensity profile at kap = Reff
         i: float
             Inclination of system [deg]
+        Upsilon: float, optional
+            Mass-to-light ratio.
 
     Returns
     -------
@@ -607,10 +623,11 @@ def total_mass3D_integrand_sph_z(z, m, Reff, n, q, Ie, i):
     """
 
     mm = np.sqrt(m**2 + z**2/q**2)
-    integ =  rho_m(mm, Reff=Reff, n=n, q=q, Ie=Ie, i=i)
+    integ =  rho_m(mm, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     return integ
 
-def total_mass3D_integral_z(m, r=None, Reff=1., n=1., q=0.4, Ie=1.,  i=90., rinner=None):
+def total_mass3D_integral_z(m, r=None, Reff=1., n=1., q=0.4, Ie=1., i=90.,
+                            rinner=None, Upsilon=1.):
     """
     Evalutation of integrand 2 * rho(sqrt(m^2 + (z/qintr)^2) from z=0 to sqrt(r^2-m^2), [eg both pos and neg z]
     as part of numerical integration to find mass enclosed in sphere
@@ -636,6 +653,8 @@ def total_mass3D_integral_z(m, r=None, Reff=1., n=1., q=0.4, Ie=1.,  i=90., rinn
         rinner: float, optional
             Inner radius of total spherical shell, if only calculating mass
             in a spherical shell. Default: rinner = 0. (eg the entire sphere out to r)
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
     Returns
     -------
@@ -655,7 +674,7 @@ def total_mass3D_integral_z(m, r=None, Reff=1., n=1., q=0.4, Ie=1.,  i=90., rinn
         lim_inner = 0.
     # symmetric about z:
     intgrl, abserr = scp_integrate.quad(total_mass3D_integrand_sph_z, lim_inner, lim,
-                                        args=(m, Reff, n, q, Ie, i))
+                                        args=(m, Reff, n, q, Ie, i, Upsilon))
 
     # ---------------------
     # Catch some numerical integration errors which happen at very small values of m --
@@ -672,7 +691,7 @@ def total_mass3D_integral_z(m, r=None, Reff=1., n=1., q=0.4, Ie=1.,  i=90., rinn
     # Integral is symmetric about z, so return times 2 for pos and neg z.
     return 2.*intgrl
 
-def total_mass3D_integrand_r(m, r, Reff, n, q, Ie, i, rinner):
+def total_mass3D_integrand_r(m, r, Reff, n, q, Ie, i, rinner, Upsilon):
     """
     Integrand m * [ Int_(z=0)^(sqrt(r^2-m^2)) dz * 2 * [rho(sqrt(m^2 + (z/qintr)^2)] ]
     as part of numerical integration to find mass enclosed in sphere.
@@ -695,6 +714,8 @@ def total_mass3D_integrand_r(m, r, Reff, n, q, Ie, i, rinner):
             Inclination of system [deg]
         rinner: float
             Inner radius of total spherical shell, if only calculating mass in a spherical shell [kpc]
+        Upsilon: float
+            Mass-to-light ratio.
 
     Returns
     -------
@@ -703,11 +724,12 @@ def total_mass3D_integrand_r(m, r, Reff, n, q, Ie, i, rinner):
 
     """
 
-    integ = total_mass3D_integral_z(m, r=r, Reff=Reff, n=n, q=q, Ie=Ie, i=i, rinner=rinner)
+    integ = total_mass3D_integral_z(m, r=r, Reff=Reff, n=n, q=q, Ie=Ie, i=i,
+                                    rinner=rinner, Upsilon=Upsilon)
     return m * integ
 
 
-def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0.):
+def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0., Upsilon=1.):
     """
     Evalutation of integrand 2 * pi * m * [ Int_(z=0)^(sqrt(r^2-m^2)) dz * 2 * [rho(sqrt(m^2 + (z/qintr)^2)] ]
     from m=rinner to r, as part of numerical integration to find mass enclosed in sphere
@@ -731,6 +753,8 @@ def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0.):
         rinner: float, optional
             Inner radius of total spherical shell, if only calculating mass
             in a spherical shell. Default: rinner = 0. (eg the entire sphere out to r)
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
     Returns
     -------
@@ -740,7 +764,7 @@ def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0.):
     """
     # in *SPHERE*
     intgrl, abserr = scp_integrate.quad(total_mass3D_integrand_r, 0., r,
-                                        args=(r, Reff, n, q, Ie, i, rinner))
+                                        args=(r, Reff, n, q, Ie, i, rinner, Upsilon))
     return 2*np.pi*intgrl
 
 
@@ -796,6 +820,7 @@ def total_mass2D_direct(r, total_mass=1., Reff=1., n=1., q=0.4, i=90., rinner=0.
         integinner = scp_spec.gammainc(2 * n, bn * np.power(rinner / Reff, 1./n) )
         integ -= integinner
 
+
     return total_mass*integ
 
 ####################
@@ -803,16 +828,16 @@ def total_mass2D_direct(r, total_mass=1., Reff=1., n=1., q=0.4, i=90., rinner=0.
 
 ####################
 
-def lnrho_m(lnm, Reff, n, q, Ie, i):
+def lnrho_m(lnm, Reff, n, q, Ie, i, Upsilon):
     """
     Log density profile, :math:`\ln\rho`
-    at distance :math:`r=m` of a Sersic mass distribution
+    at distance :math:`m` of a deprojected Sersic mass distribution
     with intrinsic axis ratio q.
 
     Parameters
     ----------
         lnm: float
-            Ln midplane radius at which to evaluate the circular velocity [ln kpc]
+            Ln distance [ln kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -823,26 +848,30 @@ def lnrho_m(lnm, Reff, n, q, Ie, i):
             Normalization of Sersic profile
         i: float
             Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
     Returns
     -------
         lnrhom: float
-            Log density profile at r=m
+            Log density profile at m
 
     """
     rhom = rho_m(np.exp(lnm), Reff=Reff, n=n, q=q, Ie=Ie, i=i)
     return np.log(rhom)
 
-def dlnrhom_dlnr(lnm, Reff=1., n=1., q=0.4, Ie=1., i=90., dx=1.e-5, order=3):
+
+# dlnrhom_dlnm_scipy_derivative
+def dlnrhom_dlnm_scipy_derivative(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
     """
-    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}r`,
-    at distance :math:`r=m` of a Sersic mass distribution
+    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,
+    at distance :math:`m` of a deprojected Sersic mass distribution
     with intrinsic axis ratio q.
 
     Parameters
     ----------
-        lnm: float
-            Ln of midplane radius at which to evaluate the circular velocity [kpc]
+        m: float
+            Distance at which to evaluate the profile [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -854,11 +883,501 @@ def dlnrhom_dlnr(lnm, Reff=1., n=1., q=0.4, Ie=1., i=90., dx=1.e-5, order=3):
         i: float
             Inclination of system [deg]
 
+        Upsilon: float, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
     Returns
     -------
-        dlnrho_dlnr: float
-            Derivative of log density profile at r=m
+        dlnrho_dlnm: float
+            Derivative of log density profile at m
 
     """
-    deriv = scp_misc.derivative(lnrho_m, lnm, args=(Reff, n, q, Ie, i), dx=dx, n=1, order=order)
+    deriv = scp_misc.derivative(lnrho_m, np.log(m), args=(Reff, n, q, Ie, i, Upsilon),
+                                dx=dx, n=1, order=order)
     return deriv
+
+
+
+
+
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+#
+# def _rho_rz(r, z, Reff, n, q, Ie, i, Upsilon):
+#     m = np.sqrt(r**2 + (z/q)**2)
+#     return rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+#
+# def _rho_fixedz(r, z, Reff, n, q, Ie, i, Upsilon):
+#     return rho_rz(r, z, Reff, n, q, Ie, i, Upsilon)
+#
+# def _rho_fixedr(z, r, Reff, n, q, Ie, i, Upsilon):
+#     return rho_rz(r, z, Reff, n, q, Ie, i, Upsilon)
+#
+# def drho_dr_scipy_derivative(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
+#     """
+#     Numerical evalutation of derivative of the density profile, :math:`d\rho/dr`,
+#     at midplane distance and vertical height :math:`(r, z)` of a deprojected Sersic mass distribution
+#     with intrinsic axis ratio q.
+#
+#     Parameters
+#     ----------
+#         r: float
+#             Midplane radius [kpc]
+#         z: float
+#             Height above midplane [kpc]
+#         Reff: float
+#             Effective radius of Sersic profile [kpc]
+#         n: float
+#             Sersic index
+#         q: float
+#             Intrinsic axis ratio of Sersic profile
+#         Ie: float
+#             Normalization of Sersic profile
+#         i: float
+#             Inclination of system [deg]
+#
+#         Upsilon: float, optional
+#             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+#
+#     Returns
+#     -------
+#         dlnrho_dlnr: float
+#             Derivative of log density profile at r
+#
+#     """
+#
+#     deriv = scp_misc.derivative(_rho_fixedz, r, args=(z, Reff, n, q, Ie, i, Upsilon),
+#                                 dx=dx, n=1, order=order)
+#     return deriv
+#
+#
+# def drho_dz_scipy_derivative(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
+#     """
+#     Numerical evalutation of derivative of the density profile, :math:`d\rho/dz`,
+#     at midplane distance and vertical height :math:`(r, z)` of a deprojected Sersic mass distribution
+#     with intrinsic axis ratio q.
+#
+#     Parameters
+#     ----------
+#         r: float
+#             Midplane radius [kpc]
+#         z: float
+#             Height above midplane [kpc]
+#         Reff: float
+#             Effective radius of Sersic profile [kpc]
+#         n: float
+#             Sersic index
+#         q: float
+#             Intrinsic axis ratio of Sersic profile
+#         Ie: float
+#             Normalization of Sersic profile
+#         i: float
+#             Inclination of system [deg]
+#
+#         Upsilon: float, optional
+#             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+#
+#     Returns
+#     -------
+#         dlnrho_dlnr: float
+#             Derivative of log density profile at r
+#
+#     """
+#
+#     deriv = scp_misc.derivative(_rho_fixedr, z, args=(r, Reff, n, q, Ie, i, Upsilon),
+#                                 dx=dx, n=1, order=order)
+#     return deriv
+
+
+###################################################################################################
+###################################################################################################
+###################################################################################################
+
+def drhom_dm_scipy_derivative(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
+    """
+    Numerical evalutation of derivative of the density profile, :math:`d\rho/dm`,
+    at distance :math:`m` of a deprojected Sersic mass distribution
+    with intrinsic axis ratio q.
+
+    Parameters
+    ----------
+        m: float
+            Distance at which to evaluate the profile [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic profile
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        dlnrho_dlnm: float
+            Derivative of log density profile at m
+
+    """
+    deriv = scp_misc.derivative(rho_m, m, args=(Reff, n, q, Ie, i, Upsilon),
+                                dx=dx, n=1, order=order)
+    return deriv
+
+def drhoI_du_integrand(x, u, n, bn):
+    """
+    Integrand for :math:`d\rho(m)/dm` -- as a function of x, u. Will integrate over x.
+
+    """
+
+    v = np.sqrt(x**2 + u**2)
+
+    aa = np.exp(-bn*(np.power(v, 1./n)-1.))
+    bb = np.power(v, (1./n - 4.))
+    cc = (1./n - 2. - bn/n * np.power(v, 1./n))
+
+    drhoIdu_intgrnd = aa * bb * cc
+
+    return drhoIdu_intgrnd
+
+def drhom_dm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+    """
+    Evalutation of derivative :math:`d\rho(m)/dm` of deprojected Sersic density profile
+    at radius :math:`m`.
+
+    Parameters
+    ----------
+        m: float or array_like
+            Radius at which to evaluate d(rho(m))/dm
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        drhomdm: float or array_like
+            d(rho(m))/dm  -- Derivative of 3D density of Sersic profile at radius m.
+
+    """
+    qobstoqint = np.sqrt(np.sin(i*deg2rad)**2 + 1./q**2 * np.cos(i*deg2rad)**2 )
+
+    bn = bn_func(n)
+
+    # Integrate over Int (x=0)^(infinity) to get drhoI(u)/du at u=m/Reff
+    drhoIdu_int_intgrl, _ = scp_integrate.quad(drhoI_du_integrand, 0, np.inf,
+                                       args=(m/Reff, n, bn))
+
+    drhoIdu_int = (m / Reff**2) * drhoIdu_int_intgrl
+
+    drhomdm = (Upsilon/np.pi)*(Ie*bn/(n*Reff))*(qobstoqint) * drhoIdu_int
+
+    return drhomdm
+
+def dlnrhom_dlnm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
+    """
+    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,
+    at distance :math:`m` of a deprojected Sersic mass distribution
+    with intrinsic axis ratio q.
+
+    Parameters
+    ----------
+        m: float
+            Distance at which to evaluate the profile [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic profile
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        dlnrho_dlnm: float
+            Derivative of log density profile at m
+
+    """
+    rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    drho_dm = drhom_dm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    return (m/rho)* drho_dm
+
+def force_r_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
+    """
+    Integrand :math:`\frac{\rho(m)r}{(\tau+1)^2 \sqrt{tau+q^2}}`
+    as part of numerical integration to find :math:`g_r(r,z)`
+
+    Parameters
+    ----------
+        tau: float
+            independent variable
+        r: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    m = np.sqrt(r**2/(tau+1.) + z**2/(tau+q**2))
+    rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+    integrand = rho * r / ( (tau+1.)**2 * np.sqrt(tau + q**2) )
+
+    return integrand
+
+
+def force_z_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
+    """
+    Integrand :math:`\frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}}`
+    as part of numerical integration to find :math:`g_r(r,z)`
+
+    Parameters
+    ----------
+        tau: float
+            independent variable
+        r: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    m = np.sqrt(r**2/(tau+1.) + z**2/(tau+q**2))
+    rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+    integrand = rho * z / ( (tau+1.) * np.power((tau + q**2), 3./2.) )
+
+    return integrand
+
+
+def force_r(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+    """
+    Evalutation of gravitational force in the radial direction
+    :math:`g_r=-\partial\Phi/\partial r`,
+    of a deprojected Sersic density profile at (r,z), by numerically evalutating
+
+    .. math::
+
+        g_r(r,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)r}{(\tau+1)^2 \sqrt{tau+q^2}},
+        m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
+
+    Parameters
+    ----------
+        r: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        g_r: float
+            g_r(r,z)  -- gravitational force in the radial direction; units [km^2/s^2/kpc]
+
+    """
+
+    cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
+    int_force_r, _ = scp_integrate.quad(force_r_integrand, 0, np.inf,
+                                       args=(r, z, Reff, n, q, Ie, i, Upsilon))
+    return -2.*np.pi*G.cgs.value*q*cnst * int_force_r
+
+def force_z(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+    """
+    Evalutation of gravitational force in the vertical direction
+    :math:`g_z=-\partial\Phi/\partial z`,
+    of a deprojected Sersic density profile at (r,z), by numerically evalutating
+
+    .. math::
+
+        g_z(r,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}},
+        m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
+
+    Parameters
+    ----------
+        r: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        g_z: float
+            g_z(r,z)  -- gravitational force in the vertial direction; units [km^2/s^2/kpc]
+
+    """
+
+    cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
+    int_force_z, _ = scp_integrate.quad(force_z_integrand, 0, np.inf,
+                                       args=(r, z, Reff, n, q, Ie, i, Upsilon))
+    return -2.*np.pi*G.cgs.value*q*cnst * int_force_z
+
+
+def sigsq_z_integrand(z, r, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table):
+    """
+    Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
+
+    Parameters
+    ----------
+        z: float
+            Height above midplane [kpc]
+        r: float
+            Midplane radius [kpc]
+        total_mass: float
+            Total mass of the Sersic mass component [Msun]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
+        sersic_table: dictionary or None
+            Use pre-computed table to create an interpolation function
+            that is used for this calculation.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    m = np.sqrt(r**2 + (z/q)**2)
+    if sersic_table is not None:
+        rho = interpolate_sersic_profile_rho(r=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
+                                             table=sersic_table)
+    else:
+        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    gz = force_z(r, z,  Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    integrand = rho * gz
+    return integrand
+
+
+def sigmaz_sq(r, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+              sersic_table=None):
+    """
+    Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (r,z).
+
+    .. math::
+
+        \sigma^2_z(r,z)=-\frac{1}{\rho}\int \rho g_z(r,z)dz
+
+    Parameters
+    ----------
+        r: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        total_mass: float
+            Total mass of the Sersic mass component [Msun]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+        sersic_table: dictionary, optional
+            Use pre-computed table to create an interpolation function
+            that is used for this calculation.
+
+    Returns
+    -------
+        sigzsq: float
+            Vertical velocity dispersion direction; units [km^2/s^2]
+
+    """
+    m = np.sqrt(r**2 + (z/q)**2)
+    if sersic_table is not None:
+        rho = interpolate_sersic_profile_rho(r=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
+                                             table=sersic_table)
+    else:
+        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
+                                        args=(r, total_mass, Reff, n, q, Ie, i,
+                                              Upsilon, sersic_table))
+    return - 1./rho * int_sigsq_z
