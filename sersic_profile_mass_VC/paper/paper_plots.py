@@ -3201,7 +3201,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                         'cmf_source': cmf_source,
                         'name': name,
                         }
-            val_dict['lmstar'] = _mass_progenitor_num_density(ln0, z_arr_toy,
+            val_dict['lmstar'] = scaling_rel._mass_progenitor_num_density(ln0, z_arr_toy,
                         n_evol=n_evol, cmf_source=cmf_source)
             for ll, z in enumerate(z_arr_toy):
                 print("  z={}".format(z))
