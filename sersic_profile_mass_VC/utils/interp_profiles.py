@@ -10,9 +10,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-# # Supress warnings: Runtime & integration warnings are frequent
-# import warnings
-# warnings.filterwarnings("ignore")
+# Supress warnings: Runtime & integration warnings are frequent
+import warnings
+warnings.filterwarnings("ignore")
 
 import numpy as np
 import scipy.interpolate as scp_interp
