@@ -10,6 +10,7 @@ import sys
 
 import numpy as np
 
+import math
 import logging
 
 from sersic_profile_mass_VC import io
@@ -97,7 +98,6 @@ def calculate_sersic_profile_table(n=1., invq=5.,
         # Ensure output path ends in trailing slash:
         if (output_path[-1] != '/'): output_path += '/'
 
-
     # ---------------------
     # Define q:
     q = 1./invq
@@ -106,7 +106,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     # Rounded to 2 decimal places values of invq, and the corresponding exact q:
     special_invq =  np.array([3.33, 1.67, 1.43, 1.11, 0.67])
     special_q =     np.array([0.3,  0.6,  0.7,  0.9,  1.5])
-    wh_match = np.where(np.abs(special_invq-invq))[0]
+    wh_match = np.where(np.abs(special_invq-invq) < 1.e-9)[0]
     if len(wh_match) == 1:
         q = special_q[wh_match[0]]
 
