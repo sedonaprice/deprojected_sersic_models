@@ -25,7 +25,7 @@ from sersic_profile_mass_VC.paper import plot_calcs
 from sersic_profile_mass_VC.paper import scaling_rel
 from sersic_profile_mass_VC.utils import interp_profiles
 
-__all__ = [ 'make_all_paper_plots' ]
+__all__ = [ 'make_all_paper_plots', 'list_table1_values' ]
 
 # ---------------------
 # Plot settings
@@ -49,6 +49,89 @@ cmapg = cm.Greys
 
 _dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
 
+
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
+def list_table1_values(table_path=None, n_arr=[1.,4.], q_arr=[0.4,1.,1.5], rfac_arr=[1.,2.2/1.676]):
+    """
+    Wrapper to list ktot, k3D values for Table 1.
+
+    Prints values to output.
+
+    Parameters
+    ----------
+        table_path: str
+            Path to the directory where the Sersic profile tables are located.
+            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+
+        n_arr: array_like, optional
+            Array of Sersic indices to show
+        q_arr: array_like, optional
+            Array of intrinsic axis ratios to show
+        rfac_arr: array_like, optional
+            Array of radii to show, with r=r_fac_arr*Re
+
+    Returns
+    -------
+
+    """
+    if table_path is None:
+        table_path = _dir_sersic_profile_mass_VC
+
+    print("-----------------------------------------------------")
+    print("                 ||      ktot      ||      k3D       ")
+    print("-----------------||----------------||----------------")
+    strout = "n          q     ||"
+    strrs = "  "
+    for j, rf in enumerate(rfac_arr):
+        if j == 0:
+            strrs += "r="
+        else:
+            strrs += "   "
+        if rf == 1.:
+            strrs += "Re"
+        else:
+            strrs += "{:0.1f}Re".format(rf)
+    strrs += "  "
+    strout += strrs + "||" + strrs
+    print(strout)
+
+    for n in n_arr:
+        print("-----------------------------------------------------")
+        for i, q in enumerate(q_arr):
+            table = io.read_profile_table(n=n, invq=1./q, path=table_path)
+            sprof = core.DeprojSersicDist(total_mass=table['total_mass'],
+                                                  Reff=table['Reff'], n=n, q=q)
+            ktot_arr = []
+            k3d_arr = []
+            for rfac in rfac_arr:
+                if rfac == 1.:
+                    # Use table values
+                    ktot_arr.append(table['ktot_Reff'])
+                    k3d_arr.append(table['k3D_sph_Reff'])
+                else:
+                    # Calculate
+                    ktot_arr.append(sprof.virial_coeff_tot(rfac*table['Reff']))
+                    k3d_arr.append(sprof.virial_coeff_3D(rfac*table['Reff']))
+            if i == 0:
+                strout = 'n={:4.1f}     '.format(n)
+            else:
+                strout = '           '
+            strout += 'q={:0.1f} ||  '.format(q)
+            for kt in ktot_arr:
+                strout += "{:0.3f}  ".format(kt)
+            strout += "||  "
+            for k3d in k3d_arr:
+                strout += "{:0.3f}  ".format(k3d)
+
+            print(strout)
+
+
+    print("-----------------------------------------------------")
+
+    return None
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------

@@ -44,13 +44,16 @@ class _SersicDistBase:
             Sersic index
         q: float
             Intrinsic axis ratio of Sersic profile
-        Ie: float
-            Normalization of Sersic intensity profile at kap = Reff
         i: float
             Inclination of system [deg]
 
         Upsilon: float, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+        invq: float
+            Flattening of Sersic profile; invq=1/q. (Derived)
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff. (Derived)
 
     """
 
@@ -438,6 +441,78 @@ class DeprojSersicDist(_SersicDistBase):
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
         return dlnrho_dlnr_arr
+
+    ############################################################################################
+    ############################################################################################
+    ############################################################################################
+
+    def drho_dr_scipy(self, r):
+        """
+        Derivative of the density profile, :math:`d\rho/dr`,
+        at distance :math:`m=r` of the deprojected Sersic mass distribution.
+
+        Parameters
+        ----------
+            r: float or array_like
+                Midplane radius at which to evaluate the log density profile slope [kpc]
+
+        Returns
+        -------
+            drho_dr_arr: float or array_like
+                Derivative of density profile at r=m
+
+        """
+        try:
+            if len(r) > 0:
+                drho_dr_arr = np.zeros(len(r))
+                for j in range(len(r)):
+                    drho_dr_arr[j] = util_calcs.drhom_dm_scipy_derivative(r[j], Reff=self.Reff, n=self.n,
+                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+            else:
+                drho_dr_arr = util_calcs.drhom_dm_scipy_derivative(r[0], Reff=self.Reff, n=self.n,
+                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+        except:
+            drho_dr_arr = util_calcs.drhom_dm_scipy_derivative(r, Reff=self.Reff, n=self.n,
+                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+
+        return drho_dr_arr
+
+
+    def dlnrho_dlnr_scipy(self, r):
+        """
+        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
+        in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
+
+        Parameters
+        ----------
+            r: float or array_like
+                Midplane radius at which to evaluate the log density profile slope [kpc]
+
+        Returns
+        -------
+            dlnrho_dlnr_arr: float or array_like
+                Derivative of log density profile at r=m
+
+        """
+        try:
+            if len(r) > 0:
+                dlnrho_dlnr_arr = np.zeros(len(r))
+                for j in range(len(r)):
+                    dlnrho_dlnr_arr[j] = util_calcs.dlnrhom_dlnm_scipy_derivative(r[j], Reff=self.Reff, n=self.n,
+                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+            else:
+                dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(r[0], Reff=self.Reff, n=self.n,
+                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+        except:
+            dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(r, Reff=self.Reff, n=self.n,
+                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+
+        return dlnrho_dlnr_arr
+
+    ############################################################################################
+    ############################################################################################
+    ############################################################################################
+
 
     def surface_density(self, r):
         """
