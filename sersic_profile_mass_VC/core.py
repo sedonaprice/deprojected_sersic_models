@@ -50,9 +50,9 @@ class _SersicDistBase:
         Upsilon: float, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
-        invq: float
+        invq: float, derived
             Flattening of Sersic profile; invq=1/q. (Derived)
-        Ie: float
+        Ie: float, derived
             Normalization of Sersic intensity profile at kap = Reff. (Derived)
 
     """
@@ -234,9 +234,9 @@ class DeprojSersicDist(_SersicDistBase):
         Upsilon: float, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
 
-        invq: float
+        invq: float, derived
             Flattening of Sersic profile; invq=1/q. (Derived)
-        Ie: float
+        Ie: float, derived
             Normalization of Sersic intensity profile at kap = Reff. (Derived)
 
     """
