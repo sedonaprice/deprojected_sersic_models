@@ -228,13 +228,16 @@ class DeprojSersicDist(_SersicDistBase):
             Sersic index
         q: float
             Intrinsic axis ratio of Sersic profile
-        Ie: float
-            Normalization of Sersic intensity profile at kap = Reff
         i: float
             Inclination of system [deg]
 
         Upsilon: float, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+        invq: float
+            Flattening of Sersic profile; invq=1/q. (Derived)
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff. (Derived)
 
     """
 
