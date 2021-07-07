@@ -51,7 +51,15 @@ def check_for_inf(table=None):
 
     for i, r in enumerate(table['r']):
         for key in keys:
-            if not np.isfinite(table[key][i]): status += 1
+            if not np.isfinite(table[key][i]): 
+                # Check special case: dlnrho_dlnr -- Leibniz uses r/rho*drho/dr, so ignore NaN if rho=0.
+                if (key == 'dlnrho_dlnr'):
+                    if (table['rho'][i] == 0.):
+                        pass
+                    else:
+                        status += 1
+                else:
+                    status += 1
 
     return status
 
