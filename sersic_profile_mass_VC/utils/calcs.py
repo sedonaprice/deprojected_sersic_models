@@ -51,7 +51,7 @@ def check_for_inf(table=None):
 
     for i, r in enumerate(table['r']):
         for key in keys:
-            if not np.isfinite(table[key][i]): 
+            if not np.isfinite(table[key][i]):
                 # Check special case: dlnrho_dlnr -- Leibniz uses r/rho*drho/dr, so ignore NaN if rho=0.
                 if (key == 'dlnrho_dlnr'):
                     if (table['rho'][i] == 0.):
@@ -422,7 +422,7 @@ def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     Parameters
     ----------
-        m: float or array_like
+        m: float
             Distance at which to evaluate rho(m)
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -444,15 +444,20 @@ def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
             rho(m)  -- 3D density of Sersic profile at radius m.
 
     """
-    qobstoqint = np.sqrt(np.sin(i*deg2rad)**2 + 1./q**2 * np.cos(i*deg2rad)**2 )
 
-    # Evalutate inner integral:
-    #   Int_(kap=m)^(inifinty) dkap [dI/dkap * 1/sqrt(kap^2 - m^2)]
-    int_rho_m_inner, _ = scp_integrate.quad(rho_m_integrand, m, np.inf, args=(m, Reff, n, Ie))
+    # Handle divergent asymptotic m=0 behavior for n>1:
+    if (m==0.) & (n>1.):
+        return np.inf
+    else:
+        qobstoqint = np.sqrt(np.sin(i*deg2rad)**2 + 1./q**2 * np.cos(i*deg2rad)**2 )
 
-    rhom = -(Upsilon/np.pi)*( qobstoqint ) * int_rho_m_inner
+        # Evalutate inner integral:
+        #   Int_(kap=m)^(inifinty) dkap [dI/dkap * 1/sqrt(kap^2 - m^2)]
+        int_rho_m_inner, _ = scp_integrate.quad(rho_m_integrand, m, np.inf, args=(m, Reff, n, Ie))
 
-    return rhom
+        rhom = -(Upsilon/np.pi)*( qobstoqint ) * int_rho_m_inner
+
+        return rhom
 
 
 
@@ -958,7 +963,7 @@ def drhom_dm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     Parameters
     ----------
-        m: float or array_like
+        m: float
             Radius at which to evaluate d(rho(m))/dm
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -1028,6 +1033,127 @@ def dlnrhom_dlnm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1
     rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     drho_dm = drhom_dm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     return (m/rho)* drho_dm
+
+
+def _multimethod_classifier(m, Reff=1., n=1.):
+    # if ((m/Reff) < 1.e-4):
+    #     method = 'scipy'
+    # elif (n <= 0.5) & ((m/Reff) > 7.):
+    #     method = 'scipy'
+    # elif (n>0.5) & (n < 0.7) & ((m/Reff) > 8.):
+    #     method = 'scipy'
+    # elif (n>=0.7) & ((m/Reff) > 10.):
+    #     method = 'scipy'
+    # else:
+    #     method = 'leibniz'
+
+    if ((m/Reff) < 1.e-4):
+        method = 'scipy'
+    elif (n <= 0.5) & ((m/Reff) > 4.):
+        method = 'scipy'
+    elif (n>0.5) & (n < 0.7) & ((m/Reff) > 5.):
+        method = 'scipy'
+    elif (n>=0.7) & (n<0.9) & ((m/Reff) > 6.):
+        method='scipy'
+    elif (n>=0.9) & ((m/Reff) > 8.):
+        method = 'scipy'
+    else:
+        method = 'leibniz'
+
+    return method
+
+
+def drhom_dm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+    """
+    Evalutation of derivative :math:`d\rho(m)/dm` of deprojected Sersic density profile
+    at radius :math:`m`.
+
+    Parameters
+    ----------
+        m: float
+            Radius at which to evaluate d(rho(m))/dm
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        drhomdm: float or array_like
+            d(rho(m))/dm  -- Derivative of 3D density of Sersic profile at radius m.
+
+    """
+
+    method = _multimethod_classifier(m, Reff=Reff, n=n)
+
+    # Handle asymptotic m=0 behavior for n>1:
+    if (m==0.) & (n>1.) & (method == 'leibniz'):
+        return np.inf
+
+    else:
+        if (method == 'leibniz'):
+            drhomdm = drhom_dm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+        elif (method == 'scipy'):
+            drhomdm = drhom_dm_scipy_derivative(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+        return drhomdm
+
+
+def dlnrhom_dlnm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1.e-5, order=3):
+    """
+    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,
+    at distance :math:`m` of a deprojected Sersic mass distribution
+    with intrinsic axis ratio q.
+
+    Parameters
+    ----------
+        m: float
+            Distance at which to evaluate the profile [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic profile
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+
+    Returns
+    -------
+        dlnrho_dlnm: float
+            Derivative of log density profile at m
+
+    """
+
+    method = _multimethod_classifier(m, Reff=Reff, n=n)
+
+    # Handle asymptotic m=0 behavior for n>1:
+    if (m==0.) & (n>=1.) & (method == 'leibniz'):
+        return (1./n) - 1.
+    # Seems to asymptote to 0 for <=1?
+    else:
+        if (method == 'leibniz'):
+            dlnrho_dlnm = dlnrhom_dlnm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+        elif (method == 'scipy'):
+            dlnrho_dlnm = dlnrhom_dlnm_scipy_derivative(m, Reff=Reff, n=n, q=q,
+                                                        Ie=Ie, i=i, Upsilon=Upsilon)
+
+        return dlnrho_dlnm
+
 
 
 def force_r_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
