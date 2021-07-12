@@ -371,13 +371,16 @@ class DeprojSersicDist(_SersicDistBase):
                 rho_arr = np.zeros(len(r))
                 for j in range(len(r)):
                     rho_arr[j] = util_calcs.rho_m(r[j], Reff=self.Reff, n=self.n, q=self.q,
-                                                  Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+                                                  Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
+                                                  replace_asymptote=True)
             else:
                 rho_arr = util_calcs.rho_m(r[0], Reff=self.Reff, n=self.n, q=self.q,
-                                           Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+                                           Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
+                                           replace_asymptote=True)
         except:
             rho_arr = util_calcs.rho_m(r, Reff=self.Reff, n=self.n, q=self.q,
-                                       Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+                                       Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
+                                       replace_asymptote=True)
 
         return rho_arr
 
