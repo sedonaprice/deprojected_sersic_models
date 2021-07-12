@@ -17,7 +17,7 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 
 _SERSIC_PROFILE_MASS_VC_DATADIR_NEW = '/Users/sedona/data/sersic_profile_mass_VC/'
 
-def check_all_keys(table_old, table_new, ftol=1.e-9, debug=False):
+def check_all_keys(table_old, table_new, ftol=1.e-9, ftol_dlnrho_dlnr=1.e-4, debug=False):
     keys = ['menc3D_sph', 'vcirc', 'rho']
     #keys = ['menc3D_sph', 'vcirc', 'rho', 'dlnrho_dlnr']
     rratio = table_new['r']/table_old['r']
@@ -63,22 +63,22 @@ def check_all_keys(table_old, table_new, ftol=1.e-9, debug=False):
         #     assert math.isclose(table_old[key][i], table_new[key][i], rel_tol=ftol), \
         #         '{}, r={:0.2e}, n={:0.1f}, invq={:0.1f}, ftol={:0.1e}'.format(key,
         #                 r, table_new['n'],table_new['invq'],ftol)
-    
+
 
     for key in ['dlnrho_dlnr']:
-        pass
-        # kratio = table_new[key]/table_old[key]
-        # whzero = np.where(table_old[key] == 0.)[0]
-        # for whz in whzero:
-        #     if (table_new[key][whz] == 0.):
-        #         kratio[whz] = 1.
-        # if (not math.isclose(np.min(kratio), 1., rel_tol=ftol)) | \
-        #     (not math.isclose(np.max(kratio), 1., rel_tol=ftol)):
-        #     msg = "n={}, invq={}: {} diff: {}".format(table_new['n'], table_new['invq'], key, kratio)
-        #     if debug:
-        #         raise ValueError(msg)
-        #     else:
-        #         print(msg)
+        #pass
+        kratio = table_new[key]/table_old[key]
+        whzero = np.where(table_old[key] == 0.)[0]
+        for whz in whzero:
+            if (table_new[key][whz] == 0.):
+                kratio[whz] = 1.
+        if (not math.isclose(np.min(kratio), 1., rel_tol=ftol_dlnrho_dlnr)) | \
+            (not math.isclose(np.max(kratio), 1., rel_tol=ftol_dlnrho_dlnr)):
+            msg = "n={}, invq={}: {} diff: {}".format(table_new['n'], table_new['invq'], key, kratio)
+            if debug:
+                raise ValueError(msg)
+            else:
+                print(msg)
 
     return None
 
@@ -160,9 +160,14 @@ class TestSersicSavedTableNewOld:
         # invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
         #                         1.11, 1.25, 1.43, 1.67, 2.5, 3.33,
         #                         0.5, 0.67])
-        invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
-                                1.11, 1.25, 1.43, 1.67, 2.5, 3.33,
-                                0.5, 0.67])
+        invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., #100.,
+                                #1.11,
+                                1.25, 1.43,
+                                #1.67,
+                                2.5,
+                                #3.33,
+                                0.5])
+                                #, 0.67])
         for n in n_arr:
             for invq in invq_arr:
                 self.check_saved_tables_n_invq(n=n, invq=invq, path_new=path_new, debug=debug)

@@ -58,6 +58,11 @@ def check_for_inf(table=None):
                         pass
                     else:
                         status += 1
+                elif (key == 'rho'):
+                    if (r == 0.):
+                        pass
+                    else:
+                        status += 1
                 else:
                     status += 1
 
@@ -416,7 +421,7 @@ def rho_m_integrand(kap, m, Reff, n, Ie):
     integ = dIdkap(kap, n=n, Ie=Ie, Reff=Reff) * 1./np.sqrt(kap**2 - m**2)
     return integ
 
-def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., replace_asymptote=False):
     """
     Evalutation of deprojected Sersic density profile at distance m.
 
@@ -446,13 +451,13 @@ def rho_m(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
 
     # Handle divergent asymptotic m=0 behavior for n>1:
-    if (m==0.) & (n>1.):
+    if ((replace_asymptote) & (m==0.) & (n>1.)):
         return np.inf
     else:
         qobstoqint = np.sqrt(np.sin(i*deg2rad)**2 + 1./q**2 * np.cos(i*deg2rad)**2 )
 
         # Evalutate inner integral:
-        #   Int_(kap=m)^(inifinty) dkap [dI/dkap * 1/sqrt(kap^2 - m^2)]
+        #   Int_(kap=m)^(infinity) dkap [dI/dkap * 1/sqrt(kap^2 - m^2)]
         int_rho_m_inner, _ = scp_integrate.quad(rho_m_integrand, m, np.inf, args=(m, Reff, n, Ie))
 
         rhom = -(Upsilon/np.pi)*( qobstoqint ) * int_rho_m_inner

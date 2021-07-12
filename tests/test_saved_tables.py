@@ -30,8 +30,10 @@ class TestSersicSavedTable:
         table, sprof, rarr = self.setup_table_sprof_rarr(n=n, invq=invq)
         for r in rarr:
             i = np.where(table['r'] == r)[0][0]
-            assert math.isclose(sprof.enclosed_mass(r), table['menc3D_sph'][i], rel_tol=ftol)
-            assert math.isclose(sprof.v_circ(r), table['vcirc'][i], rel_tol=ftol)
+            mencr = sprof.enclosed_mass(r)
+            vcircr = sprof.v_circ(r)
+            assert math.isclose(mencr, table['menc3D_sph'][i], rel_tol=ftol)
+            assert math.isclose(vcircr, table['vcirc'][i], rel_tol=ftol)
             assert math.isclose(sprof.density(r), table['rho'][i], rel_tol=ftol)
             assert math.isclose(sprof.dlnrho_dlnr(r), table['dlnrho_dlnr'][i], rel_tol=ftol)
 
@@ -62,31 +64,32 @@ class TestSersicSavedTable:
 
     def test_saved_table_n1_invq1_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=1., ftol=3.e-8)
+    def test_saved_table_n1_invq1_highftol(self):
+        self.check_saved_table_n_invq(n=1., invq=1., ftol=1.e-6)
+
 
     def test_saved_table_n1_invq25_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=2.5, ftol=3.e-8)
+    def test_saved_table_n1_invq25_highftol(self):
+        self.check_saved_table_n_invq(n=1., invq=2.5, ftol=1.e-6)
+
+
 
     def test_saved_table_n1_invq5_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=5., ftol=3.e-8)
+    def test_saved_table_n1_invq5_highftol(self):
+        self.check_saved_table_n_invq(n=1., invq=5., ftol=1.e-6)
+
+
 
     def test_saved_table_n4_invq1_medftol(self):
-        self.check_saved_table_n_invq(n=4., invq=1., ftol=3.e-8)
+        self.check_saved_table_n_invq(n=4., invq=1., ftol=5.e-7) #3.e-8)  
+        # Higher ftol, bc n>=2 uses cumulative for mass -- small diffs
+    def test_saved_table_n4_invq1_highftol(self):
+        self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-6)
+
 
     def test_saved_table_n05_invq4_medftol(self):
         self.check_saved_table_n_invq(n=0.5, invq=4., ftol=3.e-8)
-
-
-    # def test_saved_table_n1_invq1_highftol(self):
-    #     self.check_saved_table_n_invq(n=1., invq=1., ftol=1.e-6)
-    #
-    # def test_saved_table_n1_invq25_highftol(self):
-    #     self.check_saved_table_n_invq(n=1., invq=2.5, ftol=1.e-6)
-    #
-    # def test_saved_table_n1_invq5_highftol(self):
-    #     self.check_saved_table_n_invq(n=1., invq=5., ftol=1.e-6)
-    #
-    # def test_saved_table_n4_invq1_highftol(self):
-    #     self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-6)
-    #
-    # def test_saved_table_n05_invq4_highftol(self):
-    #     self.check_saved_table_n_invq(n=0.5, invq=4., ftol=1.e-6)
+    def test_saved_table_n05_invq4_highftol(self):
+        self.check_saved_table_n_invq(n=0.5, invq=4., ftol=1.e-6)
