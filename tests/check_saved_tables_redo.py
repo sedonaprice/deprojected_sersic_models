@@ -160,14 +160,8 @@ class TestSersicSavedTableNewOld:
         # invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
         #                         1.11, 1.25, 1.43, 1.67, 2.5, 3.33,
         #                         0.5, 0.67])
-        invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., #100.,
-                                #1.11,
-                                1.25, 1.43,
-                                #1.67,
-                                2.5,
-                                #3.33,
-                                0.5])
-                                #, 0.67])
+        invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
+                                1.11, 1.25, 1.43, 1.67, 2.5, 3.33, 0.5, 0.67])
         for n in n_arr:
             for invq in invq_arr:
                 self.check_saved_tables_n_invq(n=n, invq=invq, path_new=path_new, debug=debug)
