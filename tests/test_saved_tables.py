@@ -83,8 +83,8 @@ class TestSersicSavedTable:
 
 
     def test_saved_table_n4_invq1_medftol(self):
-        self.check_saved_table_n_invq(n=4., invq=1., ftol=5.e-7) #3.e-8)  
         # Higher ftol, bc n>=2 uses cumulative for mass -- small diffs
+        self.check_saved_table_n_invq(n=4., invq=1., ftol=5.e-7) #3.e-8)
     def test_saved_table_n4_invq1_highftol(self):
         self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-6)
 

@@ -573,7 +573,7 @@ def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90.,
 
     Parameters
     ----------
-        r: float or array_like
+        r: float
             Radius at which to find vcirc(r)
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -598,11 +598,13 @@ def total_mass3D_integral_ellipsoid(r, Reff=1., n=1., q=0.4, Ie=1.,i=90.,
 
     """
     ## In ellipsoids:
-
-    # integrate from m=0 to r
-    intgrl, _ = scp_integrate.quad(total_mass3D_integrand_ellipsoid, rinner, r,
-                                   args=(Reff, n, q, Ie, i, Upsilon))
-    return 4.*np.pi*q*intgrl
+    if r == 0.:
+        return 0.
+    else:
+        # integrate from m=0 to r
+        intgrl, _ = scp_integrate.quad(total_mass3D_integrand_ellipsoid, rinner, r,
+                                       args=(Reff, n, q, Ie, i, Upsilon))
+        return 4.*np.pi*q*intgrl
 
 
 def total_mass3D_integrand_sph_z(z, m, Reff, n, q, Ie, i, Upsilon):
@@ -752,7 +754,7 @@ def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0., Upsi
 
     Parameters
     ----------
-        r: float or array_like
+        r: float
             Radius of sphere over which to be calculating total enclosed mass [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -778,11 +780,12 @@ def total_mass3D_integral(r, Reff=1., n=1., q=0.4, Ie=1., i=90., rinner=0., Upsi
 
     """
     # in *SPHERE*
-    intgrl, abserr = scp_integrate.quad(total_mass3D_integrand_r, 0., r,
-                                        args=(r, Reff, n, q, Ie, i, rinner, Upsilon))
-    return 2*np.pi*intgrl
-
-
+    if r == 0.:
+        return 0.
+    else:
+        intgrl, abserr = scp_integrate.quad(total_mass3D_integrand_r, 0., r,
+                                            args=(r, Reff, n, q, Ie, i, rinner, Upsilon))
+        return 2*np.pi*intgrl
 
 
 def total_mass2D_direct(r, total_mass=1., Reff=1., n=1., q=0.4, i=90., rinner=0.):
@@ -1101,9 +1104,8 @@ def drhom_dm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     method = _multimethod_classifier(m, Reff=Reff, n=n)
 
     # Handle asymptotic m=0 behavior for n>1:
-    if (m==0.) & (n>1.) & (method == 'leibniz'):
+    if ((m==0.) & (n>1.)):
         return np.inf
-
     else:
         if (method == 'leibniz'):
             drhomdm = drhom_dm_leibniz(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
@@ -1147,7 +1149,7 @@ def dlnrhom_dlnm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., 
     method = _multimethod_classifier(m, Reff=Reff, n=n)
 
     # Handle asymptotic m=0 behavior for n>1:
-    if (m==0.) & (n>=1.) & (method == 'leibniz'):
+    if ((m==0.) & (n>=1.)):
         return (1./n) - 1.
     # Seems to asymptote to 0 for <=1?
     else:
