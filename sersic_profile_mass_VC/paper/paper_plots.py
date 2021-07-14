@@ -2423,7 +2423,7 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                             ls=(0, (5, 2, 1, 2, 1, 2, 1, 2)), color=color_arr[k], lw=lw)
                 ax.plot(r_arr, np.sqrt(vcirc**2-3.36*r_arr*(sig0**2)), ls=':', color=color_arr[k], lw=lw)
 
-            ax.axvline(x=1.3, ls=':', color='lightgrey', zorder=-20.)
+            #ax.axvline(x=1.3, ls=':', color='lightgrey', zorder=-20.)
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
@@ -2777,6 +2777,7 @@ def plot_toy_AD_apply_z(lmstar = None, z_arr=None,
                 plot_cnt_lmstar += 1
 
             plot_cnt_lmstar -= 1
+            
             for mm, type in enumerate(types):
                     ax.plot(dict_stack[j]['r_arr'], dict_stack[j]['vrot_{}'.format(type)],
                        ls=ls_arr[mm],
@@ -3234,6 +3235,15 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             ##
             dict_stack.append(val_dict)
 
+
+    if save_dict_stack:
+        if not (os.path.isfile(f_save)):
+            with open(f_save, 'wb') as f:
+                pickle.dump(dict_stack, f)
+
+
+    ########################
+
     dict_toy = None
     f_save_toy = output_path+'toy_impl_fDM_calibration_z_MW_M31.pickle'
     if save_dict_stack:
@@ -3291,7 +3301,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 lmstar = val_dict['lmstar'][ll]
                 Reff_disk = scaling_rel._mstar_Reff_relation(z=z, lmstar=lmstar, galtype='sf')
                 invq_disk = scaling_rel._invq_disk_lmstar_estimate(z=z, lmstar=lmstar)
-                fgas =      scaling_rel._fgas_utils.scaling_relation_MS(z=z, lmstar=lmstar)
+                fgas =      scaling_rel._fgas_scaling_relation_MS(z=z, lmstar=lmstar)
                 Mstar =     np.power(10., lmstar)
                 Mbaryon =   Mstar / (1.-fgas)
                 lMbar = np.log10(Mbaryon)
@@ -3364,9 +3374,10 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             dict_toy[name] = val_dict
 
     if save_dict_stack:
-        if not (os.path.isfile(f_save)):
-            with open(f_save, 'wb') as f:
-                pickle.dump(dict_stack, f)
+        # # MOVE EARLIER
+        # if not (os.path.isfile(f_save)):
+        #     with open(f_save, 'wb') as f:
+        #         pickle.dump(dict_stack, f)
 
         if not (os.path.isfile(f_save_toy)):
             with open(f_save_toy, 'wb') as f:
