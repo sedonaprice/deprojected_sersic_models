@@ -127,7 +127,7 @@ class TestSersicSavedTableNewOld:
         table_new = io.read_profile_table(n=n, invq=invq, path=path_new)
         return table_old, table_new
 
-    def check_saved_tables_n_invq(self, n=None, invq=None, ftol=None, path_new=None, debug=False):
+    def OLDcheck_saved_tables_n_invq(self, n=None, invq=None, ftol=None, path_new=None, debug=False):
         if ftol is None:
             ftol = self.ftol
         try:
@@ -152,6 +152,34 @@ class TestSersicSavedTableNewOld:
                     else:
                         print(msg)
 
+    def check_saved_tables_n_invq(self, n=None, invq=None, ftol=None, path_new=None, debug=False):
+        if ftol is None:
+            ftol = self.ftol
+        try:
+            table = io.read_profile_table(n=n, invq=invq)
+            table_loaded = True
+        except:
+            table_loaded = False
+            print("    table not loaded: n={:0.1f}, invq={:0.1f}".format(n, invq))
+
+        if table_loaded:
+            key = 'n'
+            if not math.isclose(table['n'], n, rel_tol=ftol):
+                msg = "n={}, invq={}: {} diff: {}, {}".format(n, invq, key, table[key],n)
+                if debug:
+                    raise ValueError(msg)
+                else:
+                    print(msg)
+            key = 'invq'
+            if not math.isclose(np.round(table['invq'],2), invq, rel_tol=ftol):
+                msg = "n={}, invq={}: {} diff: {}, {}".format(n, invq, key, table[key],invq)
+                if debug:
+                    raise ValueError(msg)
+                else:
+                    print(msg)
+
+
+
     def test_all_saved_tables(self, path_new=_SERSIC_PROFILE_MASS_VC_DATADIR_NEW, debug=False):
         # Sersic indices
         #n_arr =         np.arange(0.5, 8.1, 0.1)
@@ -161,7 +189,7 @@ class TestSersicSavedTableNewOld:
         #                         1.11, 1.25, 1.43, 1.67, 2.5, 3.33,
         #                         0.5, 0.67])
         invq_arr =      np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
-                                1.11, 1.25, 1.43, 1.67, 2.5, 3.33, 0.5, 0.67])
+                                  1.11, 1.25, 1.43, 1.67, 2.5, 3.33, 0.5, 0.67])
         for n in n_arr:
             for invq in invq_arr:
                 self.check_saved_tables_n_invq(n=n, invq=invq, path_new=path_new, debug=debug)
