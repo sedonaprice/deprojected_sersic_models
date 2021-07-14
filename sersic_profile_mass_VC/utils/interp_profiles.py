@@ -210,8 +210,8 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
     rarr = np.abs(rarr)
 
     menc_interp = np.zeros(len(rarr))
-    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
-    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
+    wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
     menc_interp[wh_in] =     (m_interp(rarr[wh_in] / Reff * table_Reff) * (total_mass / table_mass) )
     menc_interp[wh_extrap] = (m_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) * (total_mass / table_mass) )
 
@@ -293,8 +293,8 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
     rarr = np.abs(rarr)
 
     vcirc_interp = np.zeros(len(rarr))
-    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
-    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
+    wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
     vcirc_interp[wh_in] =     (v_interp(rarr[wh_in]  / Reff * table_Reff) * np.sqrt(total_mass / table_mass) * np.sqrt(table_Reff / Reff))
     vcirc_interp[wh_extrap] = (v_interp_extrap(rarr[wh_extrap]  / Reff * table_Reff) * np.sqrt(total_mass / table_mass) * np.sqrt(table_Reff / Reff))
 
@@ -368,6 +368,13 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
         except:
             pass
 
+    # Clean up if n>1: TECHNICALLY asymptotic at r=0, but replace with large value
+    #                  so scipy interpolation works.
+    if (n > 1.) & (table['r'][0] == 0.):
+        if ~np.isfinite(table_rho[0]):
+            table_rho[0] = table_rho[1]**2/table_rho[2] * 1.e3
+
+
     r_interp = scp_interp.interp1d(table_rad, table_rho, fill_value=np.NaN, bounds_error=False, kind='cubic')
     r_interp_extrap = scp_interp.interp1d(table_rad, table_rho, fill_value='extrapolate', kind='linear')
 
@@ -380,10 +387,16 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
     rarr = np.abs(rarr)
 
     rho_interp = np.zeros(len(rarr))
-    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
-    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
+    wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
     rho_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) * (total_mass / table_mass) * (table_Reff / Reff)**3 )
     rho_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) * (total_mass / table_mass) * (table_Reff / Reff)**3 )
+
+    # Back replace inf, if interpolating at r=0 for n>1:
+    if (n > 1.) & (table['r'][0] == 0.):
+        if (~np.isfinite(table['rho'][0]) & (rarr.min() == 0.)):
+            rho_interp[rarr==0.] = table['rho'][0]
+
 
     if (len(rarr) > 1):
         return rho_interp
@@ -469,8 +482,8 @@ def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
     rarr = np.abs(rarr)
 
     dlnrho_dlnr_interp = np.zeros(len(rarr))
-    wh_in =     np.where((r <= table_rad.max()) & (r >= table_rad.min()))[0]
-    wh_extrap = np.where((r > table_rad.max()) | (r < table_rad.min()))[0]
+    wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
+    wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
     dlnrho_dlnr_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) )
     dlnrho_dlnr_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) )
 
@@ -854,6 +867,7 @@ def interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=None,
         rho_interp_nearest = interpolate_sersic_profile_rho(r=r, total_mass=M,
                 Reff=Reff, n=nearest_n, invq=nearest_invq, path=path,
                 filename_base=filename_base, filename=filename)
+
         rho_t += rho_interp_nearest
         rho_dlnrho_dlnr_sum += rho_interp_nearest * dlnrho_dlnr_interp_nearest
 
