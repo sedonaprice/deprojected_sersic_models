@@ -387,7 +387,7 @@ class DeprojSersicDist(_SersicDistBase):
 
     def drho_dr(self, r):
         """
-        Derivative of the density profile, :math:`d\rho/dr`,
+        Derivative of the density profile, :math:`d\\rho/dr`,
         at distance :math:`m=r` of the deprojected Sersic mass distribution.
 
         Parameters
@@ -453,9 +453,9 @@ class DeprojSersicDist(_SersicDistBase):
     ############################################################################################
     # vvvvvvvv REMOVE THESE LATER vvvvvvvv
 
-    def drho_dr_leibniz(self, r):
+    def _drho_dr_leibniz(self, r):
         """
-        Derivative of the density profile, :math:`d\rho/dr`,
+        Derivative of the density profile, :math:`d\\rho/dr`,
         at distance :math:`m=r` of the deprojected Sersic mass distribution.
 
         Parameters
@@ -485,7 +485,7 @@ class DeprojSersicDist(_SersicDistBase):
         return drho_dr_arr
 
 
-    def dlnrho_dlnr_leibniz(self, r):
+    def _dlnrho_dlnr_leibniz(self, r):
         """
         Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
         in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
@@ -522,9 +522,9 @@ class DeprojSersicDist(_SersicDistBase):
     ############################################################################################
     ############################################################################################
 
-    def drho_dr_scipy(self, r):
+    def _drho_dr_scipy(self, r):
         """
-        Derivative of the density profile, :math:`d\rho/dr`,
+        Derivative of the density profile, :math:`d\\rho/dr`,
         at distance :math:`m=r` of the deprojected Sersic mass distribution.
 
         Parameters
@@ -554,7 +554,7 @@ class DeprojSersicDist(_SersicDistBase):
         return drho_dr_arr
 
 
-    def dlnrho_dlnr_scipy(self, r):
+    def _dlnrho_dlnr_scipy(self, r):
         """
         Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
         in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
@@ -756,7 +756,13 @@ class DeprojSersicDist(_SersicDistBase):
         return util_calcs.virial_coeff_3D(r, m3D=m3D, vc=vc)
 
 
-    def force_r(self, r, z):
+    ############################################################################################
+    ############################################################################################
+    ############################################################################################
+    # vvvvvvvv REMOVE THESE LATER ????? vvvvvvvv
+
+
+    def _force_r(self, r, z):
         """
         Radial force of the deprojected Sersic mass distribution.
 
@@ -774,7 +780,7 @@ class DeprojSersicDist(_SersicDistBase):
         return util_calcs.force_r(r, z, Reff=self.Reff, n=self.n, q=self.q, Ie=self.Ie,
                                   i=self.i, Upsilon=self.Upsilon)
 
-    def force_z(self, r, z):
+    def _force_z(self, r, z):
         """
         Vertical force of the deprojected Sersic mass distribution.
 
@@ -794,7 +800,7 @@ class DeprojSersicDist(_SersicDistBase):
 
 
 
-    def sigma_z(self, r, z, sersic_table=None):
+    def _sigma_z(self, r, z, sersic_table=None):
         """
         Vertical velocity dispersion of the deprojected Sersic mass distribution.
 
@@ -817,6 +823,15 @@ class DeprojSersicDist(_SersicDistBase):
                                             n=self.n, q=self.q, Ie=self.Ie,
                                             i=self.i, Upsilon=self.Upsilon,
                                             sersic_table=sersic_table))
+
+
+
+
+    # ^^^^^^^^ REMOVE THESE LATER ????? ^^^^^^^^
+    ############################################################################################
+    ############################################################################################
+    ############################################################################################
+
 
 
     def profile_table(self, r, cumulative=None, add_reff_table_values=True):

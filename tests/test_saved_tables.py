@@ -14,7 +14,7 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 
 
 class TestSersicSavedTable:
-    ftol = 1.e-9
+    ftol = 3.e-8
 
     def setup_table_sprof_rarr(self, n=1., invq=2.5):
         table = io.read_profile_table(n=n, invq=invq)
@@ -45,51 +45,19 @@ class TestSersicSavedTable:
                                     m3D=mencr, vc=vcircr),
                                     table['k3D_sph_Reff'], rel_tol=ftol)
 
-    # def test_saved_table_n1_invq1(self):
-    #     self.check_saved_table_n_invq(n=1., invq=1., ftol=1.e-9)
-    #
-    # def test_saved_table_n1_invq25(self):
-    #     self.check_saved_table_n_invq(n=1., invq=2.5, ftol=1.e-9)
-    #
-    # def test_saved_table_n1_invq5(self):
-    #     self.check_saved_table_n_invq(n=1., invq=5., ftol=1.e-9)
-    #
-    # def test_saved_table_n4_invq1(self):
-    #     self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-9)
-    #
-    # def test_saved_table_n05_invq4(self):
-    #     self.check_saved_table_n_invq(n=0.5, invq=4., ftol=1.e-9)
-
-
 
     def test_saved_table_n1_invq1_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=1., ftol=3.e-8)
-    def test_saved_table_n1_invq1_highftol(self):
-        self.check_saved_table_n_invq(n=1., invq=1., ftol=1.e-6)
-
 
     def test_saved_table_n1_invq25_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=2.5, ftol=3.e-8)
-    def test_saved_table_n1_invq25_highftol(self):
-        self.check_saved_table_n_invq(n=1., invq=2.5, ftol=1.e-6)
-
-
 
     def test_saved_table_n1_invq5_medftol(self):
         self.check_saved_table_n_invq(n=1., invq=5., ftol=3.e-8)
-    def test_saved_table_n1_invq5_highftol(self):
-        self.check_saved_table_n_invq(n=1., invq=5., ftol=1.e-6)
-
-
 
     def test_saved_table_n4_invq1_medftol(self):
         # Higher ftol, bc n>=2 uses cumulative for mass -- small diffs
-        self.check_saved_table_n_invq(n=4., invq=1., ftol=5.e-7) #3.e-8)
-    def test_saved_table_n4_invq1_highftol(self):
-        self.check_saved_table_n_invq(n=4., invq=1., ftol=1.e-6)
-
+        self.check_saved_table_n_invq(n=4., invq=1., ftol=5.e-7)
 
     def test_saved_table_n05_invq4_medftol(self):
         self.check_saved_table_n_invq(n=0.5, invq=4., ftol=3.e-8)
-    def test_saved_table_n05_invq4_highftol(self):
-        self.check_saved_table_n_invq(n=0.5, invq=4., ftol=1.e-6)
