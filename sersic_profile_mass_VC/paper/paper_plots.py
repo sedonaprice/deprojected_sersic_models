@@ -2528,6 +2528,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
             save_dict_stack=True,
             overwrite_dict_stack=False,
             debug_alpha_rho=False,
+            show_alpha_diskbulge=False,
             show_sigmar_toy=False,
             scale=3.):
     """
@@ -2573,6 +2574,8 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         fileout = output_path+'plot_toy_AD_apply_z_lmstar'
         if show_sigmar_toy:
             fileout += "_sigmar_toy"
+        if show_alpha_diskbulge:
+            fileout += "_show_alpha_diskbulge"
         if debug_alpha_rho:
             fileout += '_debug_alpha_rho'
         fileout += '.pdf'
@@ -2605,6 +2608,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
     xlim = [r_arr.min(), r_arr.max()]
     ylims = []
     ylims_dict = {'10.0': [0.,220.], '10.5': [0.,300.], '11.0': [0.,440.]}
+    #ylims_dict = {'10.0': [60.,220.], '10.5': [140.,280.], '11.0': [240.,440.]}
     for lmstar in lmstar_arr:
         if '{}'.format(lmstar) in ylims_dict.keys():
             ylim = ylims_dict['{}'.format(lmstar)]
@@ -2613,19 +2617,38 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
             ylim = [0., 300.]
         ylims.append(ylim)
 
-    types = ['alphan', 'SG']
-    ls_arr = ['--', ':']
-    color_arr = ['black', 'black']
-    lw_arr = [1.3, 1.3]
-    #labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
-    labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
 
-    # if show_sigmar_toy:
-    #     ann_arr = [ None, r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None]
-    #     ann_arr_pos = [None, 'upperright', None, None, None]
-    # else:
-    #     ann_arr = [ r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None, None]
-    #     ann_arr_pos = ['upperright', None, None, None, None]
+
+
+    lw_comp =  0.75 #0.5
+    lw_tot =  1.5 #1.3
+    lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, lw_tot]
+    colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
+    lss = ['-', '-', '-', '-', '-', '-']
+    comps = ['disk', 'bulge', 'bar', 'halo', 'sigma0', 'tot']
+    labels_components = [r'$v_{\mathrm{circ,disk}}$', r'$v_{\mathrm{circ,bulge}}$',
+                         r'$v_{\mathrm{circ,bar}}$', r'$v_{\mathrm{circ,halo}}$',
+                         r'$\sigma_0$', r'$v_{\mathrm{circ,tot}}$']
+
+
+    if show_alpha_diskbulge:
+        types = ['alphan_disk', 'alphan_bulge', 'alphan', 'SG']
+        ls_arr = ['--', '--', '--', ':']
+        color_arr = ['tab:blue', 'tab:red', 'black', 'black']
+        lw_arr = [lw_comp, lw_comp, lw_tot, lw_tot]
+        labels = [None, None, r'$v_{\mathrm{rot}},\ \alpha(n)$',
+                  r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
+    else:
+        types = ['alphan', 'SG']
+        ls_arr = ['--', ':']
+        color_arr = ['black', 'black']
+        lw_arr = [lw_tot, lw_tot]
+        #labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
+        labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
+
+
+
+
 
     ######################################
     # Setup plot:
@@ -2744,10 +2767,10 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
 
 
                 rho_disk = interp_profiles.interpolate_sersic_profile_rho_nearest(r=r_arr,
-                        total_mass=Mgas, Reff=Reff_disk, n=n_disk, invq=invq_disk,
+                        total_mass=Mgas*(1.-bt), Reff=Reff_disk, n=n_disk, invq=invq_disk,
                         path=table_path)
                 rho_bulge = interp_profiles.interpolate_sersic_profile_rho_nearest(r=r_arr,
-                        total_mass=Mgas, Reff=Reff_bulge,  n=n_bulge, invq=invq_bulge,
+                        total_mass=Mgas*bt, Reff=Reff_bulge,  n=n_bulge, invq=invq_bulge,
                         path=table_path)
 
                 alphan = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=r_arr,
@@ -2756,10 +2779,17 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                         Reff_bulge=Reff_bulge,  n_bulge=n_bulge, invq_bulge=invq_bulge,
                         path=table_path)
 
+                alphan_disk = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_nearest(r=r_arr,
+                        Reff=Reff_disk, n=n_disk, invq=invq_disk, path=table_path)
+                alphan_bulge = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_nearest(r=r_arr,
+                        Reff=Reff_bulge,  n=n_bulge, invq=invq_bulge, path=table_path)
+
                 alpha_SG = 3.36 * (r_arr / Reff_disk)
 
                 vrot_alphan = np.sqrt(vcirc_tot**2 - alphan*(sigma0**2))
                 vrot_SG = np.sqrt(vcirc_tot**2 - alpha_SG*(sigma0**2))
+                vrot_alphan_disk = np.sqrt(vcirc_tot**2 - alphan_disk*(sigma0**2))
+                vrot_alphan_bulge = np.sqrt(vcirc_tot**2 - alphan_bulge*(sigma0**2))
 
                 ####
                 val_dict['invq_near'] = nearest_invq
@@ -2774,6 +2804,10 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                 val_dict['vrot_SG'] = vrot_SG
                 val_dict['rho_disk'] = rho_disk
                 val_dict['rho_bulge'] = rho_bulge
+                val_dict['alphan_disk'] = alphan_disk
+                val_dict['alphan_bulge'] = alphan_bulge
+                val_dict['vrot_alphan_disk'] = vrot_alphan_disk
+                val_dict['vrot_alphan_bulge'] = vrot_alphan_bulge
 
 
                 dict_stack.append(val_dict)
@@ -2784,15 +2818,6 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                 pickle.dump(dict_stack, f)
 
     ######################
-    lw_comp =  0.75 #0.5
-    lw_tot =  1.5 #1.3
-    lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, lw_tot]
-    colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
-    lss = ['-', '-', '-', '-', '-', '-']
-    comps = ['disk', 'bulge', 'bar', 'halo', 'sigma0', 'tot']
-    labels_components = [r'$v_{\mathrm{circ,disk}}$', r'$v_{\mathrm{circ,bulge}}$',
-                         r'$v_{\mathrm{circ,bar}}$', r'$v_{\mathrm{circ,halo}}$',
-                         r'$\sigma_0$', r'$v_{\mathrm{circ,tot}}$']
 
     for i in range(n_rows):
         lmstar = lmstar_arr[i]
@@ -2843,19 +2868,20 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                    label=r'$v_{\mathrm{rot}}$, $\alpha(n)+\alpha_{\sigma(r)}$',
                    zorder=-1.)
 
+
             if debug_alpha_rho:
-                ax2 = ax.twinx()
+                ax3 = ax.twinx()
                 calpha = 'dimgrey'
                 lwalpha = 1.5
-                ax2.plot(dict_stack[k]['r_arr'], dict_stack[k]['alphan'], ls='--', lw=lwalpha, color=calpha)
-                ax2.plot(dict_stack[k]['r_arr'], dict_stack[k]['alpha_SG'], ls=':', lw=lwalpha, color=calpha)
+                ax3.plot(dict_stack[k]['r_arr'], dict_stack[k]['alphan'], ls='--', lw=lwalpha, color=calpha)
+                ax3.plot(dict_stack[k]['r_arr'], dict_stack[k]['alpha_SG'], ls=':', lw=lwalpha, color=calpha)
 
-                ax3 = ax.twinx()
+                ax4 = ax.twinx()
                 lwalpha = 1.5
                 rhotot = dict_stack[k]['rho_disk'] + dict_stack[k]['rho_bulge']
-                ax3.plot(dict_stack[k]['r_arr'], dict_stack[k]['rho_disk']/rhotot,
+                ax4.plot(dict_stack[k]['r_arr'], dict_stack[k]['rho_disk']/rhotot,
                                 ls='--', lw=lwalpha, color='tab:blue')
-                ax3.plot(dict_stack[k]['r_arr'], dict_stack[k]['rho_bulge']/rhotot,
+                ax4.plot(dict_stack[k]['r_arr'], dict_stack[k]['rho_bulge']/rhotot,
                                 ls='--', lw=lwalpha, color='tab:red')
 
 
