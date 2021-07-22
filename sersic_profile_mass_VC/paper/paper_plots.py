@@ -2636,15 +2636,15 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         ls_arr = ['--', '--', '--', ':']
         color_arr = ['tab:blue', 'tab:red', 'black', 'black']
         lw_arr = [lw_comp, lw_comp, lw_tot, lw_tot]
-        labels = [None, None, r'$v_{\mathrm{rot}},\ \alpha(n)$',
+        labels = [None, None, r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{tot}}$',
                   r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
     else:
         types = ['alphan', 'SG']
         ls_arr = ['--', ':']
         color_arr = ['black', 'black']
         lw_arr = [lw_tot, lw_tot]
-        #labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{SG}}$']
-        labels = [r'$v_{\mathrm{rot}},\ \alpha(n)$', r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
+        labels = [r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{tot}}$',
+                    r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
 
 
 
