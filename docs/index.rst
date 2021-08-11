@@ -9,7 +9,7 @@ sersic_profile_mass_VC
 
 
 The `sersic_profile_mass_VC` package contains code to calculate various profiles
-for deprojected, flattened (and also prolate) Sersic mass distributions.
+for deprojected, flattened (and also elongated) Sersic mass distributions.
 
 As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.
@@ -36,7 +36,7 @@ Quickstart
     n = 1.0
     r = np.arange(0., 30.1, 0.1)
 
-    # Flattening array (invq = 1/q)
+    # Flattening/elongation array (invq = 1/q; q = c/a)
     invq_arr = [1., 2.5, 3.33, 5., 10.]
 
     # Calculate & plot interpolated circular velocity profiles at r for each invq
@@ -48,7 +48,7 @@ Quickstart
 
     plt.xlabel('Radius [kpc]')
     plt.ylabel('Circular velocity [km/s]')
-    plt.legend(title='Intrinic axis ratio')
+    plt.legend(title='Intrinsic axis ratio')
 
     plt.tight_layout()
     plt.show()

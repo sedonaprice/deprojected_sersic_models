@@ -74,8 +74,6 @@ def check_for_inf(table=None):
 # Calculation helper functions: General for mass distributions
 
 
-
-
 def vcirc_spherical_symmetry(r=None, menc=None):
     """
     Determine vcirc for a spherically symmetric mass distribution:
@@ -1044,17 +1042,6 @@ def dlnrhom_dlnm_leibniz(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., dx=1
 
 
 def _multimethod_classifier(m, Reff=1., n=1.):
-    # if ((m/Reff) < 1.e-4):
-    #     method = 'scipy'
-    # elif (n <= 0.5) & ((m/Reff) > 7.):
-    #     method = 'scipy'
-    # elif (n>0.5) & (n < 0.7) & ((m/Reff) > 8.):
-    #     method = 'scipy'
-    # elif (n>=0.7) & ((m/Reff) > 10.):
-    #     method = 'scipy'
-    # else:
-    #     method = 'leibniz'
-
     if ((m/Reff) < 1.e-4):
         method = 'scipy'
     elif (n <= 0.5) & ((m/Reff) > 4.):
