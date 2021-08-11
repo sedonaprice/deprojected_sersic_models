@@ -255,14 +255,3 @@ def _minfunc_lmstar_fgas_mbar(lmstar_test, z, lmbar_targ):
     lmbar_test = lmstar_test - np.log10(1.-fgas)
 
     return lmbar_test - lmbar_targ
-
-
-
-# def _sigr_toy(r, sig01, sig0, rsig):
-#     sigr = np.sqrt((sig01*np.exp(-r/rsig))**2 + sig0**2)
-#     return sigr
-#
-# def _alpha_sigr_toy(r, sig01, sig0, rsig):
-#     sigr = _sigr_toy(r, sig01, sig0, rsig)
-#     dlnsigsq_dlnr = -2.*r/rsig * (sig01*np.exp(-r/rsig))**2 / sigr**2
-#     return -dlnsigsq_dlnr

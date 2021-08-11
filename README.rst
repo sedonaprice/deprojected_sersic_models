@@ -1,6 +1,6 @@
-**********************************************************
-Flattened Sersic profile mass and circular velocity curves
-**********************************************************
+**************************************************************
+Non-spherical Sersic profile mass and circular velocity curves
+**************************************************************
 
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
@@ -9,7 +9,7 @@ Flattened Sersic profile mass and circular velocity curves
 
 Description
 ###########
-Package to calculate various profiles for deprojected, flattened (or also prolate)
+Package to calculate various profiles for deprojected, flattened (or elongated)
 Sersic mass distributions, including:
 enclosed mass, circular velocity, density, log density slope, surface density,
 and projected enclosed mass.
@@ -42,7 +42,7 @@ Usage
     total_mass = 1.e11
     Reff = 5.0
     n = 1.0
-    invq = 5.
+    invq = 5.    # Oblate, q = c/a = 0.2
 
     r = np.arange(0., 30.1, 0.1)
 
@@ -58,6 +58,7 @@ Dependencies
 * scipy
 * matplotlib
 * astropy
+* dill
 
 
 License

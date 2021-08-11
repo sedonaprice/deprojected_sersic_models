@@ -216,7 +216,7 @@ class _SersicDistBase:
 
 class DeprojSersicDist(_SersicDistBase):
     """
-    Deprojected Sersic mass distribution, with arbitrary flattening (or prolateness).
+    Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).
 
     Parameters
     ----------
@@ -227,7 +227,7 @@ class DeprojSersicDist(_SersicDistBase):
         n: float
             Sersic index
         q: float
-            Intrinsic axis ratio of Sersic profile
+            Intrinsic axis ratio of Sersic profile (c/a)
         i: float
             Inclination of system [deg]
 

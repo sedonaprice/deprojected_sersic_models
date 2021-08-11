@@ -38,8 +38,10 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
-    description="A package to calculate mass and kinematic profiles of flattened Sersic mass distributions.",
+    description="A package to calculate mass and kinematic profiles of non-spherical Sersic mass distributions.",
     install_requires=requirements,
     setup_requires=setup_requirements,
     license="3-clause BSD",
@@ -47,6 +49,6 @@ setup(
     include_package_data=True,
     name='sersic_profile_mass_VC',
     packages=['sersic_profile_mass_VC'],
-    package_data={'sersic_profile_mass_VC': ['data/SomethingToFix/*.fits']},
+    #package_data={'sersic_profile_mass_VC': ['data/SomethingToFix/*.fits']},
     version=__version__
 )

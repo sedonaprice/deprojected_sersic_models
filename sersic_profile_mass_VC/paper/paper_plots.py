@@ -200,16 +200,6 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 q_arr=[1., 0.2],
                 n_arr=[0.5, 1., 2., 4.])
 
-    # # Figure 9: ORIG
-    # plot_toy_AD_apply_z_lmstar(output_path=output_path, table_path=table_path,
-    #             z_arr=np.arange(0.5,3.0,0.5), lmstar_arr=[10.5],
-    #             fileout=output_path+'plot_toy_AD_apply_z.pdf',
-    #             f_save = output_path+'toy_impl_AD_apply_z.pickle',
-    #             n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-    #             save_dict_stack=True,
-    #             overwrite_dict_stack=False,
-    #             show_sigmar_toy=False, scale=2.75)
-
     # Figure 9:
     plot_toy_AD_apply_z_lmstar(output_path=output_path, table_path=table_path,
                 n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
@@ -2585,7 +2575,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
     if lmstar_arr is None:
         lmstar_arr = [10.,10.5,11.]
     if z_arr is None:
-        z_step = 1. # 0.5
+        z_step = 1.
         z_arr = np.arange(0.5, 2.5+z_step, z_step)
 
     # Ensure np arrays, not lists:
@@ -2593,7 +2583,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
     lmstar_arr = np.array(lmstar_arr)
 
     rstep = 0.1 # kpc
-    r_arr = np.arange(0., 15.+rstep, rstep) #np.arange(0., 20.+rstep, rstep)
+    r_arr = np.arange(0., 15.+rstep, rstep)
 
     # ++++++++++++++++
     titles = []
@@ -2608,7 +2598,6 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
     xlim = [r_arr.min(), r_arr.max()]
     ylims = []
     ylims_dict = {'10.0': [0.,220.], '10.5': [0.,300.], '11.0': [0.,440.]}
-    #ylims_dict = {'10.0': [60.,220.], '10.5': [140.,280.], '11.0': [240.,440.]}
     for lmstar in lmstar_arr:
         if '{}'.format(lmstar) in ylims_dict.keys():
             ylim = ylims_dict['{}'.format(lmstar)]
@@ -2620,8 +2609,8 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
 
 
 
-    lw_comp =  0.75 #0.5
-    lw_tot =  1.5 #1.3
+    lw_comp =  0.75
+    lw_tot =  1.5
     lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, lw_tot]
     colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
     lss = ['-', '-', '-', '-', '-', '-']
@@ -2645,9 +2634,6 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         lw_arr = [lw_tot, lw_tot]
         labels = [r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{tot}}$',
                     r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
-
-
-
 
 
     ######################################
@@ -2824,11 +2810,9 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         ylim = ylims[i]
         if show_sigmar_toy:
             ann_arr = [ None, r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None]
-            #ann_arr_pos = [None, 'upperright', None, None, None]
             ann_arr_pos = [None, 'upperleft', None, None, None]
         else:
             ann_arr = [ r'$\log_{10}(M_*/M_{\odot})'+r'={:0.1f}$'.format(lmstar), None, None, None, None]
-            #ann_arr_pos = ['upperright', None, None, None, None]
             ann_arr_pos = ['upperleft', None, None, None, None]
 
         for j in range(n_cols):
@@ -2955,9 +2939,9 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                 labelspacing=0.01
                 handletextpad=0.25
                 if scale == 3.0:
-                    loc = (0.675,0.6375) #'upper left' #(0.04, 0.005) #(0.02, 0.005)
+                    loc = (0.675,0.6375)
                 elif scale == 2.75:
-                    loc = (0.04, 0.005) #'upper right'
+                    loc = (0.04, 0.005)
                 handlelength = 1.
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
@@ -2968,12 +2952,11 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                 legend1.set_zorder(-0.05)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
-                    #frameon = False
                     labelspacing=0.15
                     if scale == 3.0:
-                        loc2 = (0.05,0.65) #(0.515,0.65)
+                        loc2 = (0.05,0.65)
                     elif scale == 2.75:
-                        loc2 = (0.05, 0.635) #(0.455, 0.635) #(0.55, 0.635)
+                        loc2 = (0.05, 0.635)
                     if show_sigmar_toy:
                         loc2 = 'upper right'
                     legend2 = ax.legend(handles_arr2, labels_arr2,
@@ -3074,7 +3057,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     for lmstar in lmstar_arr:
         color_arr.append(cmap_mass( (lmstar-lmstar_arr.min())/(lmstar_arr.max()-lmstar_arr.min()) ) )
         if ((lmstar % 1.) == 0):
-            lw_arr.append(2.) #1.75)
+            lw_arr.append(2.)
             ls_arr.append('-')
         else:
             lw_arr.append(1.)
@@ -3310,7 +3293,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                 fdm_vsq = vcirc_halo**2/vcirc_tot**2
 
-                #fDM_compare_arr
                 if del_fDM:
                     val_dict['fDM_comp'][ll] = (fdm_vsq-fdm_menc)/fdm_menc
                 else:

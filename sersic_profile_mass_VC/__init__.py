@@ -14,6 +14,6 @@ import sersic_profile_mass_VC.utils
 import sersic_profile_mass_VC.plot
 import sersic_profile_mass_VC.paper
 
-__version__ = "0.0"
+__version__ = "1.0"
 
 # ---------------------------------------------------------------
