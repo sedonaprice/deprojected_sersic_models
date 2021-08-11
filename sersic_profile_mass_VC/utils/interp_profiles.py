@@ -532,7 +532,7 @@ def nearest_n_invq(n=None, invq=None):
     table_n = np.arange(0.5, 8.1, 0.1)   # Sersic indices
     table_invq = np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
                     1.11, 1.43, 1.67, 3.33, 0.5, 0.67])
-    # 1:1, 1:2, 1:3, ... flattening  [also prolate 2:1, 1.5:1]
+    # 1:1, 1:2, 1:3, ... flattening  [also elongated 2:1, 1.5:1]
 
     nearest_n = table_n[ np.argmin( np.abs(table_n - n) ) ]
     nearest_invq = table_invq[ np.argmin( np.abs( table_invq - invq) ) ]
