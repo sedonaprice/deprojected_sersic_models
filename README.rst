@@ -1,6 +1,6 @@
-**************************************************************
-Non-spherical Sersic profile mass and circular velocity curves
-**************************************************************
+***************************************************************************
+Non-spherical deprojected Sersic mass profiles and circular velocity curves
+***************************************************************************
 
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org
