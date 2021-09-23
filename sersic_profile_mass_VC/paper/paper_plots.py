@@ -192,7 +192,7 @@ def make_all_paper_plots(output_path=None, table_path=None):
 
     # Figure 7
     plot_alpha_vs_r(output_path=output_path, table_path=table_path,
-                n_arr=[0.5, 1., 2., 4., 8.])
+                n_arr=[0.5, 1., 2., 4., 8.], show_literature=True)
 
     # Figure 8
     plot_AD_sersic_potential_alpha_vs_r(output_path=output_path, table_path=table_path,
@@ -2056,7 +2056,7 @@ def plot_fdm_calibration(Mstar_arr=None,
 # Figure 7
 
 def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
-            n_arr=[0.5, 1., 2., 4., 8.]):
+            n_arr=[0.5, 1., 2., 4., 8.], show_literature=True):
     """
     Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
     over a range of Sersic index n.
@@ -2073,6 +2073,10 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
 
         n_arr: array_like, optional
             Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]
+        show_literature: bool, optional
+            Whether to show inferred alpha values from some simulation literature work:
+                Wellons et al., 2020, MNRAS 497, 4051-4065;
+                Kretschmer et al., 2021, MNRAS 503, 5238-5253
         fileout: str, optional
             Override the default filename and explicitly choose the output filename
             (must include full path).
@@ -2137,6 +2141,50 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
     lw = 1.3
     ls_arr = ['-']
 
+    if show_literature:
+        lit_dict = {}
+        lit_dict['W20_t1'] = {'rtoRe': np.array([1.]),
+                              'alpha': np.array([0.69]),
+                              'marker': 'd',
+                              'color': 'blue',
+                              'label': r'W+20, A4, $\Delta v_{P}^2/\sigma^2$'}
+        lit_dict['W20_t2'] = {'rtoRe': np.array([1.]),
+                              'alpha': np.array([1.58]),
+                              'marker': 's',
+                              'color': 'blue',
+                              'label': r'W+20, A4, $(\Delta  M_{P}/M_{\mathrm{enc}})(v_{\mathrm{c,sph}}^2/\sigma^2)$'}
+        fig4_atoaSG = np.array([0.31, 0.45, 0.46, 0.445, 0.41, 0.38, 0.366, 0.35, 0.333, 0.31, 0.3])
+        rtoRe = np.arange(0.5,6.,0.5)
+        lit_dict['K21_fig4_alpharho'] = {
+                              'rtoRe':  rtoRe,
+                              'alpha': fig4_atoaSG*3.36*rtoRe,
+                              'marker': 'o',
+                              'color': 'red',
+                              'label': r'K+21, Fig.4, $\alpha_{\rho}$'}
+        rtoRe = np.arange(0.,5.1,0.1)
+        lit_dict['K21_table1'] = {'rtoRe': rtoRe,
+                              'alpha': scaling_rel._kretschmer21_table1_alpha(rtoRe),
+                              'ls': '--',
+                              'color': 'red',
+                              'label': r'K+21, Tab.1, gas/disk'}
+        #####
+        # rtoRe = np.array([0.5, 1., 2., 4.])
+        # aarr = np.array([-1.54, -0.86, 0.98, 4.08])
+        # barr = np.array([2.87, 2.98, 2.9, 2.69])
+        # for k, n in enumerate(n_arr):
+        #     alpha = rtoRe*0.
+        #     for j, rtRe in enumerate(rtoRe):
+        #         alpha[j] = aarr[j]/n + barr[j]
+        #     if (k == len(n_arr)-1):
+        #         lbl = r'K+21, Eq.31, $\alpha(n)$'
+        #     else:
+        #         lbl = None
+        #     lit_dict['K21_alph_seric_n{:0.1f}'.format(n)] = {
+        #                           'rtoRe':  rtoRe,
+        #                           'alpha': alpha,
+        #                           'marker': '+',
+        #                           'color': color_arr[k],
+        #                           'label': lbl}
     ######################################
     # Setup plot:
     f = plt.figure()
@@ -2156,7 +2204,11 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
         ax = axes[i]
         ylim = ylims[i]
         if types[i] == 'alpha':
-            ax.plot(r_arr, 3.36*r_arr, ls='--', color='black', lw=lw, label='Self-grav')
+            if (i==0):
+                lblSG = 'Self-grav'
+            else:
+                lblSG = None
+            ax.plot(r_arr, 3.36*r_arr, ls='--', color='black', lw=lw, label=lblSG)
 
         ls = ls_arr[0]
         for k, n in enumerate(n_arr):
@@ -2168,10 +2220,44 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             if len(alpha_arr) != len(r_arr):
                 raise ValueError
 
-            ax.plot(r_arr, alpha_arr, ls=ls, color=color_arr[k], lw=lw, label=labels[k])
+            if (i==0):
+                lbln = labels[k]
+            else:
+                lbln = None
+
+            ax.plot(r_arr, alpha_arr, ls=ls, color=color_arr[k], lw=lw, label=lbln)
+
+            if show_literature & (k==len(n_arr)-1):
+                for key in lit_dict.keys():
+                    if (i==1):
+                        lbl = lit_dict[key]['label']
+                    else:
+                        lbl = None
+                    if 'ls' in lit_dict[key].keys():
+                        if types[i] == 'alpha':
+                            ax.plot(lit_dict[key]['rtoRe'], lit_dict[key]['alpha'],
+                                    ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
+                                    label=lbl)
+                        elif types[i] == 'alpha_by_sg':
+                            ax.plot(lit_dict[key]['rtoRe'],
+                                    lit_dict[key]['alpha']/(3.36*lit_dict[key]['rtoRe']),
+                                    ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
+                                    label=lbl)
+                    else:
+                        if types[i] == 'alpha':
+                            ax.scatter(lit_dict[key]['rtoRe'], lit_dict[key]['alpha'],
+                                    marker=lit_dict[key]['marker'], color=lit_dict[key]['color'],
+                                    label=lbl)
+                        elif types[i] == 'alpha_by_sg':
+                            ax.scatter(lit_dict[key]['rtoRe'],
+                                    lit_dict[key]['alpha']/(3.36*lit_dict[key]['rtoRe']),
+                                    marker=lit_dict[key]['marker'], color=lit_dict[key]['color'],
+                                    label=lbl)
+
 
         if types[i] == 'alpha_by_sg':
             ax.axhline(y=1., ls='--', color='black', zorder=-20.)
+
         ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
 
         ax.set_xlim(xlim)
@@ -2224,6 +2310,22 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             facecolor = 'white'
             legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
                 handletextpad=handletextpad, loc='upper left', frameon=frameon,
+                numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
+                fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
+                framealpha=framealpha)
+        if show_literature & (i==1):
+            frameon = False
+            framealpha = 1.
+            borderpad = 0.75
+            fontsize_leg_tmp = fontsize_leg
+            labelspacing= 0.2
+            handletextpad= 0.5
+            fancybox = False
+            edgecolor='None'
+            facecolor = 'white'
+            loc = (0.1,0.71)
+            legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
+                handletextpad=handletextpad, loc=loc, frameon=frameon,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                 fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
                 framealpha=framealpha)

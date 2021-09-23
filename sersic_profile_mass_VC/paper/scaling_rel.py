@@ -440,3 +440,9 @@ def _mass_progenitor_num_density(ln0, zarr, n_evol=None, cmf_source=None, kind_c
         lmass_arr = _interp_mass_from_papovich15_z(ln0, zarr)
 
     return lmass_arr
+
+
+def _kretschmer21_table1_alpha(rtoRe):
+    x = rtoRe - 1.
+    a, b, c = -0.146, 1.204, 1.475
+    return a * x**2 + b * x + c
