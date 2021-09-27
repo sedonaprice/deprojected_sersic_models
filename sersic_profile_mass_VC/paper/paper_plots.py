@@ -205,6 +205,7 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
                 save_dict_stack=True,
                 overwrite_dict_stack=False,
+                show_alpha_diskbulge=True, #False,
                 show_sigmar_toy=False)
 
 
@@ -2075,8 +2076,9 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]
         show_literature: bool, optional
             Whether to show inferred alpha values from some simulation literature work:
-                Wellons et al., 2020, MNRAS 497, 4051-4065;
-                Kretschmer et al., 2021, MNRAS 503, 5238-5253
+                Wellons et al., 2020, MNRAS, 497, 4051-4065;
+                Kretschmer et al., 2021, MNRAS, 503, 5238-5253;
+                Dalcanton & Stilp, 2010, ApJ, 721, 547
         fileout: str, optional
             Override the default filename and explicitly choose the output filename
             (must include full path).
@@ -2161,12 +2163,73 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
                               'marker': 'o',
                               'color': 'red',
                               'label': r'K+21, Fig.4, $\alpha_{\rho}$'}
-        rtoRe = np.arange(0.,5.1,0.1)
+        del_rtore = 0.01 # 0.1
+        rtoRe = np.arange(0.,5.+del_rtore,del_rtore)
         lit_dict['K21_table1'] = {'rtoRe': rtoRe,
                               'alpha': scaling_rel._kretschmer21_table1_alpha(rtoRe),
                               'ls': '--',
                               'color': 'red',
                               'label': r'K+21, Tab.1, gas/disk'}
+        #####
+        # Eq A.5, Bouche+21 // from Dalcanton & Stilp 2010, Eq 17
+        rtoRe = np.arange(0.,5.+del_rtore,del_rtore)
+        lit_dict['DS10_ISM_P'] = {'rtoRe': rtoRe,
+                              'alpha': scaling_rel._dalcanton_stilp10_alpha_n(rtoRe, 1.),
+                              'ls': '--',
+                              'color': 'orange',
+                              'label': r'D+S10, Eq.17 ($n=1$)'}
+                              #'label': r'D+S10, Eq.17, $\alpha(r)=1.5456(r/R_e)$'}
+        # #####
+        # # As in Eq A.4, Bouche+21 // Const thickness hz, const dispersion, for sersic Sigma(r)
+        # rtoRe = np.arange(0.,5.1,0.1)
+        # for k, n in enumerate(n_arr):
+        #     alpha = rtoRe*0.
+        #     alpha = scaling_rel._dalcanton_stilp10_alpha_n(rtoRe,n)
+        #     if (k == len(n_arr)-1):
+        #         lbl = r'D+S10, Eq.17, $n$'
+        #     else:
+        #         lbl = None
+        #     lit_dict['DS10_ISM_P_n{:0.1f}'.format(n)] = {
+        #                           'rtoRe':  rtoRe,
+        #                           'alpha': alpha,
+        #                           'ls': ':',
+        #                           'color': color_arr[k],
+        #                           'label': lbl}
+
+        # #####
+        # # As in Eq A.4, Bouche+21 // Const thickness hz, const dispersion, for sersic Sigma(r)
+        # rtoRe = np.arange(0.,5.1,0.1)
+        # for k, n in enumerate(n_arr):
+        #     alpha = rtoRe*0.
+        #     alpha = scaling_rel._consthz_sersic_Sigman_alpha(rtoRe,n)
+        #     if (k == len(n_arr)-1):
+        #         lbl = r'Const $h_z$, $\Sigma(n,r)$'
+        #     else:
+        #         lbl = None
+        #     lit_dict['Sigma_consthz_n{:0.1f}'.format(n)] = {
+        #                           'rtoRe':  rtoRe,
+        #                           'alpha': alpha,
+        #                           'ls': ':',
+        #                           'color': color_arr[k],
+        #                           'label': lbl}
+        # #####
+        # # SG disk, but for variable n Sersic Sigma(r)
+        # rtoRe = np.arange(0.,5.1,0.1)
+        # for k, n in enumerate(n_arr):
+        #     alpha = rtoRe*0.
+        #     alpha = scaling_rel._SG_Sersicn_alpha(rtoRe,n)
+        #     if (k == len(n_arr)-1):
+        #         lbl = r'S.G., $\Sigma(n,r)$'
+        #     else:
+        #         lbl = None
+        #     lit_dict['SG_n{:0.1f}'.format(n)] = {
+        #                           'rtoRe':  rtoRe,
+        #                           'alpha': alpha,
+        #                           'ls': '--',
+        #                           'color': color_arr[k],
+        #                           'label': lbl}
+
+        #################
         #####
         # rtoRe = np.array([0.5, 1., 2., 4.])
         # aarr = np.array([-1.54, -0.86, 0.98, 4.08])
@@ -2228,6 +2291,7 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             ax.plot(r_arr, alpha_arr, ls=ls, color=color_arr[k], lw=lw, label=lbln)
 
             if show_literature & (k==len(n_arr)-1):
+                zorder_lit = -10.
                 for key in lit_dict.keys():
                     if (i==1):
                         lbl = lit_dict[key]['label']
@@ -2237,22 +2301,22 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
                         if types[i] == 'alpha':
                             ax.plot(lit_dict[key]['rtoRe'], lit_dict[key]['alpha'],
                                     ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
-                                    label=lbl)
+                                    label=lbl, zorder=zorder_lit)
                         elif types[i] == 'alpha_by_sg':
                             ax.plot(lit_dict[key]['rtoRe'],
                                     lit_dict[key]['alpha']/(3.36*lit_dict[key]['rtoRe']),
                                     ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
-                                    label=lbl)
+                                    label=lbl, zorder=zorder_lit)
                     else:
                         if types[i] == 'alpha':
                             ax.scatter(lit_dict[key]['rtoRe'], lit_dict[key]['alpha'],
                                     marker=lit_dict[key]['marker'], color=lit_dict[key]['color'],
-                                    label=lbl)
+                                    label=lbl, zorder=zorder_lit)
                         elif types[i] == 'alpha_by_sg':
                             ax.scatter(lit_dict[key]['rtoRe'],
                                     lit_dict[key]['alpha']/(3.36*lit_dict[key]['rtoRe']),
                                     marker=lit_dict[key]['marker'], color=lit_dict[key]['color'],
-                                    label=lbl)
+                                    label=lbl, zorder=zorder_lit)
 
 
         if types[i] == 'alpha_by_sg':
@@ -2308,8 +2372,13 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             fancybox = False
             edgecolor='None'
             facecolor = 'white'
+            # loc = 'upper left'
+            # bbox_to_anchor = None
+            loc = 'upper left'
+            bbox_to_anchor = (0., 1.)
             legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
-                handletextpad=handletextpad, loc='upper left', frameon=frameon,
+                handletextpad=handletextpad, frameon=frameon,
+                loc=loc, bbox_to_anchor=bbox_to_anchor,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                 fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
                 framealpha=framealpha)
@@ -2323,9 +2392,12 @@ def plot_alpha_vs_r(fileout=None, output_path=None, table_path=None,
             fancybox = False
             edgecolor='None'
             facecolor = 'white'
-            loc = (0.1,0.71)
+            #loc = (0.1,0.71)
+            loc = 'upper left'
+            bbox_to_anchor = (0.075, 1.025) #(0.1, 1.01)
             legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
-                handletextpad=handletextpad, loc=loc, frameon=frameon,
+                handletextpad=handletextpad,frameon=frameon,
+                loc=loc, bbox_to_anchor=bbox_to_anchor,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                 fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
                 framealpha=framealpha)
@@ -2349,7 +2421,8 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
             q_arr=[1., 0.2],
             n_arr=[0.5, 1., 2., 4.],
             show_sigmar_toy=False,
-            show_sigmar_toy_nosig0=False):
+            show_sigmar_toy_nosig0=False,
+            show_literature=False):
     """
     Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected
     Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.
@@ -2456,6 +2529,19 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
 
     lw = 1.3
 
+    if show_literature:
+        lit_dict = {}
+        #####
+        # Eq A.5, Bouche+21 // from Dalcanton & Stilp 2010, Eq 17
+        #del_rtore = 0.01 # 0.1
+        #rtoRe = np.arange(0.,5.+del_rtore,del_rtore)
+        rtoRe = rarr
+        lit_dict['DS10_ISM_P'] = {'rtoRe': rtoRe,
+                              'alpha': scaling_rel._dalcanton_stilp10_alpha(rtoRe),
+                              'ls': '-.',
+                              'color': 'orange',
+                              'label': r'D+S10, Eq.17, $\alpha(r)=1.5456(r/R_e)$'}
+
     ######################################
     # Setup plot:
     f = plt.figure()
@@ -2508,6 +2594,11 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                             ax.plot(r_arr, r_arr*np.NaN, ls=(0, (5, 2, 1, 2, 1, 2, 1, 2)),
                                     color='black', lw=lw, label=lbl_alpha_sigmar_nosig0)
                         ax.plot(r_arr, r_arr*np.NaN, ls=':', color='black', lw=lw, label=lbl_SG)
+                        if show_literature:
+                            for key in lit_dict.keys():
+                                ax.plot(lit_dict[key]['rtoRe'], lit_dict[key]['rtoRe']*np.NaN,
+                                        ls=lit_dict[key]['ls'], color='black',
+                                        label=lit_dict[key]['label'])
 
                 if lbl_sig0 is not None:
                     ax.plot(r_arr, r_arr*np.NaN, ls='-', color=color_arr[k], lw=lw, label=lbl_sig0)
@@ -2525,6 +2616,13 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
                     ax.plot(r_arr, np.sqrt(vcirc**2-(alpha+alphasigr_nosig0)*(sigr_nosig0**2)),
                             ls=(0, (5, 2, 1, 2, 1, 2, 1, 2)), color=color_arr[k], lw=lw)
                 ax.plot(r_arr, np.sqrt(vcirc**2-3.36*r_arr*(sig0**2)), ls=':', color=color_arr[k], lw=lw)
+
+                if show_literature:
+                    for key in lit_dict.keys():
+                        ax.plot(lit_dict[key]['rtoRe'],
+                                np.sqrt(vcirc**2-lit_dict[key]['alpha']*(sig0**2)),
+                                ls=lit_dict[key]['ls'], color=color_arr[k])
+
 
             #ax.axvline(x=1.3, ls=':', color='lightgrey', zorder=-20.)
 
@@ -2620,8 +2718,9 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
             save_dict_stack=True,
             overwrite_dict_stack=False,
             debug_alpha_rho=False,
-            show_alpha_diskbulge=False,
+            show_alpha_diskbulge=True,
             show_sigmar_toy=False,
+            show_literature=False,
             scale=3.):
     """
     Plot example applying asymmetric drift of different kinds to vcirc curves
@@ -2711,7 +2810,8 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
 
 
 
-    lw_comp =  0.75
+    lw_comp =  1. #0.75
+    lw_comp_alpha = 0.75
     lw_tot =  1.5
     lws = [lw_comp, lw_comp, lw_comp, lw_comp, lw_comp, lw_tot]
     colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple', 'orange', 'black']
@@ -2726,7 +2826,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         types = ['alphan_disk', 'alphan_bulge', 'alphan', 'SG']
         ls_arr = ['--', '--', '--', ':']
         color_arr = ['tab:blue', 'tab:red', 'black', 'black']
-        lw_arr = [lw_comp, lw_comp, lw_tot, lw_tot]
+        lw_arr = [lw_comp_alpha, lw_comp_alpha, lw_tot, lw_tot]
         labels = [None, None, r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{tot}}$',
                   r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
     else:
@@ -2737,6 +2837,17 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
         labels = [r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{tot}}$',
                     r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{self-grav}}$']
 
+    if show_literature:
+        lit_dict = {}
+        #####
+        # Eq A.5, Bouche+21 // from Dalcanton & Stilp 2010, Eq 17
+        #del_rtore = 0.01 # 0.1
+        #rtoRe = np.arange(0.,5.+del_rtore,del_rtore)
+        lit_dict['DS10_ISM_P'] = {'alpha_func': scaling_rel._dalcanton_stilp10_alpha,
+                              'ls': '-.',
+                              'color': 'black',
+                              'label': r'$v_{\mathrm{rot}},\ \alpha_{\mathrm{D+S10}}$'}
+                              #r'D+S10, Eq.17, $\alpha(r)=1.5456(r/R_e)$'}
 
     ######################################
     # Setup plot:
@@ -2970,6 +3081,16 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
                 ax4.plot(dict_stack[k]['r_arr'], dict_stack[k]['rho_bulge']/rhotot,
                                 ls='--', lw=lwalpha, color='tab:red')
 
+
+            if show_literature:
+                rtoRe = dict_stack[k]['r_arr']/dict_stack[k]['Reff_disk']
+                for key in lit_dict.keys():
+                    alph_lit = lit_dict[key]['alpha_func'](rtoRe)
+                    ax.plot(dict_stack[k]['r_arr'],
+                       np.sqrt(dict_stack[k]['vcirc_tot']**2-alph_lit*(dict_stack[k]['sigma0']**2)),
+                       ls=lit_dict[key]['ls'],
+                       color=lit_dict[key]['color'], lw=lw_arr[0], label=lit_dict[key]['label'],
+                       zorder=-1.)
 
             ######################
             if ylim is None:

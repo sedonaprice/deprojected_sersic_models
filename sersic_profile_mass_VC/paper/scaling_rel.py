@@ -10,6 +10,8 @@ import scipy.special as scp_spec
 import scipy.interpolate as scp_interp
 import astropy.cosmology as apy_cosmo
 
+from sersic_profile_mass_VC.utils.calcs import bn_func
+
 import logging
 
 # LOGGER SETTINGS
@@ -446,3 +448,16 @@ def _kretschmer21_table1_alpha(rtoRe):
     x = rtoRe - 1.
     a, b, c = -0.146, 1.204, 1.475
     return a * x**2 + b * x + c
+
+
+def _dalcanton_stilp10_alpha_n(rtoRe, n):
+    # 0.92 * 1.68 convertion from rd to Re ## ONLY EXP
+    #return 1.5456 * rtoRe
+    # GENERAL Sersic n
+    return 0.92 * (bn_func(n)/n) * np.power(rtoRe, 1./n)
+
+def _consthz_sersic_Sigman_alpha(rtoRe, n):
+    return (bn_func(n)/n) * np.power(rtoRe, 1./n)
+
+def _SG_Sersicn_alpha(rtoRe, n):
+    return 2.*(bn_func(n)/n) * np.power(rtoRe, 1./n)
