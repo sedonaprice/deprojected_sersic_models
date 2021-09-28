@@ -46,6 +46,7 @@ cmap_mass = cm.OrRd
 cmap_q = cm.magma_r
 cmap_n = cm.viridis_r
 cmapg = cm.Greys
+cmap_bt = cm.copper #cm.plasma
 
 _dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
 
@@ -200,12 +201,19 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 q_arr=[1., 0.2],
                 n_arr=[0.5, 1., 2., 4.])
 
-    # Figure 9:
+
+    # Figure 9: ?? NEW
+    plot_composite_alpha_vs_r(output_path=output_path, table_path=table_path,
+                nDisk=1., nBulge=4.,
+                bt_arr=[0.,0.25,0.5,0.75,1.],
+                reB_to_reD_arr=[0.2, 0.5, 1.])
+
+    # Figure 9: ?? ORIG
     plot_toy_AD_apply_z_lmstar(output_path=output_path, table_path=table_path,
                 n_disk=1., Reff_bulge=1., n_bulge=4., invq_bulge=1.,
                 save_dict_stack=True,
                 overwrite_dict_stack=False,
-                show_alpha_diskbulge=True, #False,
+                show_alpha_diskbulge=True,
                 show_sigmar_toy=False)
 
 
@@ -2424,7 +2432,7 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
             show_sigmar_toy_nosig0=False,
             show_literature=False):
     """
-    Plot asymmetric drift using alpha=-dlnrho_g/dlnr derived for deprojected
+    Plot pressure support using alpha=-dlnrho_g/dlnr derived for deprojected
     Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.
     Compare to self-gravitating exponential disk case (eg Burkert+10).
 
@@ -2708,6 +2716,284 @@ def plot_AD_sersic_potential_alpha_vs_r(fileout=None, output_path=None, table_pa
     return None
 
 
+
+# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+# Figure 9 Alternative??
+
+def plot_composite_alpha_vs_r(fileout=None, output_path=None, table_path=None,
+            nDisk=1., nBulge=4.,
+            bt_arr=[0.,0.25,0.5,0.75,1.],
+            reB_to_reD_arr=[0.2, 0.5, 1.]):
+            #[0.1, 0.2, 0.3, 0.5, 1.]):
+    """
+    Plot composite alpha for a range of B/T ratios and Rebulge/Redisk.
+
+    Saves plot to PDF.
+
+    Parameters
+    ----------
+        output_path: str
+            Path to directory where the output plot will be saved.
+        table_path: str
+            Path to directory containing the Sersic profile tables.
+
+        bt_arr: array_like, optional
+            Range of B/T ratios to plot. Default: bt_arr=[0.,0.25,0.5,0.75,1.]
+        reB_to_reD_arr: array_like, optional
+            Range of Re,bulge/Re,disk ratios to plot. Default: reB_to_reD_arr=[0.2, 0.5, 1.]
+        nDisk: float, optional
+            Sersic index of disk. Default: nDisk = 1.
+        nBulge: float, optional
+            Sersic index of bulge. Default: nBulge = 4.
+
+        fileout: str, optional
+            Override the default filename and explicitly choose the output filename
+            (must include full path).
+
+    """
+    if (output_path is None) & (fileout is None):
+        raise ValueError("Must set 'output_path' if 'fileout' is not set !")
+    if table_path is None:
+        raise ValueError("Must set 'table_path' !")
+
+    if (fileout is None):
+        # Ensure trailing slash:
+        if output_path[-1] != '/':  output_path += '/'
+        fileout = output_path+'alpha_composite_vs_r_BT_RebulgeRedisk.pdf'
+
+    ####################
+    bt_arr = np.array(bt_arr)
+    reB_to_reD_arr = np.array(reB_to_reD_arr)
+
+    color_arr, labels_bt = ([] for _ in range(2))
+
+    btextra = 0. #-0.2
+    btrange = 1.
+    for bt in bt_arr:
+        color_arr.append(cmap_bt((bt+btextra)/(btrange+btextra)))
+        if bt % 1. == 0:
+            labels_bt.append(r'$B/T={:0.0f}$'.format(bt))
+        elif 10.*bt % 1. == 0:
+            labels_bt.append(r'$B/T={:0.1f}$'.format(bt))
+        else:
+            labels_bt.append(r'$B/T={:0.2f}$'.format(bt))
+
+    ls_arr, dashes_arr, lw_arr, labels_reratio = ([] for _ in range(4))
+    dashlen = [5, 10, 20]
+    if len(reB_to_reD_arr) > 5:
+        dashlen = np.arange(5,(len(reB_to_reD_arr)-1)*5, 5)
+    elif len(reB_to_reD_arr) < 5:
+        dashlen = dashlen[:len(reB_to_reD_arr)-2]
+    dashlen = dashlen[::-1]  # reverse
+    for i, reBtoreD in enumerate(reB_to_reD_arr):
+        if i == 0:
+            lw_arr.append(1.3)
+            ls_arr.append('-')
+            dashes_arr.append(None)
+        elif i == len(reB_to_reD_arr)-1:
+            lw_arr.append(1.)
+            ls_arr.append(':')
+            dashes_arr.append(None)
+        else:
+            lw_arr.append(1.)
+            ls_arr.append('--')
+            dashes_arr.append((dashlen[i-1], 5))
+        lblstr = r'$R_{e,\mathrm{B}}/R_{e,\mathrm{D}}='
+        if reBtoreD % 1. == 0:
+            lblstr += '{:0.0f}$'.format(reBtoreD)
+        elif 10.*reBtoreD % 1. == 0:
+            lblstr += '{:0.1f}$'.format(reBtoreD)
+        else:
+            lblstr += r'{:0.2f}$'.format(reBtoreD)
+        labels_reratio.append(lblstr)
+
+    q_arr = [1.]
+
+    delr = 0.01 #0.1
+    xlim = [0., 5.] #]0., 10.]
+    rtoRed_arr = np.arange(xlim[0], xlim[1]+delr, delr)
+    Redisk = 1.  # placeholder
+    r_arr = rtoRed_arr * Redisk
+
+
+    # Get values:
+    try:
+        # read fits tables, construct ks dict.....
+        ks_dict = {}
+
+        invq_disk = invq_bulge = 1.
+        total_mass = 1.e11
+
+        for k, bt in enumerate(bt_arr):
+            ks_dict['bt={}'.format(bt)] = {}
+            for j, reBtoreD in enumerate(reB_to_reD_arr):
+                alphan = -1. * interp_profiles.interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=r_arr,
+                        BT=bt,  total_mass=total_mass,
+                        Reff_disk=Redisk, n_disk=nDisk, invq_disk=invq_disk,
+                        Reff_bulge=reBtoreD*Redisk,  n_bulge=nBulge, invq_bulge=invq_bulge,
+                        path=table_path)
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)] = {}
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['alpha'] = alphan
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['color'] = color_arr[k]
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['ls'] = ls_arr[j]
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['lw'] = lw_arr[j]
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['dashes'] = dashes_arr[j]
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['label_bt'] = labels_bt[k]
+                ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['label_reratio'] = labels_reratio[j]
+
+    except:
+        ks_dict = None
+
+    xlabel = r'$r/R_{e,\mathrm{disk}}$'
+    ylabels = [r'$\alpha_{\mathrm{tot,\ D+B}}(r)$']
+    ylims = [[0., 10.]]
+    titles = [None]
+    lw = 1.3
+
+
+    ######################################
+    # Setup plot:
+    f = plt.figure()
+    scale = 4. #4.25
+    n_cols = 1
+    f.set_size_inches(scale*n_cols,scale) #1.15*scale*n_cols,scale)
+
+    pad_outer = 0.2
+    gs = gridspec.GridSpec(1, n_cols, wspace=pad_outer)
+    axes = []
+    for i in range(n_cols):
+        axes.append(plt.subplot(gs[0,i]))
+
+
+    for i in range(n_cols):
+        ax = axes[i]
+        ylim = ylims[i]
+
+        lblSG = 'Self-grav'
+        ax.plot(r_arr/Redisk, 3.36*(r_arr/Redisk), ls='--', color='black', lw=1., label=lblSG, zorder=-15.)
+
+        for j, reBtoreD in enumerate(reB_to_reD_arr):
+            for k, bt in enumerate(bt_arr):
+                alpha_arr = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['alpha']
+                color = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['color']
+                ls = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['ls']
+                lw = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['lw']
+                dashes = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['dashes']
+
+                if len(alpha_arr) != len(r_arr):
+                    raise ValueError
+
+                if (i==0) & (j==0):
+                    lbl = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['label_bt']
+                else:
+                    lbl = None
+
+                if dashes is not None:
+                    ax.plot(r_arr/Redisk, alpha_arr, ls=ls, color=color, dashes=dashes, lw=lw, label=lbl,
+                            zorder=len(reB_to_reD_arr)-j)
+                    ax.axvline(x=reBtoreD, ls=ls, lw=1., dashes=dashes, color='lightgrey', zorder=-20.)
+                else:
+                    ax.plot(r_arr/Redisk, alpha_arr, ls=ls, color=color, lw=lw, label=lbl,
+                            zorder=len(reB_to_reD_arr)-j)
+                    ax.axvline(x=reBtoreD, ls=ls, lw=1., color='lightgrey', zorder=-20.)
+
+                # Phandom plots for legend:
+                if (i==0) & (k==len(bt_arr)-1):
+                    indbt_color = 0
+                    color = ks_dict['bt={}'.format(bt_arr[indbt_color])]['reBtoreD={}'.format(reBtoreD)]['color']
+                    lbl = ks_dict['bt={}'.format(bt)]['reBtoreD={}'.format(reBtoreD)]['label_reratio']
+                    if dashes is not None:
+                        ax.plot(r_arr/Redisk, r_arr*np.NaN, ls=ls, color=color,
+                                dashes=dashes, lw=lw, label=lbl)
+                    else:
+                        ax.plot(r_arr/Redisk, r_arr*np.NaN, ls=ls, color=color, lw=lw, label=lbl)
+
+
+                ax.axvline(x=1., ls=':', color='lightgrey', zorder=-20.)
+
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
+        ax.set_xlabel(xlabel, fontsize=fontsize_labels)
+        ax.set_ylabel(ylabels[i], fontsize=fontsize_labels)
+        ax.tick_params(labelsize=fontsize_ticks)
+
+
+        ax.xaxis.set_minor_locator(MultipleLocator(0.2))
+        ax.xaxis.set_major_locator(MultipleLocator(1.0))
+
+        if (ylim[1]-ylim[0]) > 9:
+            ax.yaxis.set_minor_locator(MultipleLocator(0.5))
+            ax.yaxis.set_major_locator(MultipleLocator(2.))
+        elif (ylim[1]-ylim[0]) > 3:
+            ax.yaxis.set_minor_locator(MultipleLocator(0.2))
+            ax.yaxis.set_major_locator(MultipleLocator(1.))
+        elif (ylim[1]-ylim[0]) > 1:
+            ax.yaxis.set_minor_locator(MultipleLocator(0.1))
+            ax.yaxis.set_major_locator(MultipleLocator(0.5))
+        else:
+            ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+            ax.yaxis.set_major_locator(MultipleLocator(0.1))
+
+        if i == 0:
+            frameon = True
+            framealpha = 1.
+            borderpad = 0.75
+            fontsize_leg_tmp = fontsize_leg
+            labelspacing= 0.2
+            handletextpad= 0.5
+            fancybox = False
+            edgecolor='None'
+            facecolor = 'white'
+
+            # Split into two legends:
+            len_ax1 = len(bt_arr)+1 # len(bt_arr)
+            handles, labels_leg = ax.get_legend_handles_labels()
+            neworder = range(len_ax1)
+            handles_arr, labels_arr = ([] for _ in range(2))
+            for i in neworder:
+                handles_arr.append(handles[i])
+                labels_arr.append(labels_leg[i])
+
+            neworder2 = range(len_ax1, len(handles))
+            handles_arr2, labels_arr2 = ([] for _ in range(2))
+            for i in neworder2:
+                handles_arr2.append(handles[i])
+                labels_arr2.append(labels_leg[i])
+
+            loc1 = 'upper left'
+            bbox_to_anchor1 = (0.2, 1.) #(0., 1.)
+            legend1 = ax.legend(handles_arr, labels_arr,
+                labelspacing=labelspacing, borderpad=borderpad,
+                handletextpad=handletextpad, frameon=frameon,
+                loc=loc1, bbox_to_anchor=bbox_to_anchor1,
+                numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
+                fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
+                framealpha=framealpha)
+
+            loc2 = 'lower right'
+            bbox_to_anchor2 = (1., 0.)
+            handlelength = 5.
+            frameon = False
+            legend2 = ax.legend(handles_arr2, labels_arr2,
+                labelspacing=labelspacing, borderpad=borderpad,
+                handletextpad=handletextpad, frameon=frameon, handlelength=handlelength,
+                loc=loc2, bbox_to_anchor=bbox_to_anchor2,
+                numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
+                fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
+                framealpha=framealpha)
+            ax.add_artist(legend1)
+            ax.add_artist(legend2)
+
+
+    if fileout is not None:
+        plt.savefig(fileout, bbox_inches='tight', dpi=600)
+        plt.close()
+    else:
+        plt.show()
+
+    return None
+
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
 # Figure 9
@@ -2723,7 +3009,7 @@ def plot_toy_AD_apply_z_lmstar(lmstar_arr = None, z_arr=None,
             show_literature=False,
             scale=3.):
     """
-    Plot example applying asymmetric drift of different kinds to vcirc curves
+    Plot example applying pressure support of different kinds to vcirc curves
     to yield predicted vrot curves.
 
     Saves plot to PDF.
@@ -3869,6 +4155,8 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     mpl.rcParams['text.usetex'] = False
 
     return None
+
+
 
 
 
