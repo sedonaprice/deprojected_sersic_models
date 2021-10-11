@@ -41,11 +41,11 @@ After the installation is complete, you should be able to access the module by r
 
 .. _clone_repo:
 
-Development Repository
-----------------------
+Code Repository
+---------------
 
 The most up-to-date version of the code can be obtained
-by cloning the repository on GitHub. 
+by cloning the repository on GitHub.
 From within the target code location directory, run:
 
  .. code-block:: console

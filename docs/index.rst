@@ -3,13 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-======================
-sersic_profile_mass_VC
-======================
+==========================================
+Introduction to ``sersic_profile_mass_VC``
+==========================================
 
 
-The `sersic_profile_mass_VC` package contains code to calculate various profiles
+The ``sersic_profile_mass_VC`` package contains code to calculate various profiles
 for deprojected, flattened (and also elongated) Sersic mass distributions.
+These calculations follow and extend the derivation of rotation curves for flattened Sersic profiles
+presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
+
+.. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
 
 As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.
@@ -17,6 +21,13 @@ reload pre-computed profiles from tables and interpolate as needed.
 Tables for a wide range of Sersic index :math:`n` and intrinsic axis ratio :math:`q`
 are available for download.
 
+Full details about the calculations in this
+package and in the precomputed tables are given in `Price et al., in prep, 2021`_.
+
+.. _Price et al., in prep, 2021: tofix
+
+
+.. _quick_start:
 
 Quickstart
 ==========
@@ -28,6 +39,8 @@ Quickstart
     import numpy as np
     import matplotlib.pyplot as plt
     import sersic_profile_mass_VC as spm
+
+    # Environment variable containing path to location of pre-computed tables
     table_dir = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR')
 
     # Sersic profile properties
@@ -54,12 +67,21 @@ Quickstart
     plt.show()
 
 
+
+
+.. toctree::
+   :hidden:
+
+   self
+
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents
 
    installation.rst
    table_downloads.rst
+   acknowledgement.rst
    api.rst
 
 .. toctree::
