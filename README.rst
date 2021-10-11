@@ -61,6 +61,16 @@ Dependencies
 * dill
 
 
+Acknowledgement
+###############
+If you use this package or the precomputed profile tables in a publication,
+please cite Price et al., 2021, in prep (`ADS`_ | `arXiv`_).
+
+.. _ADS: LINK_TO_ADS
+.. _arXiv: LINK_TO_ARXIV
+
+
+
 License
 ###########
 This project is Copyright (c) Sedona Price / MPE IR/Submm Group and licensed
