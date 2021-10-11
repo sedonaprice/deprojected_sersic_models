@@ -240,7 +240,7 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
         menc_interp = m_interp(rarr / Reff * table_Reff) * scale_fac
 
     else:
-        raise ValueError
+        raise ValueError("interp type '{}' unknown!".format(interp_type))
 
     if (len(rarr) > 1):
         return menc_interp
@@ -337,7 +337,7 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
                                        bounds_error=False, kind='linear')
         vcirc_interp = (v_interp(rarr  / Reff * table_Reff) * scale_fac )
     else:
-        raise ValueError
+        raise ValueError("interp type '{}' unknown!".format(interp_type))
 
     if (len(rarr) > 1):
         return vcirc_interp
@@ -444,7 +444,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
         rho_interp =     (r_interp(rarr / Reff * table_Reff) * scale_fac )
 
     else:
-        raise ValueError
+        raise ValueError("interp type '{}' unknown!".format(interp_type))
 
     # Back replace inf, if interpolating at r=0 for n>1:
     if (n > 1.) & (table['r'][0] == 0.):
@@ -551,7 +551,7 @@ def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
         dlnrho_dlnr_interp =     (r_interp(rarr / Reff * table_Reff) )
 
     else:
-        raise ValueError
+        raise ValueError("interp type '{}' unknown!".format(interp_type))
 
     if (len(rarr) > 1):
         return dlnrho_dlnr_interp
