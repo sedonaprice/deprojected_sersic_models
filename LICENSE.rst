@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2018-2021, Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group.
+Copyright (c) 2018-2021, Sedona Price <sedona.price@gmail.com> / MPE IR/Sub-mm Group.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
