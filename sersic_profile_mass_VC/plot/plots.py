@@ -8,8 +8,6 @@
 import os
 import copy
 
-import dill as pickle
-
 import numpy as np
 from astropy.table import Table, Row
 
