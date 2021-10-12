@@ -12,7 +12,7 @@ From Source
 
 ``sersic_profile_mass_VC`` can be installed from source.
 Before installing the package, you will need to install python (v3)
-and the dependent packages.
+and the dependent packages (`numpy`, `scipy`, `matplotlib`, `astropy`, `dill`).
 
 .. tip::
     To handle dependencies (including possible clashes with other packages),
