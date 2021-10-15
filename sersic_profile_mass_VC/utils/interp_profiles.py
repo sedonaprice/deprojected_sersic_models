@@ -29,7 +29,7 @@ __all__ = [ 'interpolate_entire_table',
             'interpolate_sersic_profile_menc_nearest', 'interpolate_sersic_profile_VC_nearest',
             'interpolate_sersic_profile_rho_nearest',
             'interpolate_sersic_profile_dlnrho_dlnr_nearest',
-            'interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest',
+            'interpolate_sersic_profile_dlnrho_dlnr_two_component_nearest',
             'nearest_n_invq']
 
 
@@ -887,41 +887,43 @@ def interpolate_sersic_profile_dlnrho_dlnr_nearest(r=None, Reff=None, n=1., invq
 
 
 
-def interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=None,
-        BT=0.,  total_mass=1.e11,
-        Reff_disk=None, n_disk=1., invq_disk=5.,
-        Reff_bulge=1.,  n_bulge=4., invq_bulge=1.,
+def interpolate_sersic_profile_dlnrho_dlnr_two_component_nearest(r=None,
+        mass_comp1=1.e11, mass_comp2=0.,
+        Reff_comp1=None, n_comp1=1., invq_comp1=5.,
+        Reff_comp2=1.,   n_comp2=4., invq_comp2=1.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate dlnrho_g/dlnr at arbitrary radii r,
-    for a composite DISK+BULGE system. Both disk and bulge can have arbitary Reff,
+    Interpolate dlnrho_g/dlnr at arbitrary radii r, for a composite system.
+    Both comp1 and comp2 (e.g., disk and bulge) can have arbitary Reff,
     but this uses the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
     Finds the nearest n, invq for the "default" table collection,
-    then returns `dlnrho_dlnr_interp_nearest()` for the total DISK+BULGE system.
+    then returns `dlnrho_dlnr_interp_nearest()` for the total system.
 
     Parameters
     ----------
         r: float or array_like
             Radius at which to interpolate profile [kpc]
-        total_mass: float
-            Total mass of the component [Msun]    [Default: 10^11 Msun]
-        BT: float
-            Bulge to total ratio (Total = Disk + Bulge)  [Default: 0.]
-        Reff_disk: float
-            Effective radius of disk Sersic profile [kpc]
-        n_disk: float
-            Sersic index of disk.
-        invq_disk: float
-            Inverse of the intrinsic axis ratio of disk Sersic profile, invq = 1/q.
-        Reff_bulge: float
-            Effective radius of bulge Sersic profile [kpc]
-        n_bulge: float
-            Sersic index of bulge. [Default: 4]
-        invq_bulge: float
-            Inverse of the intrinsic axis ratio of bulge Sersic profile, invq = 1/q.
+
+        mass_comp1: float
+            Total mass of the first component [Msun]    [Default: 10^11 Msun]
+        Reff_comp1: float
+            Effective radius of the first component Sersic profile [kpc]
+        n_comp1: float
+            Sersic index of the first component.  [Default: 1.]
+        invq_comp1: float
+            Inverse of the intrinsic axis ratio of the first component Sersic profile, invq = 1/q.
+            [Default: 5.]
+        mass_comp2: float
+            Total mass of the second component [Msun]    [Default: 0 Msun]
+        Reff_comp2: float
+            Effective radius of the second component Sersic profile [kpc]. [Default: 1 kpc]
+        n_comp2: float
+            Sersic index of the second component. [Default: 4]
+        invq_comp2: float
+            Inverse of the intrinsic axis ratio of the second component Sersic profile, invq = 1/q.
             [Default: 1.]
 
         path: str, optional
@@ -945,14 +947,11 @@ def interpolate_sersic_profile_dlnrho_dlnr_bulge_disk_nearest(r=None,
 
     """
 
-    Mbulge = total_mass * BT
-    Mdisk = total_mass * (1.-BT)
-
     # Use the "typical" collection of table values:
     rho_t = r * 0.
     rho_dlnrho_dlnr_sum = r * 0.
-    for n, invq, Reff, M in zip([n_disk, n_bulge], [invq_disk, invq_bulge],
-            [Reff_disk, Reff_bulge], [Mdisk, Mbulge]):
+    for n, invq, Reff, M in zip([n_comp1, n_comp2], [invq_comp1, invq_comp2],
+            [Reff_comp1, Reff_comp2], [mass_comp1, mass_comp2]):
         nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
         dlnrho_dlnr_interp_nearest = interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff,
