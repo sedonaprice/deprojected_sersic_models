@@ -49,17 +49,17 @@ def check_for_inf(table=None):
 
     keys = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr']
 
-    for i, r in enumerate(table['r']):
+    for i, R in enumerate(table['R']):
         for key in keys:
             if not np.isfinite(table[key][i]):
-                # Check special case: dlnrho_dlnr -- Leibniz uses r/rho*drho/dr, so ignore NaN if rho=0.
-                if (key == 'dlnrho_dlnr'):
+                # Check special case: dlnrho_dlnR -- Leibniz uses r/rho*drho/dr, so ignore NaN if rho=0.
+                if (key == 'dlnrho_dlnR'):
                     if (table['rho'][i] == 0.):
                         pass
                     else:
                         status += 1
                 elif (key == 'rho'):
-                    if (r == 0.):
+                    if (R == 0.):
                         pass
                     else:
                         status += 1
@@ -74,18 +74,18 @@ def check_for_inf(table=None):
 # Calculation helper functions: General for mass distributions
 
 
-def vcirc_spherical_symmetry(r=None, menc=None):
+def vcirc_spherical_symmetry(R=None, menc=None):
     """
     Determine vcirc for a spherically symmetric mass distribution:
 
     .. math::
 
-        v_{\mathrm{circ}}(r) = \sqrt{\\frac{G M_{\mathrm{enc}}(r)}{r}}
+        v_{\mathrm{circ}}(R) = \sqrt{\\frac{G M_{\mathrm{enc}}(<r=R)}{R}}
 
     Parameters
     ----------
-        r: float or array_like
-            Radi[us/i] at which to calculate the circular velocity [kpc]
+        R: float or array_like
+            Projected major axis radi[us/i] at which to calculate the circular velocity [kpc]
         menc: float or array_like
             Enclosed mass at the given radii  [Msun]
 
@@ -95,32 +95,32 @@ def vcirc_spherical_symmetry(r=None, menc=None):
             Circular velocity as a function of radius  [km/s]
 
     """
-    vcirc = np.sqrt(G.cgs.value * menc * Msun.cgs.value / (r * 1000. * pc.cgs.value)) / 1.e5
+    vcirc = np.sqrt(G.cgs.value * menc * Msun.cgs.value / (R * 1000. * pc.cgs.value)) / 1.e5
 
     # -------------------------
     # Test for 0:
     try:
-        if len(r) >= 1:
-            vcirc[np.array(r) == 0.] = 0.
+        if len(R) >= 1:
+            vcirc[np.array(R) == 0.] = 0.
     except:
-        if r == 0.:
+        if R == 0.:
             vcirc = 0.
     # -------------------------
 
     return vcirc
 
-def menc_spherical_symmetry(r=None, vcirc=None):
+def menc_spherical_symmetry(R=None, vcirc=None):
     """
     Determine Menc for a spherically symmetric mass distribution, given vcirc:
-        Menc(r) = vcirc(r)^2 * r / G
+        Menc(<r=R) = vcirc(R)^2 * R / G
 
     .. math::
 
-        M_{\mathrm{enc}}(r) = \\frac{v_{\mathrm{circ}}(r)^2 r}{G}
+        M_{\mathrm{enc}}(<r=R) = \\frac{v_{\mathrm{circ}}(R)^2 R}{G}
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radi[us/i] at which to calculate the enclosed mass [kpc]
         vcirc: float or array_like
             Circular velocity at the given radii  [km/s]
@@ -131,26 +131,26 @@ def menc_spherical_symmetry(r=None, vcirc=None):
             Enclosed mass as a function of radius  [Msun]
 
     """
-    menc = ((vcirc*1.e5)**2.*(r*1000.*pc.cgs.value) / (G.cgs.value * Msun.cgs.value))
+    menc = ((vcirc*1.e5)**2.*(R*1000.*pc.cgs.value) / (G.cgs.value * Msun.cgs.value))
     return menc
 
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 
-def virial_coeff_tot(r, total_mass=1., vc=None):
+def virial_coeff_tot(R, total_mass=1., vc=None):
     """
     Evalutation of the "total" virial coefficient ktot, which satisfies
 
     .. math::
 
-        M_{\mathrm{tot}} = k_{\mathrm{tot}}(r) \\frac{v_{\mathrm{circ}}(r)^2 r}{ G },
+        M_{\mathrm{tot}} = k_{\mathrm{tot}}(R) \\frac{v_{\mathrm{circ}}(R)^2 R}{ G },
 
     to convert between the circular velocity at any given radius and the total system mass.
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Major axis radius at which to evaluate virial coefficient [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -161,7 +161,7 @@ def virial_coeff_tot(r, total_mass=1., vc=None):
     Returns
     -------
         ktot: float or array_like
-            ktot = Mtot * G / (vcirc(r)^2 * r)
+            ktot = Mtot * G / (vcirc(R)^2 * R)
 
     """
 
@@ -169,25 +169,25 @@ def virial_coeff_tot(r, total_mass=1., vc=None):
     # units: Mass: msun
     #        r:    kpc
     #        v:    km/s
-    ktot = (total_mass * Msun.cgs.value) * G.cgs.value / (( r*1.e3*pc.cgs.value ) * (vc*1.e5)**2)
+    ktot = (total_mass * Msun.cgs.value) * G.cgs.value / (( R*1.e3*pc.cgs.value ) * (vc*1.e5)**2)
 
     return ktot
 
 
-def virial_coeff_3D(r, m3D=None, vc=None):
+def virial_coeff_3D(R, m3D=None, vc=None):
     """
     Evalutation of the "total" virial coefficient ktot, which satisfies
 
     .. math::
 
-        M_{\mathrm{3D,sphere}} = k_{\mathrm{3D}}(r) \\frac{v_{\mathrm{circ}}(r)^2 r}{ G },
+        M_{\mathrm{3D,sphere}} = k_{\mathrm{3D}}(R) \\frac{v_{\mathrm{circ}}(R)^2 R}{ G },
 
     to convert between the circular velocity at any given radius
-    and the mass enclosed within a sphere of radius r.
+    and the mass enclosed within a sphere of radius r=R.
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Major axis radius at which to evaluate virial coefficient [kpc]
         m3D: float or array_like
             Pre-calculated evaluation of Menc3D_sphere(r)
@@ -199,17 +199,17 @@ def virial_coeff_3D(r, m3D=None, vc=None):
     Returns
     -------
         k3D: float or array_like
-            k3D = Menc3D_sphere(r) * G / (vcirc(r)^2 * r)
+            k3D = Menc3D_sphere(<r=R) * G / (vcirc(R)^2 * R)
 
     """
-    k3D = (m3D * Msun.cgs.value) * G.cgs.value / (( r*1.e3*pc.cgs.value ) * (vc*1.e5)**2)
+    k3D = (m3D * Msun.cgs.value) * G.cgs.value / (( R*1.e3*pc.cgs.value ) * (vc*1.e5)**2)
 
     return k3D
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 
-def find_rhalf3D_sphere(r=None, menc3D_sph=None, total_mass=None):
+def find_rhalf3D_sphere(R=None, menc3D_sph=None, total_mass=None):
     """
     Evalutation of the radius corresponding to the sphere that
     encloses half of the total mass for a Sersic profile of a given
@@ -218,14 +218,14 @@ def find_rhalf3D_sphere(r=None, menc3D_sph=None, total_mass=None):
     This is a utility function, where the Menc3D_sphere must have been pre-calculated.
 
     Performs an interpolation to find the appropriate rhalf_sph,
-    given arrays r and menc3D_sph.
+    given arrays R and menc3D_sph.
 
     Parameters
     ----------
-        r: array_like
+        R: array_like
             Radii at which menc3D_sph is evaluated [kpc]
         menc3D_sph: array_like
-            Mass enclosed within a sphere (evaluated over the radii in r) [Msun]
+            Mass enclosed within a sphere (evaluated over the radii in R) [Msun]
         total_mass: float
             Total mass of the component [Msun]
 
@@ -236,7 +236,7 @@ def find_rhalf3D_sphere(r=None, menc3D_sph=None, total_mass=None):
 
     """
 
-    r_interp = scp_interp.interp1d(menc3D_sph, r, fill_value=np.NaN, bounds_error=False, kind='slinear')
+    r_interp = scp_interp.interp1d(menc3D_sph, R, fill_value=np.NaN, bounds_error=False, kind='slinear')
     rhalf_sph = r_interp( 0.5 * total_mass )
     # Coerce it into returning a constant:
     return np.float(rhalf_sph)
@@ -1150,16 +1150,16 @@ def dlnrhom_dlnm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., 
 
 
 
-def force_r_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
+def force_R_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
     """
-    Integrand :math:`\frac{\rho(m)r}{(\tau+1)^2 \sqrt{tau+q^2}}`
-    as part of numerical integration to find :math:`g_r(r,z)`
+    Integrand :math:`\frac{\rho(m)R}{(\tau+1)^2 \sqrt{tau+q^2}}`
+    as part of numerical integration to find :math:`g_R(R,z)`
 
     Parameters
     ----------
         tau: float
             independent variable
-        r: float
+        R: float
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
@@ -1181,24 +1181,24 @@ def force_r_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
         integrand: float
 
     """
-    m = np.sqrt(r**2/(tau+1.) + z**2/(tau+q**2))
+    m = np.sqrt(R**2/(tau+1.) + z**2/(tau+q**2))
     rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
 
-    integrand = rho * r / ( (tau+1.)**2 * np.sqrt(tau + q**2) )
+    integrand = rho * R / ( (tau+1.)**2 * np.sqrt(tau + q**2) )
 
     return integrand
 
 
-def force_z_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
+def force_z_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
     """
     Integrand :math:`\frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}}`
-    as part of numerical integration to find :math:`g_r(r,z)`
+    as part of numerical integration to find :math:`g_z(R ,z)`
 
     Parameters
     ----------
         tau: float
             independent variable
-        r: float
+        R: float
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
@@ -1220,7 +1220,7 @@ def force_z_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
         integrand: float
 
     """
-    m = np.sqrt(r**2/(tau+1.) + z**2/(tau+q**2))
+    m = np.sqrt(R**2/(tau+1.) + z**2/(tau+q**2))
     rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
 
     integrand = rho * z / ( (tau+1.) * np.power((tau + q**2), 3./2.) )
@@ -1228,20 +1228,20 @@ def force_z_integrand(tau, r, z, Reff, n, q, Ie, i, Upsilon):
     return integrand
 
 
-def force_r(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
     Evalutation of gravitational force in the radial direction
-    :math:`g_r=-\partial\Phi/\partial r`,
-    of a deprojected Sersic density profile at (r,z), by numerically evalutating
+    :math:`g_R=-\partial\Phi/\partial R`,
+    of a deprojected Sersic density profile at (R,z), by numerically evalutating
 
     .. math::
 
-        g_r(r,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)r}{(\tau+1)^2 \sqrt{tau+q^2}},
-        m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
+        g_R(R,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)R}{(\tau+1)^2 \sqrt{tau+q^2}},
+        m = \frac{R^2}{\tau+1} + \frac{z^2}{\tau+q^2}
 
     Parameters
     ----------
-        r: float
+        R: float
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
@@ -1261,30 +1261,30 @@ def force_r(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     Returns
     -------
-        g_r: float
-            g_r(r,z)  -- gravitational force in the radial direction; units [km^2/s^2/kpc]
+        g_R: float
+            g_R(R,z)  -- gravitational force in the radial direction; units [km^2/s^2/kpc]
 
     """
 
     cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
-    int_force_r, _ = scp_integrate.quad(force_r_integrand, 0, np.inf,
-                                       args=(r, z, Reff, n, q, Ie, i, Upsilon))
-    return -2.*np.pi*G.cgs.value*q*cnst * int_force_r
+    int_force_R, _ = scp_integrate.quad(force_R_integrand, 0, np.inf,
+                                       args=(R, z, Reff, n, q, Ie, i, Upsilon))
+    return -2.*np.pi*G.cgs.value*q*cnst * int_force_R
 
-def force_z(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
     Evalutation of gravitational force in the vertical direction
     :math:`g_z=-\partial\Phi/\partial z`,
-    of a deprojected Sersic density profile at (r,z), by numerically evalutating
+    of a deprojected Sersic density profile at (R,z), by numerically evalutating
 
     .. math::
 
-        g_z(r,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}},
-        m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
+        g_z(R,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}},
+        m = \frac{R^2}{\tau+1} + \frac{z^2}{\tau+q^2}
 
     Parameters
     ----------
-        r: float
+        R: float
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
@@ -1305,25 +1305,25 @@ def force_z(r, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     Returns
     -------
         g_z: float
-            g_z(r,z)  -- gravitational force in the vertial direction; units [km^2/s^2/kpc]
+            g_z(R,z)  -- gravitational force in the vertial direction; units [km^2/s^2/kpc]
 
     """
 
     cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
     int_force_z, _ = scp_integrate.quad(force_z_integrand, 0, np.inf,
-                                       args=(r, z, Reff, n, q, Ie, i, Upsilon))
+                                       args=(R, z, Reff, n, q, Ie, i, Upsilon))
     return -2.*np.pi*G.cgs.value*q*cnst * int_force_z
 
 
-def sigsq_z_integrand(z, r, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table):
+def sigsq_z_integrand(z, R, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table):
     """
-    Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
+    Integrand as part of numerical integration to find :math:`\sigma^2_z(R,z)`
 
     Parameters
     ----------
         z: float
             Height above midplane [kpc]
-        r: float
+        R: float
             Midplane radius [kpc]
         total_mass: float
             Total mass of the Sersic mass component [Msun]
@@ -1348,29 +1348,29 @@ def sigsq_z_integrand(z, r, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table
         integrand: float
 
     """
-    m = np.sqrt(r**2 + (z/q)**2)
+    m = np.sqrt(R**2 + (z/q)**2)
     if sersic_table is not None:
-        rho = interpolate_sersic_profile_rho(r=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
+        rho = interpolate_sersic_profile_rho(R=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
                                              table=sersic_table)
     else:
         rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
-    gz = force_z(r, z,  Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    gz = force_z(R, z,  Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     integrand = rho * gz
     return integrand
 
 
-def sigmaz_sq(r, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+def sigmaz_sq(R, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
               sersic_table=None):
     """
-    Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (r,z).
+    Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
 
     .. math::
 
-        \sigma^2_z(r,z)=-\frac{1}{\rho}\int \rho g_z(r,z)dz
+        \sigma^2_z(R,z)=-\frac{1}{\rho}\int \rho g_z(R,z)dz
 
     Parameters
     ----------
-        r: float
+        R: float
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
@@ -1399,13 +1399,13 @@ def sigmaz_sq(r, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1
             Vertical velocity dispersion direction; units [km^2/s^2]
 
     """
-    m = np.sqrt(r**2 + (z/q)**2)
+    m = np.sqrt(R**2 + (z/q)**2)
     if sersic_table is not None:
-        rho = interpolate_sersic_profile_rho(r=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
+        rho = interpolate_sersic_profile_rho(R=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
                                              table=sersic_table)
     else:
         rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
-                                        args=(r, total_mass, Reff, n, q, Ie, i,
+                                        args=(R, total_mass, Reff, n, q, Ie, i,
                                               Upsilon, sersic_table))
     return - 1./rho * int_sigsq_z

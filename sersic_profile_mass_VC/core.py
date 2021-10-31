@@ -247,19 +247,19 @@ class DeprojSersicDist(_SersicDistBase):
 
 
 
-    def enclosed_mass(self, r, cumulative=False):
+    def enclosed_mass(self, R, cumulative=False):
         """
-        Enclosed 3D mass within a sphere of radius r,
+        Enclosed 3D mass within a sphere of radius r=R,
         assuming a constant M/L ratio Upsilon.
 
         Parameters
         ----------
-            r: float or array_like
-                Major axis radius within which to determine total enclosed 2D projected mass [kpc]
+            R: float or array_like
+                Major axis radius within which to determine total 3D spherically enclosed mass [kpc]
 
             cumulative: bool, optional
                 Shortcut option to only calculate the next annulus,
-                then add to the previous Menc(r-rdelt). Default: False
+                then add to the previous Menc(r=R-Rdelt). Default: False
 
         Returns
         -------
@@ -271,23 +271,23 @@ class DeprojSersicDist(_SersicDistBase):
                                 q=self.q, i=self.i, Upsilon=self.Upsilon)
 
         try:
-            if len(r) > 0:
-                menc = np.zeros(len(r))
-                for j in range(len(r)):
+            if len(R) > 0:
+                menc = np.zeros(len(R))
+                for j in range(len(R)):
                     if cumulative:
                         # Only calculate annulus, use previous Menc as shortcut:
                         if j > 0:
-                            menc_ann =  util_calcs.total_mass3D_integral(r[j], Reff=self.Reff,
+                            menc_ann =  util_calcs.total_mass3D_integral(R[j], Reff=self.Reff,
                                             n=self.n, q=self.q, Ie=Ie, i=self.i,
-                                            rinner=r[j-1], Upsilon=self.Upsilon)
+                                            rinner=R[j-1], Upsilon=self.Upsilon)
                             menc[j] = menc[j-1] + menc_ann
                         else:
-                            menc[j] = util_calcs.total_mass3D_integral(r[j], Reff=self.Reff,
+                            menc[j] = util_calcs.total_mass3D_integral(R[j], Reff=self.Reff,
                                             n=self.n, q=self.q, Ie=Ie, i=self.i,
                                             rinner=0, Upsilon=self.Upsilon)
                     else:
                         # Direct calculation for every radius
-                        menc[j] = util_calcs.total_mass3D_integral(r[j], Reff=self.Reff,
+                        menc[j] = util_calcs.total_mass3D_integral(R[j], Reff=self.Reff,
                                         n=self.n, q=self.q, Ie=Ie, i=self.i,
                                         rinner=0., Upsilon=self.Upsilon)
 
@@ -301,220 +301,220 @@ class DeprojSersicDist(_SersicDistBase):
                         menc[whgtone[0]:] = 1.
 
             else:
-                menc = util_calcs.total_mass3D_integral(r[0], Reff=self.Reff,
+                menc = util_calcs.total_mass3D_integral(R[0], Reff=self.Reff,
                                 n=self.n, q=self.q, Ie=Ie, i=self.i,
                                 rinner=0., Upsilon=self.Upsilon)
         except:
-            menc = util_calcs.total_mass3D_integral(r, Reff=self.Reff,
+            menc = util_calcs.total_mass3D_integral(R, Reff=self.Reff,
                             n=self.n, q=self.q, Ie=Ie, i=self.i,
                             rinner=0., Upsilon=self.Upsilon)
 
         # Return enclosed mass: fractional menc * total mass
         return menc*self.total_mass
 
-    def v_circ(self, r):
+    def v_circ(self, R):
         """
         Circular velocity in the midplane of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the circular velocity [kpc]
 
         Returns
         -------
             vcirc: float or array_like
-                Circular velocity in the midplane at r [km/s]
+                Circular velocity in the midplane at R [km/s]
 
         """
         cnst = 4*np.pi*G.cgs.value*Msun.cgs.value*self.q/(1000.*pc.cgs.value)
 
         try:
-            if len(r) > 0:
-                vcsq = np.zeros(len(r))
-                for j in range(len(r)):
-                    vcsq[j] = cnst*util_calcs.vel_integral(r[j], Reff=self.Reff, n=self.n, q=self.q,
+            if len(R) > 0:
+                vcsq = np.zeros(len(R))
+                for j in range(len(R)):
+                    vcsq[j] = cnst*util_calcs.vel_integral(R[j], Reff=self.Reff, n=self.n, q=self.q,
                                                            Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-                    if r[j] == 0:
+                    if R[j] == 0:
                         vcsq[j] = 0.
             else:
-                vcsq = cnst*util_calcs.vel_integral(r[0], Reff=self.Reff, n=self.n, q=self.q,
+                vcsq = cnst*util_calcs.vel_integral(R[0], Reff=self.Reff, n=self.n, q=self.q,
                                                     Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-                if r == 0:
+                if R[0] == 0:
                     vcsq = 0.
         except:
-            vcsq = cnst*util_calcs.vel_integral(r, Reff=self.Reff, n=self.n, q=self.q,
+            vcsq = cnst*util_calcs.vel_integral(R, Reff=self.Reff, n=self.n, q=self.q,
                                                 Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-            if r == 0:
+            if R == 0:
                 vcsq = 0.
 
         return np.sqrt(vcsq)/1.e5
 
 
-    def density(self, r):
+    def density(self, R):
         """
-        Density profile at :math:`m=r` of the deprojected Sersic mass distribution.
+        Density profile at :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
-                Distance at which to evaluate the circular velocity [kpc]
+            R: float or array_like
+                Distance at which to evaluate the deprojected 3D mass density [kpc]
 
         Returns
         -------
             rho_arr: float or array_like
-                Density profile at m [Msun / kpc^3]
+                Density profile at m=R [Msun / kpc^3]
 
         """
         try:
-            if len(r) > 0:
-                rho_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    rho_arr[j] = util_calcs.rho_m(r[j], Reff=self.Reff, n=self.n, q=self.q,
+            if len(R) > 0:
+                rho_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    rho_arr[j] = util_calcs.rho_m(R[j], Reff=self.Reff, n=self.n, q=self.q,
                                                   Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
                                                   replace_asymptote=True)
             else:
-                rho_arr = util_calcs.rho_m(r[0], Reff=self.Reff, n=self.n, q=self.q,
+                rho_arr = util_calcs.rho_m(R[0], Reff=self.Reff, n=self.n, q=self.q,
                                            Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
                                            replace_asymptote=True)
         except:
-            rho_arr = util_calcs.rho_m(r, Reff=self.Reff, n=self.n, q=self.q,
+            rho_arr = util_calcs.rho_m(R, Reff=self.Reff, n=self.n, q=self.q,
                                        Ie=self.Ie, i=self.i, Upsilon=self.Upsilon,
                                        replace_asymptote=True)
 
         return rho_arr
 
 
-    def drho_dr(self, r):
+    def drho_dR(self, R):
         """
-        Derivative of the density profile, :math:`d\\rho/dr`,
-        at distance :math:`m=r` of the deprojected Sersic mass distribution.
+        Derivative of the density profile, :math:`d\\rho/dm`,
+        at distance :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
-                Midplane radius at which to evaluate the log density profile slope [kpc]
+            R: float or array_like
+                Midplane radius at which to evaluate the derivative of the density profile [kpc]
 
         Returns
         -------
-            drho_dr_arr: float or array_like
+            drho_dR_arr: float or array_like
                 Derivative of density profile at r=m
 
         """
         try:
-            if len(r) > 0:
-                drho_dr_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    drho_dr_arr[j] = util_calcs.drhom_dm_multimethod(r[j], Reff=self.Reff, n=self.n,
+            if len(R) > 0:
+                drho_dR_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    drho_dR_arr[j] = util_calcs.drhom_dm_multimethod(R[j], Reff=self.Reff, n=self.n,
                                     q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                drho_dr_arr = util_calcs.drhom_dm_multimethod(r[0], Reff=self.Reff, n=self.n,
+                drho_dR_arr = util_calcs.drhom_dm_multimethod(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            drho_dr_arr = util_calcs.drhom_dm_multimethod(r, Reff=self.Reff, n=self.n,
+            drho_dR_arr = util_calcs.drhom_dm_multimethod(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return drho_dr_arr
+        return drho_dR_arr
 
 
-    def dlnrho_dlnr(self, r):
+    def dlnrho_dlnR(self, R):
         """
-        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
-        in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
+        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}m`,
+        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the log density profile slope [kpc]
 
         Returns
         -------
-            dlnrho_dlnr_arr: float or array_like
+            dlnrho_dlnR_arr: float or array_like
                 Derivative of log density profile at r=m
 
         """
         try:
-            if len(r) > 0:
-                dlnrho_dlnr_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    dlnrho_dlnr_arr[j] = util_calcs.dlnrhom_dlnm_multimethod(r[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+            if len(R) > 0:
+                dlnrho_dlnR_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    dlnrho_dlnR_arr[j] = util_calcs.dlnrhom_dlnm_multimethod(R[j], Reff=self.Reff,
+                            n=self.n, q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_multimethod(r[0], Reff=self.Reff, n=self.n,
+                dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_multimethod(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_multimethod(r, Reff=self.Reff, n=self.n,
+            dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_multimethod(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return dlnrho_dlnr_arr
+        return dlnrho_dlnR_arr
 
     ############################################################################################
     ############################################################################################
     ############################################################################################
     # vvvvvvvv REMOVE THESE LATER vvvvvvvv
 
-    def _drho_dr_leibniz(self, r):
+    def _drho_dR_leibniz(self, R):
         """
-        Derivative of the density profile, :math:`d\\rho/dr`,
-        at distance :math:`m=r` of the deprojected Sersic mass distribution.
+        Derivative of the density profile, :math:`d\\rho/dm`,
+        at distance :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the log density profile slope [kpc]
 
         Returns
         -------
-            drho_dr_arr: float or array_like
-                Derivative of density profile at r=m
+            drho_dR_arr: float or array_like
+                Derivative of density profile at m=R
 
         """
         try:
-            if len(r) > 0:
-                drho_dr_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    drho_dr_arr[j] = util_calcs.drhom_dm_leibniz(r[j], Reff=self.Reff, n=self.n,
+            if len(R) > 0:
+                drho_dR_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    drho_dR_arr[j] = util_calcs.drhom_dm_leibniz(R[j], Reff=self.Reff, n=self.n,
                                     q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                drho_dr_arr = util_calcs.drhom_dm_leibniz(r[0], Reff=self.Reff, n=self.n,
+                drho_dR_arr = util_calcs.drhom_dm_leibniz(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            drho_dr_arr = util_calcs.drhom_dm_leibniz(r, Reff=self.Reff, n=self.n,
+            drho_dR_arr = util_calcs.drhom_dm_leibniz(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return drho_dr_arr
+        return drho_dR_arr
 
 
-    def _dlnrho_dlnr_leibniz(self, r):
+    def _dlnrho_dlnR_leibniz(self, R):
         """
-        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
-        in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
+        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}m`,
+        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the log density profile slope [kpc]
 
         Returns
         -------
-            dlnrho_dlnr_arr: float or array_like
+            dlnrho_dlnR_arr: float or array_like
                 Derivative of log density profile at r=m
 
         """
         try:
-            if len(r) > 0:
-                dlnrho_dlnr_arr = np.zeros(len(r))
+            if len(R) > 0:
+                dlnrho_dlnR_arr = np.zeros(len(R))
                 for j in range(len(r)):
-                    dlnrho_dlnr_arr[j] = util_calcs.dlnrhom_dlnm_leibniz(r[j], Reff=self.Reff, n=self.n,
+                    dlnrho_dlnR_arr[j] = util_calcs.dlnrhom_dlnm_leibniz(R[j], Reff=self.Reff, n=self.n,
                                     q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_leibniz(r[0], Reff=self.Reff, n=self.n,
+                dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_leibniz(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_leibniz(r, Reff=self.Reff, n=self.n,
+            dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_leibniz(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return dlnrho_dlnr_arr
+        return dlnrho_dlnR_arr
 
 
 
@@ -522,68 +522,68 @@ class DeprojSersicDist(_SersicDistBase):
     ############################################################################################
     ############################################################################################
 
-    def _drho_dr_scipy(self, r):
+    def _drho_dR_scipy(self, R):
         """
-        Derivative of the density profile, :math:`d\\rho/dr`,
-        at distance :math:`m=r` of the deprojected Sersic mass distribution.
+        Derivative of the density profile, :math:`d\\rho/dm`,
+        at distance :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the log density profile slope [kpc]
 
         Returns
         -------
-            drho_dr_arr: float or array_like
-                Derivative of density profile at r=m
+            drho_dR_arr: float or array_like
+                Derivative of density profile at m=R
 
         """
         try:
-            if len(r) > 0:
-                drho_dr_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    drho_dr_arr[j] = util_calcs.drhom_dm_scipy_derivative(r[j], Reff=self.Reff, n=self.n,
+            if len(R) > 0:
+                drho_dR_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    drho_dR_arr[j] = util_calcs.drhom_dm_scipy_derivative(R[j], Reff=self.Reff, n=self.n,
                                     q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                drho_dr_arr = util_calcs.drhom_dm_scipy_derivative(r[0], Reff=self.Reff, n=self.n,
+                drho_dR_arr = util_calcs.drhom_dm_scipy_derivative(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            drho_dr_arr = util_calcs.drhom_dm_scipy_derivative(r, Reff=self.Reff, n=self.n,
+            drho_dR_arr = util_calcs.drhom_dm_scipy_derivative(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return drho_dr_arr
+        return drho_dR_arr
 
 
-    def _dlnrho_dlnr_scipy(self, r):
+    def _dlnrho_dlnR_scipy(self, R):
         """
-        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}r`,
-        in the midplane at radius :math:`m=r` of the deprojected Sersic mass distribution.
+        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}m`,
+        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Midplane radius at which to evaluate the log density profile slope [kpc]
 
         Returns
         -------
-            dlnrho_dlnr_arr: float or array_like
+            dlnrho_dlnR_arr: float or array_like
                 Derivative of log density profile at r=m
 
         """
         try:
-            if len(r) > 0:
-                dlnrho_dlnr_arr = np.zeros(len(r))
-                for j in range(len(r)):
-                    dlnrho_dlnr_arr[j] = util_calcs.dlnrhom_dlnm_scipy_derivative(r[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
+            if len(R) > 0:
+                dlnrho_dlnR_arr = np.zeros(len(R))
+                for j in range(len(R)):
+                    dlnrho_dlnR_arr[j] = util_calcs.dlnrhom_dlnm_scipy_derivative(R[j], Reff=self.Reff,
+                                n=self.n, q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
             else:
-                dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(r[0], Reff=self.Reff, n=self.n,
+                dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(R[0], Reff=self.Reff, n=self.n,
                                 q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
         except:
-            dlnrho_dlnr_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(r, Reff=self.Reff, n=self.n,
+            dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(R, Reff=self.Reff, n=self.n,
                             q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
 
-        return dlnrho_dlnr_arr
+        return dlnrho_dlnR_arr
 
 
     # ^^^^^^^^ REMOVE THESE LATER ^^^^^^^^
@@ -592,31 +592,31 @@ class DeprojSersicDist(_SersicDistBase):
     ############################################################################################
 
 
-    def surface_density(self, r):
+    def surface_density(self, R):
         """
         Surface density distribution for a Sersic profile, assuming a M/L ratio Upsilon.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Major axis radius within which to determine surface density distribution [kpc]
 
         Returns
         -------
             sigma_arr: float or array_like
-                Surface density of Sersic profile at r
+                Surface density of Sersic profile at R
 
         """
-        return self.Upsilon * util_calcs.Ikap(r, Reff=self.Reff, n=self.n, Ie=self.Ie)
+        return self.Upsilon * util_calcs.Ikap(R, Reff=self.Reff, n=self.n, Ie=self.Ie)
 
-    def projected_enclosed_mass(self, r):
+    def projected_enclosed_mass(self, R):
         """
-        Projected 2D mass enclosed within an ellipse
-        (or elliptical shell), assuming a constant M/L ratio Upsilon.
+        Projected 2D mass enclosed within an ellipse (or elliptical shell)
+        with major axis radius R, assuming a constant M/L ratio Upsilon.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Major axis radius within which to determine total enclosed 2D projected mass [kpc]
 
         Returns
@@ -624,21 +624,20 @@ class DeprojSersicDist(_SersicDistBase):
             Menc2D_ellipse: float or array_like
 
         """
-        return util_calcs.total_mass2D_direct(r, total_mass=self.total_mass,
+        return util_calcs.total_mass2D_direct(R, total_mass=self.total_mass,
                             Reff=self.Reff, n=self.n, q=self.q, i=self.i)
 
 
 
-    def enclosed_mass_ellipsoid(self, r, cumulative=False):
+    def enclosed_mass_ellipsoid(self, R, cumulative=False):
         """
-        Enclosed 3D mass within an ellpsoid of
-        major axis radius r and intrinsic axis ratio q
+        Enclosed 3D mass within an ellpsoid of major axis radius R and intrinsic axis ratio q
         (e.g. the same as the Sersic profile isodensity contours),
         assuming a constant M/L ratio Upsilon.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Major axis radius within which to determine total enclosed 2D projected mass [kpc]
 
             cumulative: bool, optional
@@ -654,31 +653,31 @@ class DeprojSersicDist(_SersicDistBase):
         Ie = util_calcs.get_Ie(total_mass=1., Reff=self.Reff, n=self.n, q=self.q, i=self.i)
 
         try:
-            if len(r) > 0:
-                menc = np.zeros(len(r))
-                for j in range(len(r)):
+            if len(R) > 0:
+                menc = np.zeros(len(R))
+                for j in range(len(R)):
                     if cumulative:
                         # Only calculate annulus, use previous Menc as shortcut:
                         if j > 0:
-                            menc_ann =  util_calcs.total_mass3D_integral_ellipsoid(r[j], Reff=self.Reff,
+                            menc_ann =  util_calcs.total_mass3D_integral_ellipsoid(R[j], Reff=self.Reff,
                                             n=self.n, q=self.q, Ie=Ie, i=self.i,
                                             rinner=r[j-1], Upsilon=self.Upsilon)
                             menc[j] = menc[j-1] + menc_ann
                         else:
-                            menc[j] = util_calcs.total_mass3D_integral_ellipsoid(r[j], Reff=self.Reff,
+                            menc[j] = util_calcs.total_mass3D_integral_ellipsoid(R[j], Reff=self.Reff,
                                             n=self.n, q=self.q, Ie=Ie, i=self.i,
                                             rinner=0., Upsilon=self.Upsilon)
                     else:
                         # Direct calculation for every radius
-                        menc[j] = util_calcs.total_mass3D_integral_ellipsoid(r[j], Reff=self.Reff,
+                        menc[j] = util_calcs.total_mass3D_integral_ellipsoid(R[j], Reff=self.Reff,
                                         n=self.n, q=self.q, Ie=Ie, i=self.i,
                                         rinner=0., Upsilon=self.Upsilon)
             else:
-                menc = util_calcs.total_mass3D_integral_ellipsoid(r[0], Reff=self.Reff,
+                menc = util_calcs.total_mass3D_integral_ellipsoid(R[0], Reff=self.Reff,
                                 n=self.n, q=self.q, Ie=Ie, i=self.i,
                                 rinner=0., Upsilon=self.Upsilon)
         except:
-            menc = util_calcs.total_mass3D_integral_ellipsoid(r, Reff=self.Reff,
+            menc = util_calcs.total_mass3D_integral_ellipsoid(R, Reff=self.Reff,
                             n=self.n, q=self.q, Ie=Ie, i=self.i,
                             rinner=0., Upsilon=self.Upsilon)
 
@@ -686,78 +685,78 @@ class DeprojSersicDist(_SersicDistBase):
         return menc*self.total_mass
 
 
-    def virial_coeff_tot(self, r, vc=None):
+    def virial_coeff_tot(self, R, vc=None):
         """
         The "total" virial coefficient ktot, which satisfies
 
         .. math::
 
-            M_{\mathrm{tot}} = k_{\mathrm{tot}}(r) \\frac{v_{\mathrm{circ}}(r)^2 r}{ G },
+            M_{\mathrm{tot}} = k_{\mathrm{tot}}(R) \\frac{v_{\mathrm{circ}}(R)^2 R}{ G },
 
         to convert between the circular velocity at any given radius and the total system mass.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Major axis radius within which to determine total enclosed 2D projected mass [kpc]
 
             vc: float or array_like, optional
-                Pre-calculated evaluation of vcirc(r)
-                (saves time to avoid recalculating vcirc(r))  [km/s]
+                Pre-calculated evaluation of vcirc(R)
+                (saves time to avoid recalculating vcirc(R))  [km/s]
 
         Returns
         -------
             ktot: float or array_like
-                ktot = Mtot * G / (vcirc(r)^2 * r)
+                ktot = Mtot * G / (vcirc(R)^2 * R)
 
         """
         if vc is None:
-            vc = self.v_circ(r)
+            vc = self.v_circ(R)
 
-        return util_calcs.virial_coeff_tot(r, total_mass=self.total_mass, vc=vc)
+        return util_calcs.virial_coeff_tot(R, total_mass=self.total_mass, vc=vc)
 
 
 
-    def virial_coeff_3D(self, r, m3D=None, vc=None):
+    def virial_coeff_3D(self, R, m3D=None, vc=None):
         """
         The "3D" virial coefficient k3D, which satisfies
 
         .. math::
 
-            M_{\mathrm{3D,sphere}}(r) = k_{\mathrm{3D}}(r) \\frac{v_{\mathrm{circ}}(r)^2 r}{ G },
+            M_{\mathrm{3D,sphere}}(<r=R) = k_{\mathrm{3D}}(R) \\frac{v_{\mathrm{circ}}(R)^2 R}{ G },
 
         to convert between the circular velocity at any given radius
-        and the mass enclosed within a sphere of radius r.
+        and the mass enclosed within a sphere of radius r=R.
 
         Parameters
         ----------
-            r: float or array_like
+            R: float or array_like
                 Major axis radius within which to determine total enclosed 2D projected mass [kpc]
 
             m3D: float or array_like, optional
-                Pre-calculated evaluation of Menc3D_sphere(r)
-                (saves time to avoid recalculating Menc3D_sphere(r)) [Msun]
+                Pre-calculated evaluation of Menc3D_sphere(<r=R)
+                (saves time to avoid recalculating Menc3D_sphere(<r=R)) [Msun]
             vc: float or array_like, optional
-                Pre-calculated evaluation of vcirc(r)
-                (saves time to avoid recalculating vcirc(r))  [km/s]
+                Pre-calculated evaluation of vcirc(R)
+                (saves time to avoid recalculating vcirc(R))  [km/s]
 
         Returns
         -------
             k3D: float or array_like
-                k3D = Menc3D_sphere(r) * G / (vcirc(r)^2 * r)
+                k3D = Menc3D_sphere(R) * G / (vcirc(R)^2 * R)
 
         """
         if m3D is None:
-            m3D = self.enclosed_mass(r)
+            m3D = self.enclosed_mass(R)
 
         if vc is None:
-            vc = self.v_circ(r)
+            vc = self.v_circ(R)
 
-        return util_calcs.virial_coeff_3D(r, m3D=m3D, vc=vc)
+        return util_calcs.virial_coeff_3D(R, m3D=m3D, vc=vc)
 
 
 
-    def profile_table(self, r, cumulative=None, add_reff_table_values=True):
+    def profile_table(self, R, cumulative=None, add_reff_table_values=True):
         """
         Create a set of profiles as a dictionary, calculated over the specified radii.
         Also includes constants for the specified Sersic profile parameters,
@@ -765,15 +764,15 @@ class DeprojSersicDist(_SersicDistBase):
 
         Parameters
         ----------
-            r: float or array_like
-                Radius array, in kpc
+            R: float or array_like
+                Projected major axis radius array, in kpc
 
             cumulative: bool, optional
                 Shortcut option to only calculate the next annulus,
-                then add to the previous Menc(r-rdelt).
+                then add to the previous Menc(r=R-Rdelt).
                 Default: Uses cumulative if n >= 2.
             add_reff_table_values: bool, optional
-                Add select values at Reff to the table. Requires Reff to be in `r`
+                Add select values at Reff to the table. Requires Reff to be in `R`
                 Default: True
 
         Returns
@@ -791,20 +790,20 @@ class DeprojSersicDist(_SersicDistBase):
 
         # ---------------------
         # Calculate profiles:
-        vcirc =         self.v_circ(r)
-        menc3D_sph =    self.enclosed_mass(r, cumulative=cumulative)
-        menc3D_ellip =  self.enclosed_mass_ellipsoid(r, cumulative=cumulative)
-        rho =           self.density(r)
-        dlnrho_dlnr =   self.dlnrho_dlnr(r)
+        vcirc =         self.v_circ(R)
+        menc3D_sph =    self.enclosed_mass(R, cumulative=cumulative)
+        menc3D_ellip =  self.enclosed_mass_ellipsoid(R, cumulative=cumulative)
+        rho =           self.density(R)
+        dlnrho_dlnR =   self.dlnrho_dlnr(R)
 
         # ---------------------
         # Setup table:
-        table    = { 'r':                   r,
+        table    = { 'R':                   R,
                      'vcirc':               vcirc,
                      'menc3D_sph':          menc3D_sph,
                      'menc3D_ellipsoid':    menc3D_ellip,
                      'rho':                 rho,
-                     'dlnrho_dlnr':         dlnrho_dlnr,
+                     'dlnrho_dlnR':         dlnrho_dlnR,
                      'total_mass':          self.total_mass,
                      'Reff':                self.Reff,
                      'invq':                self.invq,
@@ -815,9 +814,9 @@ class DeprojSersicDist(_SersicDistBase):
         if add_reff_table_values:
             # Calculate selected values at Reff:
             try:
-                wh_reff = np.where(table['r'] == table['Reff'])[0][0]
+                wh_reff = np.where(table['R'] == table['Reff'])[0][0]
             except:
-                raise ValueError("Must include 'Reff' in 'r' if using 'add_reff_table_values=True'!")
+                raise ValueError("Must include 'Reff' in 'R' if using 'add_reff_table_values=True'!")
 
             table['menc3D_sph_Reff'] =          table['menc3D_sph'][wh_reff]
             table['menc3D_ellipsoid_Reff'] =    table['menc3D_ellipsoid'][wh_reff]
@@ -831,8 +830,8 @@ class DeprojSersicDist(_SersicDistBase):
 
         # ---------------------
         # 3D Spherical half total_mass radius, for reference:
-        table['rhalf3D_sph'] = util_calcs.find_rhalf3D_sphere(r=table['r'], menc3D_sph=table['menc3D_sph'],
-                                           total_mass=table['total_mass'])
+        table['rhalf3D_sph'] = util_calcs.find_rhalf3D_sphere(r=table['R'],
+                            menc3D_sph=table['menc3D_sph'], total_mass=table['total_mass'])
 
         # ---------------------
         # Check that table calculated correctly:

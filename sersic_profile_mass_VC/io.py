@@ -49,7 +49,7 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
 
     The table includes:
 
-        `r`:                array of radii [kpc]
+        `R`:                array of radii [kpc]
 
         `invq`:             inverse intrinsic axis ratio
 
@@ -61,17 +61,17 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
 
         `total_mass`:       Total mass used for calculation
 
-        `menc3D_sph`:       Mass enclosed within a sphere of radius r
+        `menc3D_sph`:       Mass enclosed within a sphere of radius r=R
 
-        `vcirc`:            Circular velocity profile at r
+        `vcirc`:            Circular velocity profile at R
 
-        `rho`:              Density at m=r
+        `rho`:              Density at m=R
 
-        `dlnrho_dlnr`:        Derivative of ln(rho) w.r.t. ln(r) at m=r.
+        `dlnrho_dlnR`:        Derivative of ln(rho) w.r.t. ln(R) at m=R.
 
         `menc3D_sph_Reff`:    Mass enclosed within a sphere of radius r=Reff
 
-        `vcirc_Reff`:         Circular velocity profile at r=Reff
+        `vcirc_Reff`:         Circular velocity profile at R=Reff
 
         `ktot_Reff`:          Total virial coefficient at Reff
 
@@ -96,8 +96,8 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
     fmt_flt = 'D'
 
 
-    key_list = ['r', 'invq', 'q', 'n', 'total_mass', 'Reff',
-                'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr', 'vcirc',
+    key_list = ['R', 'invq', 'q', 'n', 'total_mass', 'Reff',
+                'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnR', 'vcirc',
                 'menc3D_sph_Reff', 'menc3D_ellipsoid_Reff', 'vcirc_Reff',
                 'ktot_Reff', 'k3D_sph_Reff', 'rhalf3D_sph']
     fmt_list = [fmt_arr, fmt_flt, fmt_flt, fmt_flt, fmt_flt, fmt_flt,
