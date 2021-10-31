@@ -92,7 +92,7 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
         filename = _default_table_fname(path, filename_base, table['n'], table['invq'])
 
     # Setup FITS recarray:
-    fmt_arr = '{}D'.format(len(table['r']))
+    fmt_arr = '{}D'.format(len(table['R']))
     fmt_flt = 'D'
 
 

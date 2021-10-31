@@ -47,7 +47,7 @@ def check_for_inf(table=None):
     """
     status = 0
 
-    keys = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnr']
+    keys = ['vcirc', 'menc3D_sph', 'menc3D_ellipsoid', 'rho', 'dlnrho_dlnR']
 
     for i, R in enumerate(table['R']):
         for key in keys:

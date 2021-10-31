@@ -794,7 +794,7 @@ class DeprojSersicDist(_SersicDistBase):
         menc3D_sph =    self.enclosed_mass(R, cumulative=cumulative)
         menc3D_ellip =  self.enclosed_mass_ellipsoid(R, cumulative=cumulative)
         rho =           self.density(R)
-        dlnrho_dlnR =   self.dlnrho_dlnr(R)
+        dlnrho_dlnR =   self.dlnrho_dlnR(R)
 
         # ---------------------
         # Setup table:
@@ -830,7 +830,7 @@ class DeprojSersicDist(_SersicDistBase):
 
         # ---------------------
         # 3D Spherical half total_mass radius, for reference:
-        table['rhalf3D_sph'] = util_calcs.find_rhalf3D_sphere(r=table['R'],
+        table['rhalf3D_sph'] = util_calcs.find_rhalf3D_sphere(R=table['R'],
                             menc3D_sph=table['menc3D_sph'], total_mass=table['total_mass'])
 
         # ---------------------

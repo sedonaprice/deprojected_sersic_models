@@ -144,7 +144,7 @@ def interpolate_sersic_profile_menc(R=None, total_mass=None, Reff=None, n=1., in
         path=None, filename_base=_sersic_profile_filename_base, filename=None, table=None,
         sphere=True, interp_type='cubic'):
     """
-    Interpolate Menc3D_sphere(<r=R) at arbitrary radii major axis raidus R,
+    Interpolate Menc3D_sphere(<R=R) at arbitrary radii major axis raidus R,
     for arbitrary Mtot and Reff.
 
     Uses the saved table of Menc3D_sphere(R) values for a given Sersic index n and invq,
@@ -353,7 +353,7 @@ def interpolate_sersic_profile_rho(R=None, total_mass=None, Reff=None, n=1., inv
     """
     Interpolate Rho(R) at arbitrary projected major axis radii R, for arbitrary Mtot and Reff.
 
-    Uses the saved table of rho(r=R) values for a given Sersic index n and invq,
+    Uses the saved table of rho(R=R) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
     (by mapping the radius using R' = (R/Reff * table_Reff) )
 
@@ -506,7 +506,7 @@ def interpolate_sersic_profile_dlnrho_dlnR(R=None, Reff=None, n=1., invq=5.,
     if table is None:
         table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
 
-    table_dlnrho_dlnR =     table['dlnrho_dlnr']
+    table_dlnrho_dlnR =     table['dlnrho_dlnR']
     table_rad =     table['R']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
@@ -515,7 +515,7 @@ def interpolate_sersic_profile_dlnrho_dlnR(R=None, Reff=None, n=1., invq=5.,
     if table['R'][0] > 0.:
         try:
             table_rad = np.append(r.min() * table_Reff/Reff, table_rad)
-            table_dlnrho_dlnR = np.append(dlnrho_dlnr(r.min()* table_Reff/Reff, n=n, total_mass=table_mass,
+            table_dlnrho_dlnR = np.append(dlnrho_dlnR(r.min()* table_Reff/Reff, n=n, total_mass=table_mass,
                                         Reff=table_Reff, q=table['q']), table_dlnrho_dlnR)
         except:
             pass
@@ -665,7 +665,7 @@ def interpolate_sersic_profile_menc_nearest(R=None, total_mass=None, Reff=None, 
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate Menc3D_sphere(<r=R) at arbitrary projected major axis radii R,
+    Interpolate Menc3D_sphere(<R=R) at arbitrary projected major axis radii R,
     for arbitrary Mtot and Reff, using the **nearest values** of n and invq that are included
     in the Sersic profile table collection.
 
@@ -765,7 +765,7 @@ def interpolate_sersic_profile_VC_nearest(R=None, total_mass=None, Reff=None, n=
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    vcirc_interp_nearest = interpolate_sersic_profile_VC(r=R, total_mass=total_mass, Reff=Reff,
+    vcirc_interp_nearest = interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
