@@ -32,8 +32,8 @@ _dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
 def calculate_sersic_profile_table(n=1., invq=5.,
         output_path=None,
         total_mass=5.e10, Reff=1.,
-        logr_min = -2., logr_max = 2., nSteps=101,
-        include_r0 = True, i=90.,
+        logR_min = -2., logR_max = 2., nSteps=101,
+        include_R0 = True, i=90.,
         cumulative=None,
         filename_base=_sersic_profile_filename_base, fileout=None,
         overwrite=False):
@@ -56,22 +56,22 @@ def calculate_sersic_profile_table(n=1., invq=5.,
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
         Reff: float, optional
             Effective radius [kpc]. Default: Reff = 1 kpc
-        logr_min: float, optional
+        logR_min: float, optional
             Log of minimum radius to calculate, relative to Reff.
-            Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
-        logr_max: float, optional
+            Default: logR_min = -2. (or R_min = 10^(-2.) * Reff)
+        logR_max: float, optional
             Log of maximum radius to calculate, relative to Reff.
-            Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
+            Default: logR_max = +2. (or R_max = 10^(+2.) * Reff)
         nSteps: int, optional
             Number of radii steps to calculate. Default: 101
-        include_r0: bool, optional
-            Include r=0 in table or not. Default: True
+        include_R0: bool, optional
+            Include R=0 in table or not. Default: True
         i: float, optional
             Inclination of model (to determin q_obs relative to the
             intrinsic axis ratio q.) Default: i = 90 deg
         cumulative: bool, optional
             Shortcut option to only calculate the next annulus,
-            then add to the previous Menc(r-rdelt).
+            then add to the previous Menc(R-Rdelt).
             Default: Uses cumulative if n >= 2.
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
@@ -112,12 +112,12 @@ def calculate_sersic_profile_table(n=1., invq=5.,
 
     # ---------------------
     # Calculate profiles:
-    rarr = np.logspace(logr_min, logr_max, num=nSteps)*Reff
-    if include_r0:
-        rarr = np.append(0., rarr)
+    Rarr = np.logspace(logR_min, logR_max, num=nSteps)*Reff
+    if include_R0:
+        Rarr = np.append(0., Rarr)
 
     sersicprof = core.DeprojSersicDist(total_mass=total_mass, Reff=Reff, n=n, q=q, i=i)
-    table = sersicprof.profile_table(rarr, cumulative=cumulative, add_reff_table_values=True)
+    table = sersicprof.profile_table(Rarr, cumulative=cumulative, add_reff_table_values=True)
 
     # ---------------------
     # Save table:
@@ -130,8 +130,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
 def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
         output_path=None,
         total_mass=5.e10, Reff=1.,
-        logr_min = -2., logr_max = 2., nSteps=101,
-        include_r0 = True, i=90.,
+        logR_min = -2., logR_max = 2., nSteps=101,
+        include_R0 = True, i=90.,
         cumulative=None,
         filename_base=_sersic_profile_filename_base, overwrite=False,
         f_log=None):
@@ -154,16 +154,16 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
         Reff: float, optional
             Effective radius [kpc]. Default: Reff = 1 kpc
-        logr_min: float, optional
+        logR_min: float, optional
             Log of minimum radius to calculate, relative to Reff.
-            Default: logr_min = -2. (or r_min = 10^(-2.) * Reff)
-        logr_max: float, optional
+            Default: logR_min = -2. (or R_min = 10^(-2.) * Reff)
+        logR_max: float, optional
             Log of maximum radius to calculate, relative to Reff.
-            Default: logr_max = +2. (or r_max = 10^(+2.) * Reff)
+            Default: logR_max = +2. (or R_max = 10^(+2.) * Reff)
         nSteps: int, optional
             Number of radii steps to calculate. Default: 101
-        include_r0: bool, optional
-            Include r=0 in table or not. Default: True
+        include_R0: bool, optional
+            Include R=0 in table or not. Default: True
         i: float, optional
             Inclination of model (to determin q_obs relative to the
             intrinsic axis ratio q.) Default: i = 90 deg
@@ -214,8 +214,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             else:
                 calculate_sersic_profile_table(n=n, invq=invq,
                     total_mass=total_mass, Reff=Reff,
-                    logr_min = logr_min, logr_max = logr_max, nSteps=nSteps,
-                    include_r0=include_r0, i=i, cumulative=cumulative,
+                    logR_min = logR_min, logR_max = logR_max, nSteps=nSteps,
+                    include_R0=include_R0, i=i, cumulative=cumulative,
                     filename_base=filename_base, output_path=output_path, overwrite=overwrite)
 
 
@@ -271,8 +271,8 @@ def wrapper_calculate_full_table_set(output_path=None,
     # Default settings:
     Reff =          1.      # kpc
     total_mass =    5.e10   # Msun
-    logr_min =      -2.     # log10(R[kpc])
-    logr_max =      2.      # log10(R[kpc])
+    logR_min =      -2.     # log10(R[kpc])
+    logR_max =      2.      # log10(R[kpc])
     nSteps =        101     #
     i =             90.     # degrees
 
@@ -303,7 +303,7 @@ def wrapper_calculate_full_table_set(output_path=None,
     wrapper_calculate_sersic_profile_tables(n_arr=n_arr, invq_arr=invq_arr,
             Reff=Reff, total_mass=total_mass,
             filename_base=filename_base, output_path=output_path, overwrite=overwrite,
-            logr_min=logr_min, logr_max=logr_max, nSteps=nSteps, i=i,
+            logR_min=logR_min, logR_max=logR_max, nSteps=nSteps, i=i,
             f_log=f_log, cumulative=cumulative)
 
     return None

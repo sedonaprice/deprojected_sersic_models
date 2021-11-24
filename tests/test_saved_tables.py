@@ -16,28 +16,28 @@ from sersic_profile_mass_VC.utils import calcs as util_calcs
 class TestSersicSavedTable:
     ftol = 3.e-8
 
-    def setup_table_sprof_rarr(self, n=1., invq=2.5):
+    def setup_table_sprof_Rarr(self, n=1., invq=2.5):
         table = io.read_profile_table(n=n, invq=invq)
         sprof = core.DeprojSersicDist(total_mass=table['total_mass'], Reff=table['Reff'],
                                       n=table['n'], q=table['q'])
-        rarr = np.array([0.1, 1., 10.]) * table['Reff']
+        Rarr = np.array([0.1, 1., 10.]) * table['Reff']
 
-        return table, sprof, rarr
+        return table, sprof, Rarr
 
     def check_saved_table_n_invq(self, n=None, invq=None, ftol=None):
         if ftol is None:
             ftol = self.ftol
-        table, sprof, rarr = self.setup_table_sprof_rarr(n=n, invq=invq)
-        for r in rarr:
-            i = np.where(table['r'] == r)[0][0]
-            mencr = sprof.enclosed_mass(r)
-            vcircr = sprof.v_circ(r)
+        table, sprof, Rarr = self.setup_table_sprof_Rarr(n=n, invq=invq)
+        for R in Rarr:
+            i = np.where(table['R'] == R)[0][0]
+            mencr = sprof.enclosed_mass(R)
+            vcircr = sprof.v_circ(R)
             assert math.isclose(mencr, table['menc3D_sph'][i], rel_tol=ftol)
             assert math.isclose(vcircr, table['vcirc'][i], rel_tol=ftol)
-            assert math.isclose(sprof.density(r), table['rho'][i], rel_tol=ftol)
-            assert math.isclose(sprof.dlnrho_dlnr(r), table['dlnrho_dlnr'][i], rel_tol=ftol)
+            assert math.isclose(sprof.density(R), table['rho'][i], rel_tol=ftol)
+            assert math.isclose(sprof.dlnrho_dlnR(R), table['dlnrho_dlnR'][i], rel_tol=ftol)
 
-            if r == table['Reff']:
+            if R == table['Reff']:
                 assert math.isclose(util_calcs.virial_coeff_tot(sprof.Reff,
                                     total_mass=sprof.total_mass, vc=vcircr),
                                     table['ktot_Reff'], rel_tol=ftol)

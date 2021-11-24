@@ -24,12 +24,12 @@ from sersic_profile_mass_VC.io import read_profile_table, _sersic_profile_filena
 
 __all__ = [ 'interpolate_entire_table',
             'interpolate_sersic_profile_menc', 'interpolate_sersic_profile_VC',
-            'interpolate_sersic_profile_rho', 'interpolate_sersic_profile_dlnrho_dlnr',
+            'interpolate_sersic_profile_rho', 'interpolate_sersic_profile_dlnrho_dlnR',
             'interpolate_entire_table_nearest',
             'interpolate_sersic_profile_menc_nearest', 'interpolate_sersic_profile_VC_nearest',
             'interpolate_sersic_profile_rho_nearest',
-            'interpolate_sersic_profile_dlnrho_dlnr_nearest',
-            'interpolate_sersic_profile_dlnrho_dlnr_two_component_nearest',
+            'interpolate_sersic_profile_dlnrho_dlnR_nearest',
+            'interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest',
             'nearest_n_invq']
 
 
@@ -43,7 +43,7 @@ logger = logging.getLogger('SersicProfileMassVC')
 # +++++++++++++++++++++++++++++++++++++++++++++++++
 # Interpolation functions:
 
-def interpolate_entire_table(r=None, table=None,
+def interpolate_entire_table(R=None, table=None,
         total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None,
@@ -53,7 +53,7 @@ def interpolate_entire_table(r=None, table=None,
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate table [kpc]
 
         total_mass: float
@@ -80,7 +80,7 @@ def interpolate_entire_table(r=None, table=None,
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
         table: dict, optional
@@ -99,32 +99,32 @@ def interpolate_entire_table(r=None, table=None,
         table = read_profile_table(filename=filename, n=n, invq=invq, path=path,
                                    filename_base=filename_base)
 
-    vcirc =         interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+    vcirc =         interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                                                   n=table['n'], invq=table['invq'], table=table,
                                                   interp_type=interp_type)
-    menc3D_sph =    interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+    menc3D_sph =    interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                                                     n=table['n'], invq=table['invq'], table=table,
                                                     interp_type=interp_type)
-    menc3D_ellip =  interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+    menc3D_ellip =  interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                                                     n=table['n'], invq=table['invq'], table=table,
                                                     sphere=False, interp_type=interp_type)
-    rho =           interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+    rho =           interpolate_sersic_profile_rho(R=R, total_mass=total_mass, Reff=Reff,
                                                    n=table['n'], invq=table['invq'], table=table,
                                                    interp_type=interp_type)
-    dlnrho_dlnr =   interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff, n=table['n'],
+    dlnrho_dlnR =   interpolate_sersic_profile_dlnrho_dlnR(R=R, Reff=Reff, n=table['n'],
                                                            invq=table['invq'], table=table,
                                                            interp_type=interp_type)
 
     # ---------------------
     # Setup table:
-    table_interp = { 'r':                   r,
+    table_interp = { 'R':                   R,
                      'total_mass':          total_mass,
                      'Reff':                Reff,
                      'vcirc':               vcirc,
                      'menc3D_sph':          menc3D_sph,
                      'menc3D_ellipsoid':    menc3D_ellip,
                      'rho':                 rho,
-                     'dlnrho_dlnr':         dlnrho_dlnr }
+                     'dlnrho_dlnR':         dlnrho_dlnR }
 
 
     # Scale at Reff:
@@ -143,21 +143,21 @@ def interpolate_entire_table(r=None, table=None,
     return table_interp
 
 
-def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_menc(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None,
         sphere=True,
         interp_type='cubic'):
     """
-    Interpolate Menc3D_sphere(r) at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff.
 
-    Uses the saved table of Menc3D_sphere(r) values for a given Sersic index n and invq,
+    Uses the saved table of Menc3D_sphere(R) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
-    (by mapping the radius using r' = (r/Reff * table_Reff) )
+    (by mapping the radius using R' = (R/Reff * table_Reff) )
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -180,7 +180,7 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
         table: dict, optional
             Option to pass the Sersic profile table, if already loaded.
@@ -203,70 +203,70 @@ def interpolate_sersic_profile_menc(r=None, total_mass=None, Reff=None, n=1., in
     else:
         table_menc =    table['menc3D_ellipsoid']
 
-    table_rad =     table['r']
+    table_Rad =     table['R']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
 
     # Clean up values inside rmin:  Add the value at r=0: menc=0
-    if table['r'][0] > 0.:
-        table_rad = np.append(0., table_rad)
+    if table['R'][0] > 0.:
+        table_Rad = np.append(0., table_Rad)
         table_menc = np.append(0., table_menc)
 
 
     # Ensure it's an array:
-    if isinstance(r*1., float):
-        rarr = np.array([r])
+    if isinstance(R*1., float):
+        Rarr = np.array([R])
     else:
-        rarr = np.array(r)
+        Rarr = np.array(R)
     # Ensure all radii are 0. or positive:
-    rarr = np.abs(rarr)
+    Rarr = np.abs(Rarr)
 
     scale_fac = (total_mass / table_mass)
 
     if interp_type.lower().strip() == 'cubic':
-        m_interp = scp_interp.interp1d(table_rad, table_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-        m_interp_extrap = scp_interp.interp1d(table_rad, table_menc, fill_value='extrapolate', kind='linear')
+        m_interp = scp_interp.interp1d(table_Rad, table_menc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+        m_interp_extrap = scp_interp.interp1d(table_Rad, table_menc, fill_value='extrapolate', kind='linear')
 
-        menc_interp = np.zeros(len(rarr))
-        wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
-        wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
-        menc_interp[wh_in] =     (m_interp(rarr[wh_in] / Reff * table_Reff) * scale_fac )
-        menc_interp[wh_extrap] = (m_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) * scale_fac )
+        menc_interp = np.zeros(len(Rarr))
+        wh_in =     np.where((Rarr <= table_Rad.max()) & (Rarr >= table_Rad.min()))[0]
+        wh_extrap = np.where((Rarr > table_Rad.max()) | (Rarr < table_Rad.min()))[0]
+        menc_interp[wh_in] =     (m_interp(Rarr[wh_in] / Reff * table_Reff) * scale_fac )
+        menc_interp[wh_extrap] = (m_interp_extrap(Rarr[wh_extrap] / Reff * table_Reff) * scale_fac )
 
     elif interp_type.lower().strip() == 'linear':
-        m_interp = scp_interp.interp1d(table_rad, table_menc, fill_value='extrapolate',
+        m_interp = scp_interp.interp1d(table_Rad, table_menc, fill_value='extrapolate',
                                        bounds_error=False, kind='linear')
 
-        menc_interp = m_interp(rarr / Reff * table_Reff) * scale_fac
+        menc_interp = m_interp(Rarr / Reff * table_Reff) * scale_fac
 
     else:
         raise ValueError("interp type '{}' unknown!".format(interp_type))
 
-    if (len(rarr) > 1):
+    if (len(Rarr) > 1):
         return menc_interp
     else:
-        if isinstance(r*1., float):
+        if isinstance(R*1., float):
             # Float input
             return menc_interp[0]
         else:
             # Length 1 array input
             return menc_interp
 
-def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_VC(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None,
         interp_type='cubic'):
     """
-    Interpolate vcirc(r) at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff.
 
-    Uses the saved table of vcirc(r) values for a given Sersic index n and invq,
+    Uses the saved table of vcirc(R) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
-    (by mapping the radius using r' = (r/Reff * table_Reff), and scaling for the difference
+    (by mapping the radius using R' = (R/Reff * table_Reff), and scaling for the difference
     between Mtot and table_Mtot)
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -289,7 +289,7 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
         table: dict, optional
             Option to pass the Sersic profile table, if already loaded.
@@ -303,46 +303,46 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
         table = read_profile_table(filename=filename, n=n, invq=invq, path=path, filename_base=filename_base)
 
     table_vcirc =   table['vcirc']
-    table_rad =     table['r']
+    table_Rad =     table['R']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
 
     # Clean up values inside rmin:  Add the value at r=0: vcirc=0
-    if table['r'][0] > 0.:
-        table_rad = np.append(0., table_rad)
+    if table['R'][0] > 0.:
+        table_Rad = np.append(0., table_Rad)
         table_vcirc = np.append(0., table_vcirc)
 
     # Ensure it's an array:
-    if isinstance(r*1., float):
-        rarr = np.array([r])
+    if isinstance(R*1., float):
+        Rarr = np.array([R])
     else:
-        rarr = np.array(r)
+        Rarr = np.array(R)
     # Ensure all radii are 0. or positive:
-    rarr = np.abs(rarr)
+    Rarr = np.abs(Rarr)
 
     scale_fac = np.sqrt(total_mass / table_mass) * np.sqrt(table_Reff / Reff)
 
     if interp_type.lower().strip() == 'cubic':
-        v_interp = scp_interp.interp1d(table_rad, table_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
-        v_interp_extrap = scp_interp.interp1d(table_rad, table_vcirc, fill_value='extrapolate', kind='linear')
+        v_interp = scp_interp.interp1d(table_Rad, table_vcirc, fill_value=np.NaN, bounds_error=False, kind='cubic')
+        v_interp_extrap = scp_interp.interp1d(table_Rad, table_vcirc, fill_value='extrapolate', kind='linear')
 
-        vcirc_interp = np.zeros(len(rarr))
-        wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
-        wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
-        vcirc_interp[wh_in] =     (v_interp(rarr[wh_in]  / Reff * table_Reff) * scale_fac )
-        vcirc_interp[wh_extrap] = (v_interp_extrap(rarr[wh_extrap]  / Reff * table_Reff) * scale_fac )
+        vcirc_interp = np.zeros(len(Rarr))
+        wh_in =     np.where((Rarr <= table_Rad.max()) & (Rarr >= table_Rad.min()))[0]
+        wh_extrap = np.where((Rarr > table_Rad.max()) | (Rarr < table_Rad.min()))[0]
+        vcirc_interp[wh_in] =     (v_interp(Rarr[wh_in]  / Reff * table_Reff) * scale_fac )
+        vcirc_interp[wh_extrap] = (v_interp_extrap(Rarr[wh_extrap]  / Reff * table_Reff) * scale_fac )
 
     elif interp_type.lower().strip() == 'linear':
-        v_interp = scp_interp.interp1d(table_rad, table_vcirc, fill_value='extrapolate',
+        v_interp = scp_interp.interp1d(table_Rad, table_vcirc, fill_value='extrapolate',
                                        bounds_error=False, kind='linear')
-        vcirc_interp = (v_interp(rarr  / Reff * table_Reff) * scale_fac )
+        vcirc_interp = (v_interp(Rarr  / Reff * table_Reff) * scale_fac )
     else:
         raise ValueError("interp type '{}' unknown!".format(interp_type))
 
-    if (len(rarr) > 1):
+    if (len(Rarr) > 1):
         return vcirc_interp
     else:
-        if isinstance(r*1., float):
+        if isinstance(R*1., float):
             # Float input
             return vcirc_interp[0]
         else:
@@ -350,20 +350,20 @@ def interpolate_sersic_profile_VC(r=None, total_mass=None, Reff=None, n=1., invq
             return vcirc_interp
 
 
-def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_rho(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None,
         interp_type='cubic'):
     """
-    Interpolate Rho(r) at arbitrary radii r, for arbitrary Mtot and Reff.
+    Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff.
 
-    Uses the saved table of rho(r) values for a given Sersic index n and invq,
+    Uses the saved table of rho(R) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
-    (by mapping the radius using r' = (r/Reff * table_Reff) )
+    (by mapping the radius using R' = (R/Reff * table_Reff) )
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -386,7 +386,7 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
         table: dict, optional
             Option to pass the Sersic profile table, if already loaded.
@@ -400,62 +400,62 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
         table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
 
     table_rho =     table['rho']
-    table_rad =     table['r']
+    table_Rad =     table['R']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
 
 
     # Clean up values inside rmin:  Add the value at r=0: menc=0
-    if table['r'][0] > 0.:
+    if table['R'][0] > 0.:
         try:
-            table_rad = np.append(r.min() * table_Reff/Reff, table_rad)
+            table_Rad = np.append(r.min() * table_Reff/Reff, table_Rad)
             table_rho = np.append(rho(r.min()* table_Reff/Reff, total_mass=table_mass, Reff=table_Reff, n=n, q=table['q']), table_rho)
         except:
             pass
 
     # Clean up if n>1: TECHNICALLY asymptotic at r=0, but replace with large value
     #                  so scipy interpolation works.
-    if (n > 1.) & (table['r'][0] == 0.):
+    if (n > 1.) & (table['R'][0] == 0.):
         if ~np.isfinite(table_rho[0]):
             table_rho[0] = table_rho[1]**2/table_rho[2] * 1.e3
 
     # Ensure it's an array:
-    if isinstance(r*1., float):
-        rarr = np.array([r])
+    if isinstance(R*1., float):
+        Rarr = np.array([R])
     else:
-        rarr = np.array(r)
+        Rarr = np.array(R)
     # Ensure all radii are 0. or positive:
-    rarr = np.abs(rarr)
+    Rarr = np.abs(Rarr)
 
     scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
 
     if interp_type.lower().strip() == 'cubic':
-        r_interp = scp_interp.interp1d(table_rad, table_rho, fill_value=np.NaN, bounds_error=False, kind='cubic')
-        r_interp_extrap = scp_interp.interp1d(table_rad, table_rho, fill_value='extrapolate', kind='linear')
+        r_interp = scp_interp.interp1d(table_Rad, table_rho, fill_value=np.NaN, bounds_error=False, kind='cubic')
+        r_interp_extrap = scp_interp.interp1d(table_Rad, table_rho, fill_value='extrapolate', kind='linear')
 
-        rho_interp = np.zeros(len(rarr))
-        wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
-        wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
-        rho_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) * scale_fac )
-        rho_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) * scale_fac)
+        rho_interp = np.zeros(len(Rarr))
+        wh_in =     np.where((Rarr <= table_Rad.max()) & (Rarr >= table_Rad.min()))[0]
+        wh_extrap = np.where((Rarr > table_Rad.max()) | (Rarr < table_Rad.min()))[0]
+        rho_interp[wh_in] =     (r_interp(Rarr[wh_in] / Reff * table_Reff) * scale_fac )
+        rho_interp[wh_extrap] = (r_interp_extrap(Rarr[wh_extrap] / Reff * table_Reff) * scale_fac)
     elif interp_type.lower().strip() == 'linear':
-        r_interp = scp_interp.interp1d(table_rad, table_rho, fill_value='extrapolate',
+        r_interp = scp_interp.interp1d(table_Rad, table_rho, fill_value='extrapolate',
                                        bounds_error=False, kind='linear')
-        rho_interp =     (r_interp(rarr / Reff * table_Reff) * scale_fac )
+        rho_interp =     (r_interp(Rarr / Reff * table_Reff) * scale_fac )
 
     else:
         raise ValueError("interp type '{}' unknown!".format(interp_type))
 
     # Back replace inf, if interpolating at r=0 for n>1:
-    if (n > 1.) & (table['r'][0] == 0.):
-        if (~np.isfinite(table['rho'][0]) & (rarr.min() == 0.)):
-            rho_interp[rarr==0.] = table['rho'][0]
+    if (n > 1.) & (table['R'][0] == 0.):
+        if (~np.isfinite(table['rho'][0]) & (Rarr.min() == 0.)):
+            rho_interp[Rarr==0.] = table['rho'][0]
 
 
-    if (len(rarr) > 1):
+    if (len(Rarr) > 1):
         return rho_interp
     else:
-        if isinstance(r*1., float):
+        if isinstance(R*1., float):
             # Float input
             return rho_interp[0]
         else:
@@ -463,19 +463,19 @@ def interpolate_sersic_profile_rho(r=None, total_mass=None, Reff=None, n=1., inv
             return rho_interp
 
 
-def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_dlnrho_dlnR(R=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None, table=None,
         interp_type='cubic'):
     """
-    Interpolate dlnrho/dlnr at arbitrary radii r, for arbitrary Reff.
+    Interpolate dlnrho/dlnR at arbitrary radii R, for arbitrary Reff.
 
-    Uses the saved table of dlnrho/dlnr(r) values for a given Sersic index n and invq,
+    Uses the saved table of dlnrho/dlnR(R) values for a given Sersic index n and invq,
     and performs scaling and interpolation to map the profile onto the new Reff.
-    (by mapping the radius using r' = (r/Reff * table_Reff) )
+    (by mapping the radius using R' = (R/Reff * table_Reff) )
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -496,72 +496,72 @@ def interpolate_sersic_profile_dlnrho_dlnr(r=None, Reff=None, n=1., invq=5.,
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
         table: dict, optional
             Option to pass the Sersic profile table, if already loaded.
 
     Returns
     -------
-        dlnrho_dlnr_interp: float or array_like
+        dlnrho_dlnR_interp: float or array_like
 
     """
     if table is None:
         table = read_profile_table(filename=filename, n=n, invq=invq,  path=path, filename_base=filename_base)
 
-    table_dlnrho_dlnr =     table['dlnrho_dlnr']
-    table_rad =     table['r']
+    table_dlnrho_dlnR =     table['dlnrho_dlnR']
+    table_Rad =     table['R']
     table_Reff =    table['Reff']
     table_mass =    table['total_mass']
 
     # Clean up values inside rmin:  Add the value at r=0: menc=0
-    if table['r'][0] > 0.:
+    if table['R'][0] > 0.:
         try:
-            table_rad = np.append(r.min() * table_Reff/Reff, table_rad)
-            table_dlnrho_dlnr = np.append(dlnrho_dlnr(r.min()* table_Reff/Reff, n=n, total_mass=table_mass,
-                                        Reff=table_Reff, q=table['q']), table_dlnrho_dlnr)
+            table_Rad = np.append(r.min() * table_Reff/Reff, table_Rad)
+            table_dlnrho_dlnR = np.append(dlnrho_dlnR(r.min()* table_Reff/Reff, n=n, total_mass=table_mass,
+                                        Reff=table_Reff, q=table['q']), table_dlnrho_dlnR)
         except:
             pass
 
     # Catch NaNs:
-    whfin = np.where(np.isfinite(table_dlnrho_dlnr))
-    table_dlnrho_dlnr = table_dlnrho_dlnr[whfin]
-    table_rad = table_rad[whfin]
+    whfin = np.where(np.isfinite(table_dlnrho_dlnR))
+    table_dlnrho_dlnR = table_dlnrho_dlnR[whfin]
+    table_Rad = table_Rad[whfin]
 
     # Ensure it's an array:
-    if isinstance(r*1., float):
-        rarr = np.array([r])
+    if isinstance(R*1., float):
+        Rarr = np.array([R])
     else:
-        rarr = np.array(r)
+        Rarr = np.array(R)
     # Ensure all radii are 0. or positive:
-    rarr = np.abs(rarr)
+    Rarr = np.abs(Rarr)
 
     if interp_type.lower().strip() == 'cubic':
-        r_interp = scp_interp.interp1d(table_rad, table_dlnrho_dlnr, fill_value=np.NaN, bounds_error=False, kind='cubic')
-        r_interp_extrap = scp_interp.interp1d(table_rad, table_dlnrho_dlnr, fill_value='extrapolate', kind='linear')
+        r_interp = scp_interp.interp1d(table_Rad, table_dlnrho_dlnR, fill_value=np.NaN, bounds_error=False, kind='cubic')
+        r_interp_extrap = scp_interp.interp1d(table_Rad, table_dlnrho_dlnR, fill_value='extrapolate', kind='linear')
 
-        dlnrho_dlnr_interp = np.zeros(len(rarr))
-        wh_in =     np.where((rarr <= table_rad.max()) & (rarr >= table_rad.min()))[0]
-        wh_extrap = np.where((rarr > table_rad.max()) | (rarr < table_rad.min()))[0]
-        dlnrho_dlnr_interp[wh_in] =     (r_interp(rarr[wh_in] / Reff * table_Reff) )
-        dlnrho_dlnr_interp[wh_extrap] = (r_interp_extrap(rarr[wh_extrap] / Reff * table_Reff) )
+        dlnrho_dlnR_interp = np.zeros(len(Rarr))
+        wh_in =     np.where((Rarr <= table_Rad.max()) & (Rarr >= table_Rad.min()))[0]
+        wh_extrap = np.where((Rarr > table_Rad.max()) | (Rarr < table_Rad.min()))[0]
+        dlnrho_dlnR_interp[wh_in] =     (r_interp(Rarr[wh_in] / Reff * table_Reff) )
+        dlnrho_dlnR_interp[wh_extrap] = (r_interp_extrap(Rarr[wh_extrap] / Reff * table_Reff) )
     elif interp_type.lower().strip() == 'linear':
-        r_interp = scp_interp.interp1d(table_rad, table_dlnrho_dlnr, fill_value='extrapolate',
+        r_interp = scp_interp.interp1d(table_Rad, table_dlnrho_dlnR, fill_value='extrapolate',
                                        bounds_error=False, kind='linear')
-        dlnrho_dlnr_interp =     (r_interp(rarr / Reff * table_Reff) )
+        dlnrho_dlnR_interp =     (r_interp(Rarr / Reff * table_Reff) )
 
     else:
         raise ValueError("interp type '{}' unknown!".format(interp_type))
 
-    if (len(rarr) > 1):
-        return dlnrho_dlnr_interp
+    if (len(Rarr) > 1):
+        return dlnrho_dlnR_interp
     else:
-        if isinstance(r*1., float):
+        if isinstance(R*1., float):
             # Float input
-            return dlnrho_dlnr_interp[0]
+            return dlnrho_dlnR_interp[0]
         else:
             # Length 1 array input
-            return dlnrho_dlnr_interp
+            return dlnrho_dlnR_interp
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -605,7 +605,7 @@ def nearest_n_invq(n=None, invq=None):
 
     return nearest_n, nearest_invq
 
-def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_entire_table_nearest(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base,
         filename=None, table=None,
         interp_type='cubic'):
@@ -616,7 +616,7 @@ def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., i
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate table [kpc]
 
         total_mass: float
@@ -643,7 +643,7 @@ def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., i
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
         table: dict, optional
@@ -658,18 +658,18 @@ def interpolate_entire_table_nearest(r=None, total_mass=None, Reff=None, n=1., i
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    table_interp_nearest = interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+    table_interp_nearest = interpolate_entire_table(R=R, total_mass=total_mass, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
 
     return table_interp_nearest
 
-def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_menc_nearest(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate Menc3D_sphere(r) at arbitrary radii r, for arbitrary Mtot and Reff,
+    Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff,
     using the **nearest values** of n and invq that are included
     in the Sersic profile table collection.
 
@@ -678,7 +678,7 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -701,7 +701,7 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
     Returns
@@ -713,7 +713,7 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    menc_interp_nearest = interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+    menc_interp_nearest = interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
@@ -721,11 +721,11 @@ def interpolate_sersic_profile_menc_nearest(r=None, total_mass=None, Reff=None, 
     return menc_interp_nearest
 
 
-def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_VC_nearest(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate vcirc(r) at arbitrary radii r, for arbitrary Mtot and Reff,
+    Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
@@ -734,7 +734,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -757,7 +757,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
     Returns
@@ -769,7 +769,7 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    vcirc_interp_nearest = interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+    vcirc_interp_nearest = interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
@@ -777,11 +777,11 @@ def interpolate_sersic_profile_VC_nearest(r=None, total_mass=None, Reff=None, n=
     return vcirc_interp_nearest
 
 
-def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_rho_nearest(R=None, total_mass=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate Rho(r) at arbitrary radii r, for arbitrary Mtot and Reff,
+    Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
@@ -790,7 +790,7 @@ def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         total_mass: float
             Total mass of the component [Msun]
@@ -813,7 +813,7 @@ def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
     Returns
@@ -825,7 +825,7 @@ def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    rho_interp_nearest = interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+    rho_interp_nearest = interpolate_sersic_profile_rho(R=R, total_mass=total_mass, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
@@ -833,20 +833,20 @@ def interpolate_sersic_profile_rho_nearest(r=None, total_mass=None, Reff=None, n
     return rho_interp_nearest
 
 
-def interpolate_sersic_profile_dlnrho_dlnr_nearest(r=None, Reff=None, n=1., invq=5.,
+def interpolate_sersic_profile_dlnrho_dlnR_nearest(R=None, Reff=None, n=1., invq=5.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate dlnrho_g/dlnr at arbitrary radii r, for arbitrary Reff,
+    Interpolate dlnrho_g/dlnR at arbitrary radii R, for arbitrary Reff,
     using the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
     Finds the nearest n, invq for the "default" table collection,
-    then calls `interpolate_sersic_profile_dlnrho_dlnr()` with these values.
+    then calls `interpolate_sersic_profile_dlnrho_dlnR()` with these values.
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
@@ -867,44 +867,44 @@ def interpolate_sersic_profile_dlnrho_dlnr_nearest(r=None, Reff=None, n=1., invq
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
     Returns
     -------
-        dlnrho_dlnr_interp_nearest: float or array_like
+        dlnrho_dlnR_interp_nearest: float or array_like
 
     """
     # Use the "typical" collection of table values:
     nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-    dlnrho_dlnr_interp_nearest = interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff,
+    dlnrho_dlnR_interp_nearest = interpolate_sersic_profile_dlnrho_dlnR(R=R, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
 
-    return dlnrho_dlnr_interp_nearest
+    return dlnrho_dlnR_interp_nearest
 
 
 
-def interpolate_sersic_profile_dlnrho_dlnr_two_component_nearest(r=None,
+def interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest(R=None,
         mass_comp1=1.e11, mass_comp2=0.,
         Reff_comp1=None, n_comp1=1., invq_comp1=5.,
         Reff_comp2=1.,   n_comp2=4., invq_comp2=1.,
         path=None, filename_base=_sersic_profile_filename_base, filename=None,
         interp_type='cubic'):
     """
-    Interpolate dlnrho_g/dlnr at arbitrary radii r, for a composite system.
+    Interpolate dlnrho_g/dlnR at arbitrary radii R, for a composite system.
     Both comp1 and comp2 (e.g., disk and bulge) can have arbitary Reff,
     but this uses the **nearest values of n and invq** that are included
     in the Sersic profile table collection.
 
     Finds the nearest n, invq for the "default" table collection,
-    then returns `dlnrho_dlnr_interp_nearest()` for the total system.
+    then returns `dlnrho_dlnR_interp_nearest()` for the total system.
 
     Parameters
     ----------
-        r: float or array_like
+        R: float or array_like
             Radius at which to interpolate profile [kpc]
 
         mass_comp1: float
@@ -938,35 +938,35 @@ def interpolate_sersic_profile_dlnrho_dlnr_two_component_nearest(r=None,
             Option to override the default filename convention and
             instead directly specify the file location.
         interp_type: str, optional
-            Default profile interpolation within the table rarr region.
+            Default profile interpolation within the table Rarr region.
             (Extrapolation is always linear). Default: `cubic`
 
     Returns
     -------
-        dlnrho_dlnr_interp_nearest: float or array_like
+        dlnrho_dlnR_interp_nearest: float or array_like
 
     """
 
     # Use the "typical" collection of table values:
-    rho_t = r * 0.
-    rho_dlnrho_dlnr_sum = r * 0.
+    rho_t = R * 0.
+    rho_dlnrho_dlnR_sum = R * 0.
     for n, invq, Reff, M in zip([n_comp1, n_comp2], [invq_comp1, invq_comp2],
             [Reff_comp1, Reff_comp2], [mass_comp1, mass_comp2]):
         nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)
 
-        dlnrho_dlnr_interp_nearest = interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff,
+        dlnrho_dlnR_interp_nearest = interpolate_sersic_profile_dlnrho_dlnR(R=R, Reff=Reff,
                     n=nearest_n, invq=nearest_invq,
                     path=path, filename_base=filename_base, filename=filename,
                     interp_type=interp_type)
 
-        rho_interp_nearest = interpolate_sersic_profile_rho(r=r, total_mass=M,
+        rho_interp_nearest = interpolate_sersic_profile_rho(R=R, total_mass=M,
                 Reff=Reff, n=nearest_n, invq=nearest_invq, path=path,
                 filename_base=filename_base, filename=filename,
                 interp_type=interp_type)
 
         rho_t += rho_interp_nearest
-        rho_dlnrho_dlnr_sum += rho_interp_nearest * dlnrho_dlnr_interp_nearest
+        rho_dlnrho_dlnR_sum += rho_interp_nearest * dlnrho_dlnR_interp_nearest
 
-    dlnrho_dlnr_interp_total = (1./rho_t) * rho_dlnrho_dlnr_sum
+    dlnrho_dlnR_interp_total = (1./rho_t) * rho_dlnrho_dlnR_sum
 
-    return dlnrho_dlnr_interp_total
+    return dlnrho_dlnR_interp_total
