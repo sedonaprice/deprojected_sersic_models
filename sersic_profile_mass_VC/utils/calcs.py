@@ -6,6 +6,7 @@
 ##################################################################################
 
 import os
+import copy
 
 # Supress warnings: Runtime & integration warnings are frequent
 import warnings
@@ -21,7 +22,10 @@ import astropy.constants as apy_con
 
 import logging
 
-from sersic_profile_mass_VC.utils.interp_profiles import interpolate_sersic_profile_rho
+from sersic_profile_mass_VC.utils.interp_profiles import interpolate_sersic_profile_logrho_function
+from sersic_profile_mass_VC.utils.interp_profiles import interpolate_sersic_profile_dlnrho_dlnR_function
+from sersic_profile_mass_VC.utils.interp_profiles import InterpFunc
+
 
 __all__ = [ 'vcirc_spherical_symmetry', 'menc_spherical_symmetry',
             'virial_coeff_tot', 'virial_coeff_3D',
@@ -788,8 +792,8 @@ def total_mass3D_integral(R, Reff=1., n=1., q=0.4, Ie=1., i=90., Rinner=0., Upsi
 
 def total_mass2D_direct(R, total_mass=1., Reff=1., n=1., q=0.4, i=90., Rinner=0.):
     """
-    Evalutation of the 2D projected mass enclosed within an ellipse
-    (or elliptical shell), assuming a constant M/L ratio Upsilon.
+    Evalutation of the 2D projected mass enclosed within an ellipse,
+    assuming a constant M/L ratio Upsilon.
 
     Parameters
     ----------
@@ -1149,10 +1153,13 @@ def dlnrhom_dlnm_multimethod(m, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1., 
         return dlnrho_dlnm
 
 
+def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 
-def force_R_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
+    return None
+
+def force_R_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon, logrhom_interp, table, total_mass):
     """
-    Integrand :math:`\frac{\rho(m)R}{(\tau+1)^2 \sqrt{tau+q^2}}`
+    Integrand :math:`\frac{\rho(m)}{(\tau+1)^2 \sqrt{tau+q^2}}`
     as part of numerical integration to find :math:`g_r(R,z)`
 
     Parameters
@@ -1175,6 +1182,11 @@ def force_R_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
             Inclination of system [deg]
         Upsilon: float
             Mass-to-light ratio
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
+        total_mass: log total mass [Msun], optional
 
     Returns
     -------
@@ -1182,16 +1194,35 @@ def force_R_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
 
     """
     m = np.sqrt(R**2/(tau+1.) + z**2/(tau+q**2))
-    rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    if logrhom_interp is not None:
+        table_Reff =    table['Reff']
+        table_mass =    table['total_mass']
 
-    integrand = rho * R / ( (tau+1.)**2 * np.sqrt(tau + q**2) )
+        scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+        #rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+        # logrho = logrhom_interp(m / Reff * table_Reff)
+
+        logrho = logrhom_interp(m, Reff)
+
+        rho = np.power(10., logrho) * scale_fac
+
+        # Back replace inf, if interpolating at r=0 for n>1:
+        if (table['n'] >= 1.) & (table['R'][0] == 0.):
+            if (~np.isfinite(table['rho'][0]) & (m == 0.)):
+                rho = table['rho'][0]
+    else:
+        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+    integrand = rho / ( (tau+1.)**2 * np.sqrt(tau + q**2) )
 
     return integrand
 
 
-def force_z_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
+
+
+def force_z_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon, logrhom_interp, table, total_mass):
     """
-    Integrand :math:`\frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}}`
+    Integrand :math:`\frac{\rho(m)}{(\tau+1)(tau+q^2)^{3/2}}`
     as part of numerical integration to find :math:`g_z(R,z)`
 
     Parameters
@@ -1214,21 +1245,48 @@ def force_z_integrand(tau, R, z, Reff, n, q, Ie, i, Upsilon):
             Inclination of system [deg]
         Upsilon: float
             Mass-to-light ratio
-
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
     Returns
     -------
         integrand: float
 
     """
     m = np.sqrt(R**2/(tau+1.) + z**2/(tau+q**2))
-    rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+    if logrhom_interp is not None:
+        table_Reff =    table['Reff']
+        table_mass =    table['total_mass']
 
-    integrand = rho * z / ( (tau+1.) * np.power((tau + q**2), 3./2.) )
+        scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+        # rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+        # logrho = logrhom_interp(m / Reff * table_Reff)
+
+        logrho = logrhom_interp(m, Reff)
+
+        rho = np.power(10., logrho) * scale_fac
+
+        # Back replace inf, if interpolating at r=0 for n>1:
+        if (table['n'] >= 1.) & (table['R'][0] == 0.):
+            if (~np.isfinite(table['rho'][0]) & (m == 0.)):
+                rho = table['rho'][0]
+
+        # ## DEBUG:
+        # rho_direct = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+        # if (np.abs(np.log10(rho)-np.log10(rho_direct))>1.):
+        #     raise ValueError
+    else:
+        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+    integrand = rho / ( (tau+1.) * np.power((tau + q**2), 3./2.) )
 
     return integrand
 
 
-def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+
+def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+            logrhom_interp=None, table=None, total_mass=None):
     """
     Evalutation of gravitational force in the radial direction
     :math:`g_R=-\partial\Phi/\partial R`,
@@ -1236,7 +1294,7 @@ def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     .. math::
 
-        g_R(R,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)R}{(\tau+1)^2 \sqrt{tau+q^2}},
+        g_R(R,z) = - 2\pi GqR \int_0^{\infty} d\tau \frac{\rho(m)}{(\tau+1)^2 \sqrt{tau+q^2}},
         m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
 
     Parameters
@@ -1258,6 +1316,10 @@ def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
         Upsilon: float or array_like, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
 
     Returns
     -------
@@ -1267,11 +1329,19 @@ def force_R(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
 
     cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
-    int_force_R, _ = scp_integrate.quad(force_R_integrand, 0, np.inf,
-                                       args=(R, z, Reff, n, q, Ie, i, Upsilon))
-    return -2.*np.pi*G.cgs.value*q*cnst * int_force_R
+    # Check case at R=z=0: Must have force = 0 in this case
+    if (R==0.) & (z==0.):
+        int_force_R = 0.
+    else:
+        int_force_R, _ = scp_integrate.quad(force_R_integrand, 0, np.inf,
+                                            args=(R, z, Reff, n, q, Ie, i, Upsilon,
+                                             logrhom_interp, table, total_mass))
+    return -2.*np.pi*G.cgs.value*q*cnst * R * int_force_R
 
-def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
+
+
+def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+            logrhom_interp=None, table=None, total_mass=None):
     """
     Evalutation of gravitational force in the vertical direction
     :math:`g_z=-\partial\Phi/\partial z`,
@@ -1279,7 +1349,7 @@ def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
     .. math::
 
-        g_z(R,z) = - 2\pi Gq\int_0^{\infty} d\tau \frac{\rho(m)z}{(\tau+1)(tau+q^2)^{3/2}},
+        g_z(R,z) = - 2\pi Gqz \int_0^{\infty} d\tau \frac{\rho(m)}{(\tau+1)(tau+q^2)^{3/2}},
         m = \frac{R^2}{\tau+1} + \frac{z^2}{\tau+q^2}
 
     Parameters
@@ -1301,6 +1371,10 @@ def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
 
         Upsilon: float or array_like, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
 
     Returns
     -------
@@ -1310,23 +1384,2042 @@ def force_z(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.):
     """
 
     cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
-    int_force_z, _ = scp_integrate.quad(force_z_integrand, 0, np.inf,
-                                       args=(R, z, Reff, n, q, Ie, i, Upsilon))
-    return -2.*np.pi*G.cgs.value*q*cnst * int_force_z
+
+    # Check case at R=z=0: Must have force = 0 in this case
+    if ((R**2 + (z/q)**2)==0.):
+        int_force_z = 0.
+    else:
+        int_force_z, _ = scp_integrate.quad(force_z_integrand, 0, np.inf,
+                                            args=(R, z, Reff, n, q, Ie, i, Upsilon,
+                                             logrhom_interp, table, total_mass))
+
+    return -2.*np.pi*G.cgs.value*q*z* cnst * int_force_z
 
 
-def sigsq_z_integrand(z, R, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table):
+# def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
+#
+#     return None
+#
+# def sigsq_z_integrand(z, R, total_mass, Reff, n, q, Ie, i, Upsilon,
+#                       sersic_table, logrhom_interp,
+#                       table_forcez, forcez_interp, halo):
+#     """
+#     Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
+#
+#     Parameters
+#     ----------
+#         z: float
+#             Height above midplane [kpc]
+#         R: float
+#             Midplane radius [kpc]
+#         total_mass: float
+#             Total mass of the Sersic mass component [Msun]
+#         Reff: float
+#             Effective radius of Sersic profile [kpc]
+#         n: float
+#             Sersic index
+#         q: float
+#             Intrinsic axis ratio
+#         Ie: float
+#             Normalization of Sersic intensity profile at kap = Reff
+#         i: float
+#             Inclination of system [deg]
+#         Upsilon: float
+#             Mass-to-light ratio
+#         logrhom_interp: dictionary or None
+#             Use pre-computed table to create an interpolation function
+#             that is used for this calculation.
+#         halo: Halo instance or None
+#             Optionally include force from a halo component.
+#
+#     Returns
+#     -------
+#         integrand: float
+#
+#     """
+#     m = np.sqrt(R**2 + (z/q)**2)
+#     if logrhom_interp is not None:
+#         table_Reff =    sersic_table['Reff']
+#         table_mass =    sersic_table['total_mass']
+#
+#         scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+#         # rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+#         logrho = logrhom_interp(m / Reff * table_Reff)
+#         rho = np.power(10., logrho) * scale_fac
+#     else:
+#         rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+#
+#     if forcez_interp is not None:
+#         table_Reff =    table_forcez['Reff']
+#         table_mass =    table_forcez['total_mass']
+#
+#         scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**2
+#         gz = forcez_interp(z / Reff * table_Reff) * scale_fac
+#     else:
+#         gz = force_z(R, z,  Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon,
+#                      logrhom_interp=logrhom_interp, table=sersic_table,
+#                      total_mass=total_mass)
+#
+#     if halo is not None:
+#         gz += halo.force_z(R, z)
+#
+#     integrand = rho * gz
+#     return integrand
+#
+#
+#
+#
+# def sigmaz_sq(R, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+#               sersic_table=None, table_forcez=None,
+#               halo=None):
+#     """
+#     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
+#
+#     .. math::
+#
+#         \sigma^2_z(R,z)=\frac{1}{\rho}\int \rho g_z(R,z)dz
+#
+#     Parameters
+#     ----------
+#         R: float
+#             Midplane radius [kpc]
+#         z: float
+#             Height above midplane [kpc]
+#
+#         total_mass: float
+#             Total mass of the Sersic mass component [Msun]
+#         Reff: float
+#             Effective radius of Sersic profile [kpc]
+#         n: float
+#             Sersic index
+#         q: float
+#             Intrinsic axis ratio of Sersic profile
+#         Ie: float
+#             Normalization of Sersic intensity profile at kap = Reff
+#         i: float
+#             Inclination of system [deg]
+#
+#         Upsilon: float or array_like, optional
+#             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+#         sersic_table: dictionary, optional
+#             Use pre-computed table to create an interpolation function
+#             that is used for this calculation.
+#         halo: Halo instance, optional
+#             Optionally include force from a halo component.
+#
+#     Returns
+#     -------
+#         sigzsq: float
+#             Vertical velocity dispersion direction; units [km^2/s^2]
+#
+#     """
+#     m = np.sqrt(R**2 + (z/q)**2)
+#     if sersic_table is not None:
+#         # rho = interpolate_sersic_profile_rho(R=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
+#         #                                      table=sersic_table)
+#
+#         logrhom_interp = interpolate_sersic_profile_logrho_function(n=n, invq=1./q,
+#                                                               table=sersic_table)
+#         table_Reff =    sersic_table['Reff']
+#         table_mass =    sersic_table['total_mass']
+#
+#         scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+#         # rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+#         logrho = logrhom_interp(m / Reff * table_Reff)
+#         rho = np.power(10., logrho) * scale_fac
+#     else:
+#         rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+#         logrhom_interp = None
+#
+#     if table_forcez is not None:
+#         table_z =       table_forcez['z']
+#         table_Reff =    table_forcez['Reff']
+#         # table_mass =    table_forcez['total_mass']
+#
+#         # Will need to match exact R:
+#         whm = np.where(table_forcez['R'] == (R / Reff * table_Reff))[0]
+#         if len(whm) == 0:
+#             raise ValueError("No matching 'R' in table")
+#         table_gz = table_forcez['gz_R_{}'.format(whm[0])]
+#
+#         # scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**2
+#         forcez_interp = scp_interp.interp1d(table_z, table_gz,
+#                         fill_value='extrapolate',  kind='cubic')
+#     else:
+#         forcez_interp = None
+#
+#     # int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
+#     #                                     args=(R, total_mass, Reff, n, q, Ie, i,
+#     #                                           Upsilon, sersic_table, logrhom_interp,
+#     #                                           table_forcez, forcez_interp))
+#     # # WRONG: ///// No negatives, because delPotl = -gz, so already in there
+#     # return - 1./rho * int_sigsq_z
+#
+#
+#     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, z, np.inf,
+#                                         args=(R, total_mass, Reff, n, q, Ie, i,
+#                                               Upsilon, sersic_table, logrhom_interp,
+#                                               table_forcez, forcez_interp,
+#                                               halo))
+#
+#     return -1./rho * int_sigsq_z
+#
+#
+
+def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
+
+    return None
+
+
+def _sprof_get_rhog(sprof, m):
+    if sprof.isgas:
+        if sprof.logrhom_interp is not None:
+            table_Reff = sprof.table['Reff']
+            table_mass = sprof.table['total_mass']
+
+            scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
+            # logrho = logrhom_interp(m / sprof.Reff * table_Reff)
+
+            logrho = sprof.logrhom_interp(m, sprof.Reff)
+
+            rho_g = np.power(10., logrho) * scale_fac
+        else:
+            rho_g = sprof.density(m)
+    else:
+        rho_g = m * 0.
+
+    return rho_g
+
+def _preprocess_sprof_dPdz_calc(sprof, R, z):
+    # Note R and z are both scalars
+
+    m = np.sqrt(R**2 + (z/sprof.q)**2)
+
+    rho_g = _sprof_get_rhog(sprof, m)
+
+    if sprof.forcez_interp is not None:
+        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
+        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+
+        # Catch nans: set to 0.
+        if ~np.isfinite(gz):
+            gz = 0.
+    else:
+        gz = sprof.force_z(R, z, table=sprof.table, func_logrho=sprof.logrhom_interp)
+
+    return gz, rho_g
+
+
+def _dPdz(z, P_z, R, sprof_list, halo):
     """
-    Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d P_z / dz = d(\rho \sigma^2_z(R,z))/dz= \rho g_z(R,z)
 
     Parameters
     ----------
         z: float
             Height above midplane [kpc]
+
+        P_z: 1d-array
+            Pressure in the z direction.
+            (Necessary for scipy.integrate.solve_ivp(), but not actually used.)
+
         R: float
             Midplane radius [kpc]
-        total_mass: float
-            Total mass of the Sersic mass component [Msun]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*P_z
+    gz = 0.*P_z
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+        gz[0] += gz_i
+        rho_g[0] += rho_g_i
+
+    if halo is not None:
+        gz[0] += halo.force_z(R, z)
+
+
+    dPdz = rho_g * gz
+
+
+
+    if np.abs(dPdz) == 0.:
+        return np.abs(dPdz)
+    else:
+        return dPdz
+
+def _dPdz_int_quad(z, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d P_z / dz = d(\rho \sigma^2_z(R,z))/dz= \rho g_z(R,z)
+
+    Parameters
+    ----------
+        z: float
+            Height above midplane [kpc]
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*z
+    gz = 0.*z
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+        gz += gz_i
+        rho_g += rho_g_i
+
+    if halo is not None:
+        gz += halo.force_z(R, z)
+
+    # # Set to rough minimum, nonzero feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     rho_g[0] = np.power(10., -320)
+
+
+    dPdz = rho_g * gz
+
+
+    if np.abs(dPdz) == 0.:
+        return np.abs(dPdz)
+    else:
+        return dPdz
+
+
+def _dlnPdz(z, lnP_z, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d ln P_z / dz = dln(\rho \sigma^2_z(R,z))/dz= \rho g_z(R,z) / P_z
+
+    Parameters
+    ----------
+        z: float
+            Height above midplane [kpc]
+
+        lnP_z: 1d-array
+            Log pressure in the z direction.
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*lnP_z
+    gz = 0.*lnP_z
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+        gz[0] += gz_i
+        rho_g[0] += rho_g_i
+
+    if halo is not None:
+        gz[0] += halo.force_z(R, z)
+
+    # # Set to rough minimum, nonzero feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     raise ValueError
+    #     rho_g[0] = np.power(10., -320)
+
+
+    # SIGN ERROR??
+    #dlnPdz = -rho_g * gz / (np.exp(lnP_z))
+
+    dlnPdz = rho_g * gz / (np.exp(lnP_z))
+
+    # # Set to rough minimum, nonzero feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     dlnPdz[0] = np.power(10., -320)
+
+    return dlnPdz
+
+
+
+################################
+
+def _dPdu(u, P_z, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,u=1/z),
+    based on hydrostatic equilibrium in the vertical direction with the
+    substitution u = 1/z (to better handle the z->inf boundary condition)
+
+    .. math::
+
+        d P_z / du = d(\rho \sigma^2_z)/du= - \rho g_z  / u^2
+
+    Parameters
+    ----------
+        u: float
+            Inverse height above midplane, u = 1/z [kpc]
+
+        P_z: 1d-array
+            Pressure in the z direction.
+            (Necessary for scipy.integrate.solve_ivp(), but not actually used.)
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*P_z
+    gz = 0.*P_z
+
+    if np.abs(u) > 0:
+        z = 1./u
+    else:
+        z = np.inf
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+        gz[0] += gz_i
+        rho_g[0] += rho_g_i
+
+    if halo is not None:
+        gz[0] += halo.force_z(R, z)
+
+    # # Set to rough minimum, nonzero feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     rho_g[0] = np.power(10., -320)
+
+
+    dPdu = - rho_g * gz / (u**2)
+
+
+    # Set to rough minimum, nonzero feasible value
+    if (rho_g[0] == 0.) & (np.isfinite(z)):
+        #dPdu[0] = np.power(10., -320)
+        dPdu[0] = 0.
+
+    if np.abs(dPdu) == 0.:
+        return np.abs(dPdu)
+    else:
+        return dPdu
+
+def _dlnPdu(u, lnP_z, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,u=1/z),
+    based on hydrostatic equilibrium in the vertical direction with the
+    substitution u = 1/z (to better handle the z->inf boundary condition)
+
+    .. math::
+
+        d ln P_z / du = dln(\rho \sigma^2_z)/du= - \rho g_z  / (u^2 P_z)
+
+    Parameters
+    ----------
+        u: float
+            Inverse height above midplane, u = 1/z [kpc]
+
+        lnP_z: 1d-array
+            Log pressure in the z direction.
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*lnP_z
+    gz = 0.*lnP_z
+
+    if np.abs(u) > 0:
+        z = 1./u
+    else:
+        z = np.inf
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+        gz[0] += gz_i
+        rho_g[0] += rho_g_i
+
+    if halo is not None:
+        gz[0] += halo.force_z(R, z)
+
+    # # Set to rough minimum, nonzero feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     raise ValueError
+    #     rho_g[0] = np.power(10., -320)
+
+
+    dlnPdu = - rho_g * gz / (u**2 * np.exp(lnP_z))
+
+    # raise ValueError
+
+    # # Set to rough minimum, -inf not a feasible value
+    # if (rho_g[0] == 0.) & (np.isfinite(z)):
+    #     # dlnPdu[0] = -np.power(10.,308)
+    #     #dlnPdu[0] = -np.power(10.,307.5)
+    #     dlnPdu[0] = -np.power(10.,300)
+
+    # Does it go to 0???
+    if (rho_g[0] == 0.) & (np.isfinite(z)):
+        dlnPdu[0] = np.power(10., -320)
+        # dlnPdu[0] = 0.
+
+    return dlnPdu
+
+################################
+
+
+def _preprocess_sprof_dsigzsqdz_calc(sprof, R, z):
+    # Note R and z are both scalars
+
+    m = np.sqrt(R**2 + (z/sprof.q)**2)
+
+
+    rho_g = _sprof_get_rhog(sprof, m)
+    if sprof.isgas:
+        if sprof.dlnrhodlnm_interp is not None:
+            # dlnrhodlnm = sprof.dlnrhodlnm_interp(m / sprof.Reff * sprof.table['Reff'])
+            dlnrhodlnm = sprof.dlnrhodlnm_interp(m, sprof.Reff)
+        else:
+            dlnrhodlnm = sprof.dlnrho_dlnR(m)
+        dlnrhogdz = (z / (sprof.q**2 * R**2 + z**2)) * dlnrhodlnm
+    else:
+        dlnrhogdz = m * 0.
+
+
+    if sprof.forcez_interp is not None:
+        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
+        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+
+        # Catch nans: set to 0.
+        if ~np.isfinite(gz):
+            gz = 0.
+    else:
+        gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+
+    return gz, rho_g, dlnrhogdz
+
+
+
+def _dsigzsqdz(z, sigzsq, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d sig_z^2 / dz = g_z(R,z) - \sigma_z^z(R,z) d\ln\rho/dz
+
+    Parameters
+    ----------
+        z: float
+            Height above midplane [kpc]
+
+        sigzsq: 1d-array
+            Square of the dispersion in the z direction in the z direction.
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*sigzsq
+    gz = 0.*sigzsq
+    drhogdz = 0.*sigzsq
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calc(sprof, R, z)
+        if ~np.isfinite(dlnrhogdz_i):
+            raise ValueError("dlnrhogdz_i is not finite!")
+
+        # # Hack for calculation: Set to rough minimum, nonzero feasible value
+        # if sprof.isgas & (rho_g_i == 0):
+        #     rho_g_i = np.power(10., -320)
+
+        gz[0] += gz_i
+        rho_g[0] += rho_g_i
+        drhogdz[0] += rho_g_i * dlnrhogdz_i
+
+    if halo is not None:
+        gz[0] += halo.force_z(R, z)
+
+    # Set to rough minimum, nonzero feasible value
+    if (rho_g[0] == 0.) & (np.isfinite(z)):
+        rho_g[0] = np.power(10., -320)
+
+
+    dlnrhogdz = drhogdz / rho_g
+
+    # SIGN ERROR???
+    #dsigzsqdz = -sigzsq * dlnrhogdz - gz
+
+    dsigzsqdz = gz - sigzsq * dlnrhogdz
+
+    return dsigzsqdz
+
+
+def _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z):
+
+    m = np.sqrt(R**2 + (z/sprof.q)**2)
+
+
+    rho_g = _sprof_get_rhog(sprof, m)
+    if sprof.isgas:
+        if sprof.dlnrhodlnm_interp is not None:
+            # dlnrhodlnm = sprof.dlnrhodlnm_interp(m / sprof.Reff * sprof.table['Reff'])
+            dlnrhodlnm = sprof.dlnrhodlnm_interp(m, sprof.Reff)
+        else:
+            dlnrhodlnm = sprof.dlnrho_dlnR(m)
+        dlnrhogdz = (z / (sprof.q**2 * R**2 + z**2)) * dlnrhodlnm
+    else:
+        dlnrhogdz = m * 0.
+
+    if (R==0):
+        dlnrhogdz[z==0] = np.log(np.power(10., -320))
+
+
+    if sprof.forcez_interp is not None:
+        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
+        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+
+        # Catch nans: set to 0.
+        # if ~np.isfinite(gz):
+        #     gz = 0.
+        if np.any(~np.isfinite(gz)):
+            gz[~np.isfinite(gz)] = 0.
+    else:
+        gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+
+    # ## Test
+    # gz_recalc = 0.*z
+    # for i, zz in enumerate(z):
+    #     gz_recalc[i] = sprof.force_z(R, zz , table=sprof.table, func_logrho=sprof.logrhom_interp)
+    # raise ValueError
+
+    return gz, rho_g, dlnrhogdz
+
+def _dsigzsqdzBVP(z, sigzsq, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d sig_z^2 / dz = g_z(R,z) - \sigma_z^2(R,z) d\ln\rho/dz
+
+    Parameters
+    ----------
+        z: float or array
+            Height above midplane [kpc]
+
+        sigzsq: 1d-array
+            Square of the dispersion in the z direction in the z direction.
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*sigzsq
+    gz = 0.*sigzsq
+    drhogdz = 0.*sigzsq
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z)
+        # if ~np.isfinite(dlnrhogdz_i):
+        #     raise ValueError("dlnrhogdz_i is not finite!")
+        if np.any(~np.isfinite(dlnrhogdz_i)):
+            raise ValueError("dlnrhogdz_i is not finite!")
+
+        # # Hack for calculation: Set to rough minimum, nonzero feasible value
+        # if sprof.isgas & (rho_g_i == 0):
+        #     rho_g_i = np.power(10., -320)
+
+        gz += gz_i
+        rho_g += rho_g_i
+        drhogdz += rho_g_i * dlnrhogdz_i
+
+    if halo is not None:
+        gz += halo.force_z(R, z)
+
+    # Set to rough minimum, nonzero feasible value
+    #if (np.any(rho_g == 0.)) & (np.isfinite(z)):
+    if (np.any(rho_g == 0.)):
+        rho_g[((rho_g == 0.) & np.isfinite(z))] = np.power(10., -320)
+
+
+    dlnrhogdz = drhogdz / rho_g
+
+    # SIGN ERROR???
+    #dsigzsqdz = -sigzsq * dlnrhogdz - gz
+
+    # SHOULD BE RIGHT ANSWER
+    dsigzsqdz = gz - sigzsq * dlnrhogdz
+
+    # raise ValueError
+
+    # # dsigzsqdz = -gz - sigzsq * dlnrhogdz
+    #
+    # # dsigzsqdz = gz + sigzsq * dlnrhogdz
+    #
+    # dsigzsqdz = -gz + sigzsq * dlnrhogdz
+
+    return dsigzsqdz
+
+def _dsigzdzBVP(z, sigz, R, sprof_list, halo):
+    """
+    Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
+    based on hydrostatic equilibrium in the vertical direction
+
+    .. math::
+
+        d sig_z / dz = g_z(R,z)/(2\sigma_z) - \sigma_z(R,z)/2 d\ln\rho/dz
+
+    Parameters
+    ----------
+        z: float or array
+            Height above midplane [kpc]
+
+        sigzsq: 1d-array
+            Square of the dispersion in the z direction in the z direction.
+
+        R: float
+            Midplane radius [kpc]
+
+        sprof_list: list
+            Set of deprojected Sersic model instances
+
+        halo: Halo instance or None
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        integrand: float
+
+    """
+    rho_g = 0.*sigz
+    gz = 0.*sigz
+    drhogdz = 0.*sigz
+
+    for sprof in sprof_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z)
+        # if ~np.isfinite(dlnrhogdz_i):
+        #     raise ValueError("dlnrhogdz_i is not finite!")
+        if np.any(~np.isfinite(dlnrhogdz_i)):
+            raise ValueError("dlnrhogdz_i is not finite!")
+
+        # # Hack for calculation: Set to rough minimum, nonzero feasible value
+        # if sprof.isgas & (rho_g_i == 0):
+        #     rho_g_i = np.power(10., -320)
+
+        gz += gz_i
+        rho_g += rho_g_i
+        drhogdz += rho_g_i * dlnrhogdz_i
+
+    if halo is not None:
+        gz += halo.force_z(R, z)
+
+    # Set to rough minimum, nonzero feasible value
+    #if (np.any(rho_g == 0.)) & (np.isfinite(z)):
+    if (np.any(rho_g == 0.)):
+        rho_g[((rho_g == 0.) & np.isfinite(z))] = np.power(10., -320)
+
+
+    dlnrhogdz = drhogdz / rho_g
+
+    # # SIGN ERROR???
+    # #dsigzsqdz = -sigzsq * dlnrhogdz - gz
+    #
+    # #dsigzsqdz = gz - sigzsq * dlnrhogdz
+    #
+    # # dsigzsqdz = -gz - sigzsq * dlnrhogdz
+    #
+    # dsigzsqdz = gz + sigzsq * dlnrhogdz
+
+    # SIGN???
+    dsigzdz = gz/(2.*sigz) - (sigz/2.) * dlnrhogdz
+
+    return dsigzdz
+
+def _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=False,
+                              interp_dlnrhodlnm=False):
+
+    # Assume component is gas by default
+    if 'isgas' not in sprof.__dict__.keys():
+        sprof.isgas = True
+
+    logrhom_interp = None
+    dlnrhodlnm_interp = None
+    if 'table' in sprof.__dict__.keys():
+        if sprof.table is not None:
+            logrhom_interp = interpolate_sersic_profile_logrho_function(n=sprof.n, invq=sprof.invq,
+                                                                        table=sprof.table)
+            table_Reff = sprof.table['Reff']
+            table_mass = sprof.table['total_mass']
+
+            sprof.rhom_scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
+
+            if interp_dlnrhodlnm:
+                dlnrhodlnm_interp = interpolate_sersic_profile_dlnrho_dlnR_function(n=sprof.n, invq=sprof.invq,
+                                                                                    table=sprof.table)
+
+    forcez_interp = None
+    if 'table_forcez' in sprof.__dict__.keys():
+        if sprof.table_forcez is not None:
+            table_z =    sprof.table_forcez['z']
+            table_Reff = sprof.table_forcez['Reff']
+
+            # Will need to match exact R:
+            tol = 1.e-3
+            whm = np.where(np.abs(sprof.table_forcez['R']-(R / sprof.Reff * table_Reff))<=tol)[0]
+            if len(whm) == 0:
+                raise ValueError("No matching 'R' in table")
+            table_gz = sprof.table_forcez['gz_R_{}'.format(whm[0])]
+
+            # forcez_interp = scp_interp.interp1d(table_z, table_gz,
+            #                 fill_value='extrapolate',  kind='cubic')
+
+            # # LINEAR EXTRAP
+            # fz_interp = scp_interp.interp1d(table_z, table_gz, fill_value=np.NaN, bounds_error=False, kind='cubic')
+            # fz_extrap = scp_interp.interp1d(table_z, table_gz, fill_value='extrapolate',
+            #                                            bounds_error=False, kind='linear')
+
+            # CUBIC EXTRAP
+            fz_interp = scp_interp.interp1d(table_z, table_gz, fill_value='extrapolate',
+                                            bounds_error=False, kind='cubic')
+            fz_extrap = None
+
+            forcez_interp = InterpFunc(f_interp=fz_interp, f_extrap=fz_extrap, table_Rad=table_z, table_Reff=table_Reff)
+
+            table_mass = sprof.table_forcez['total_mass']
+
+            sprof.forcez_scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**2
+
+
+    # # Only replace if not already in the dict:
+    # if 'logrhom_interp' not in sprof.__dict__.keys():
+    #     sprof.logrhom_interp = logrhom_interp
+    # if 'forcez_interp' not in sprof.__dict__.keys():
+    #     sprof.forcez_interp = forcez_interp
+    # if 'dlnrhodlnm_interp' not in sprof.__dict__.keys():
+    #     sprof.dlnrhodlnm_interp = dlnrhodlnm_interp
+
+    sprof.logrhom_interp = logrhom_interp
+    sprof.forcez_interp = forcez_interp
+    sprof.dlnrhodlnm_interp = dlnrhodlnm_interp
+
+    if not return_rho:
+        return sprof
+
+    else:
+        # Also calculate rho:
+        m = np.sqrt(R**2 + (z/sprof.q)**2)
+        rho_g = _sprof_get_rhog(sprof, m)
+
+        return sprof, rho_g
+
+
+
+
+def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
+    """
+    Evalutation of vertical pressure of a deprojected Sersic density profile at (R,z),
+    by solving the following differential equation:
+
+    .. math::
+
+        d P_z / dz = d(\rho \sigma^2_z(R,z))/dz= - \rho g_z(R,z)
+
+    Parameters
+    ----------
+        R: float
+            Midplane radius [kpc]
+        z: float or array
+            Height above midplane [kpc]
+
+
+        sprof: Deprojected Sersic model instance or array of intances
+
+        sprof.table: table of (standard) precomputed values, optional
+            Use pre-computed table to create an interpolation function
+            that is used for this calculation.
+        sprof.table_forcez: table of precomputed gz, optional
+
+        halo: Halo instance, optional
+            Optionally include force from a halo component.
+
+        return_sol: bool
+            Return scipy IVP solution Bunch object or not. (Default: False)
+
+    Returns
+    -------
+        Pzvals: float or array
+            Vertical velocity dispersion direction; units [km^2/s^2]
+
+    """
+    if method is None:
+        # method = 'dPdz'
+        # method = 'dlnPdz'
+        # method = 'dsigsqdz'
+
+        # Attempt invert:
+        # method = 'dPdu'
+        # method = 'dlnPdu'
+
+        # # CRAZY TEST:
+        # method = 'dsigsqdz_BVP'
+        # # method = 'dsigdz_BVP'
+
+        method = 'dPdz_integrate'
+
+
+    # # Override method if R=0:
+    # if ((method == 'dsigsqdz_BVP') & (R==0.)):
+    #     method = 'dlnPdz'
+
+
+    print("Pz: method={}".format(method))
+
+    if (method.lower().strip() != 'dpdz_integrate'):
+        raise ValueError("Should use method='dPdz_integrate' !!!")
+
+    try:
+        tmp = sprof[0]
+        sprof_list_in = sprof
+    except:
+        sprof_list_in = [sprof]
+
+    # Cast z into an array and invert for evaluation:
+    try:
+        tmp = z[0]
+        zeval = z[::-1]
+    except:
+        zeval = np.array([z])
+
+    if method.strip().lower() in ['dsigsqdz', 'dsigsqdz_bvp', 'dsigdz_bvp']:
+        rho_g = np.sqrt(R**2 + z**2) * 0.
+
+    sprof_list = []
+
+    # for sprof in sprof_list_in:
+    #     sprof = _preprocess_sprof_Pz_calc(sprof, R, z)
+    #     sprof_list.append(sprof)
+
+
+    for sprof in sprof_list_in:
+        if method.strip().lower() in ['dsigsqdz', 'dsigsqdz_bvp', 'dsigdz_bvp']:
+            sprof, rho_g_i = _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=True)
+            rho_g += rho_g_i
+        else:
+            sprof = _preprocess_sprof_Pz_calc(sprof, R, z)
+        sprof_list.append(sprof)
+
+
+    if method.strip().lower() == 'dpdz':
+        # t_span = [np.inf,0.]
+        # y0 = np.array([0.])
+
+        # Solver doesn't like t0 = inf....
+        # t_span = [100.*sprof.q,0.]
+        # t_span = [200.*sprof.q,0.] # orig fiducial
+        # t_span = [500.*sprof.q,0.]
+        t_span = [1000.*sprof.q,0.]
+
+
+        sigz_guess = 1.e-6 #1.
+        mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        Pz_guess = 0.
+        for sprof in sprof_list:
+            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+
+        y0 = np.array([Pz_guess])
+        # if ~np.isfinite(y0[0]):
+        #     raise ValueError("Initial guess is not finite!")
+
+        if y0 == 0.:
+            # Set to rough minimum, nonzero feasible value
+            y0 = np.array([np.power(10., -320)])
+
+        sol = scp_integrate.solve_ivp(_dPdz, t_span, y0, t_eval=zeval,
+                                      args=(R, sprof_list, halo),
+                                      # method='RK45',  # use for non-stiff problems
+                                      method='Radau', # use for stiff problems
+                                      # method='LSODA', # Auto switcher for stiffness
+                                      dense_output=False )
+        # Used t_eval = z[::-1], in inverse order, so invert output:
+        Pzvals = sol.y[0][::-1]
+
+        raise ValueError
+
+    # elif method.strip().lower() == 'dlnpdz':
+    #     # t_span = [np.inf,0.]
+    #     # y0 = np.array([-np.inf])
+    #
+    #     # Solver doesn't like t0 = inf....
+    #     # t_span = [100.*sprof.q,0.]
+    #     # t_span = [200.*sprof.q,0.]  # orig fiducial
+    #     # t_span = [300.*sprof.q,0.]
+    #     # t_span = [500.*sprof.q,0.]
+    #     t_span = [1000.*sprof.q,0.]
+    #
+    #     # sigz_guess = 1.e-2
+    #     sigz_guess = 1.e-6 #1.
+    #     mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+    #     Pz_guess = 0.
+    #     for sprof in sprof_list:
+    #         Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+    #
+    #     y0 = np.array([np.log(Pz_guess)])
+    #     if ~np.isfinite(y0[0]):
+    #         #raise ValueError("Initial guess is not finite!")
+    #         # Set to rough minimum feasible value
+    #         y0 = np.array([np.log(np.power(10., -320))])
+    #
+    #     # raise ValueError
+    #
+    #     sol = scp_integrate.solve_ivp(_dlnPdz, t_span, y0, t_eval=zeval,
+    #                                   args=(R, sprof_list, halo),
+    #                                   # method='RK45',  # use for non-stiff problems
+    #                                   method='Radau', # use for stiff problems
+    #                                   # method='LSODA', # Auto switcher for stiffness
+    #                                   dense_output=False )
+    #     # Used t_eval = z[::-1], in inverse order, so invert output:
+    #     Pzvals = np.exp(sol.y[0][::-1])
+    #
+    #     # raise ValueError
+
+
+    elif method.strip().lower() == 'dlnpdz':
+        # t_span = [np.inf,0.]
+        # y0 = np.array([-np.inf])
+
+        # Solver doesn't like t0 = inf....
+        # t_span = [100.*sprof.q,0.]
+        # t_span = [200.*sprof.q,0.]  # orig fiducial
+        # t_span = [300.*sprof.q,0.]
+        # t_span = [500.*sprof.q,0.]
+        t_span = [1000.*sprof.q,0.]
+
+        # sigz_guess = 1.e-2
+        sigz_guess = 1.e-6 #1.
+        mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        Pz_guess = 0.
+        for sprof in sprof_list:
+            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+
+        y0 = np.array([np.log(Pz_guess)])
+        if ~np.isfinite(y0[0]):
+            #raise ValueError("Initial guess is not finite!")
+            # Set to rough minimum feasible value
+            y0 = np.array([np.log(np.power(10., -320))])
+
+        # raise ValueError
+
+        sol = scp_integrate.solve_ivp(_dlnPdz, t_span, y0, t_eval=zeval,
+                                      args=(R, sprof_list, halo),
+                                      # method='RK45',  # use for non-stiff problems
+                                      method='Radau', # use for stiff problems
+                                      # method='LSODA', # Auto switcher for stiffness
+                                      dense_output=False )
+        # Used t_eval = z[::-1], in inverse order, so invert output:
+        Pzvals = np.exp(sol.y[0][::-1])
+
+        # raise ValueError
+
+    ##################################################
+    ##################################################
+    elif method.strip().lower() == 'dpdu':
+        # t_span = [np.inf,0.]
+        # y0 = np.array([0.])
+
+        # Have zeval = z[::-1] (high -> low)
+        # -- so just tak 1/zeval to get ascending u
+        ueval = 1./zeval
+
+
+        # t_span = [0., np.inf]     # u limits
+        # Nor a non-finite upper limit?
+        t_span = [1./(1000.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+        y0 = np.array([0.])   # Pz(u=ulim[0]).
+        # As ulim[0]=0., or z=inf, this is Pz(z->inf)=0.
+
+        # sigz_guess = 1.e-6 #1.
+        # mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        # Pz_guess = 0.
+        # for sprof in sprof_list:
+        #     Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+        #
+        # y0 = np.array([Pz_guess])
+        # # if ~np.isfinite(y0[0]):
+        # #     raise ValueError("Initial guess is not finite!")
+        #
+        # if y0 == 0.:
+        #     # Set to rough minimum, nonzero feasible value
+        #     y0 = np.array([np.power(10., -320)])
+
+        sol = scp_integrate.solve_ivp(_dPdu, t_span, y0, t_eval=ueval,
+                                      args=(R, sprof_list, halo),
+                                      # method='RK45',  # use for non-stiff problems
+                                      method='Radau', # use for stiff problems
+                                      # method='LSODA', # Auto switcher for stiffness
+                                      dense_output=False )
+        # Used t_eval = 1/z[::-1], in inverse order, so invert output:
+        Pzvals = sol.y[0][::-1]
+
+        raise ValueError
+
+    elif method.strip().lower() == 'dlnpdu':
+        # t_span = [0., np.inf]     # u limits
+        # y0 = np.array([-np.inf])   # lnPz(u=ulim[0]).
+        # # As ulim[0]=0., or z=inf, and this is lnPz, is -inf (as Pz(z->inf)=0.)
+
+        # Have zeval = z[::-1] (high -> low)
+        # -- so just tak 1/zeval to get ascending u
+        ueval = 1./zeval
+
+        # It doesn't like non-finite y0 either. Okayyyy
+        #t_span = [1./(1000.*sprof.q),np.inf]
+        # Nor a non-finite upper limit?
+        # t_span = [1./(1000.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+
+        t_span = [1./(200.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+
+        sigz_guess = 1.e-2
+        # sigz_guess = 1.e-6 #1.
+        mguess = np.sqrt(R**2 + ((1./t_span[0])/sprof.q)**2)
+        Pz_guess = 0.
+        for sprof in sprof_list:
+            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+
+        y0 = np.array([np.log(Pz_guess)])
+        if ~np.isfinite(y0[0]):
+            #raise ValueError("Initial guess is not finite!")
+            # Set to rough minimum feasible value
+            y0 = np.array([np.log(np.power(10., -320))])
+
+
+        # test = _dlnPdu(t_span[0], y0, R, sprof_list, halo)
+        #
+        # raise ValueError
+
+        sol = scp_integrate.solve_ivp(_dlnPdu, t_span, y0, t_eval=ueval,
+                                      args=(R, sprof_list, halo),
+                                      # method='RK45',  # use for non-stiff problems
+                                      method='Radau', # use for stiff problems
+                                      # method='LSODA', # Auto switcher for stiffness
+                                      dense_output=False )
+        # Used t_eval = 1/z[::-1], in inverse order, so invert output:
+        Pzvals = np.exp(sol.y[0][::-1])
+
+        # raise ValueError
+
+    elif method.strip().lower() == 'dpdz_integrate':
+        # INTEGRATE
+
+        # First check if z is array or not:
+
+        try:
+            tmp = z[0]
+            Pzvals = 0.*z
+            zarr = z
+            isarr=True
+        except:
+            zarr = [z]
+            Pzvals = np.array([0.])
+            isarr = False
+
+        # _dPdz(z, P_z, R, sprof_list, halo)
+
+        # z0 = sprof.q*sprof.Reff
+        # z0 = np.inf
+
+        for jj, zz in enumerate(zarr):
+            # Pzval_C, _ = scp_integrate.quad(_dPdz_int_quad, z0, zz,
+            #                                args=(R, sprof_list, halo))
+
+
+            Pzval_C, _ = scp_integrate.quad(_dPdz_int_quad, np.inf, zz,
+                                           args=(R, sprof_list, halo))
+
+            Pzvals[jj] = Pzval_C
+
+        sol = None
+
+    ##################################################
+    ##################################################
+
+    elif method.strip().lower() == 'dsigsqdz':
+        if return_sol:
+            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+                                    method=method, return_sol=True)
+        else:
+            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+        # if len(sol.t[::-1]
+        Pzvals = rho_g * sigzsq
+
+
+    elif method.strip().lower() == 'dsigsqdz_bvp':
+        if return_sol:
+            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+                                    method=method, return_sol=True)
+        else:
+            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+        # if len(sol.t[::-1]
+        Pzvals = rho_g * sigzsq
+
+        # raise ValueError
+    elif method.strip().lower() == 'dsigdz_bvp':
+        if return_sol:
+            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+                                    method=method, return_sol=True)
+        else:
+            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+        # if len(sol.t[::-1]
+        Pzvals = rho_g * sigzsq
+
+        # raise ValueError
+    else:
+        raise ValueError("Method={}".format(method))
+
+
+    # raise ValueError
+
+    # Recast output into same shape as z input:
+    try:
+        tmp = z[0]
+        if return_sol:
+            return Pzvals, sol
+        else:
+            return Pzvals
+    except:
+        if return_sol:
+            return Pzvals[0], sol
+        else:
+            return Pzvals[0]
+
+
+def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
+    """
+    Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
+
+    .. math::
+
+        \sigma^2_z(R,z)=\frac{1}{\rho}\int \rho g_z(R,z)dz
+
+    Parameters
+    ----------
+        R: float
+            Midplane radius [kpc]
+        z: float or array
+            Height above midplane [kpc]
+
+
+        sprof: Deprojected Sersic model instance or array of intances
+
+        sprof.table: table of (standard) precomputed values, optional
+            Use pre-computed table to create an interpolation function
+            that is used for this calculation.
+        sprof.table_forcez: table of precomputed gz, optional
+
+        halo: Halo instance, optional
+            Optionally include force from a halo component.
+
+    Returns
+    -------
+        sigzsq: float
+            Square vertical velocity dispersion; units [km^2/s^2]
+
+    """
+    if method is None:
+        # method = 'dPdz'
+        # method = 'dlnPdz'
+        # method = 'dsigsqdz'
+
+        # Attempt invert:
+        # method = 'dPdu'
+        # method = 'dlnPdu'
+
+        # # CRAZY TEST:
+        # method = 'dsigsqdz_BVP'
+        # # method = 'dsigdz_BVP'
+
+
+        method = 'dPdz_integrate'
+
+    # # Override method if R=0:
+    # if ((method == 'dsigsqdz_BVP') & (R==0.)):
+    #     method = 'dlnPdz'
+
+
+    print("sigmaz_sq: method={}".format(method))
+
+    if (method.lower().strip() != 'dpdz_integrate'):
+        raise ValueError("Should use method='dPdz_integrate' !!!")
+
+    try:
+        tmp = sprof[0]
+        sprof_list_in = sprof
+    except:
+        sprof_list_in = [sprof]
+
+    rho_g = np.sqrt(R**2 + z**2) * 0.
+    sprof_list = []
+
+    for sprof in sprof_list_in:
+        sprof, rho_g_i = _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=True,
+                                                   interp_dlnrhodlnm=True)
+        rho_g += rho_g_i
+        sprof_list.append(sprof)
+
+    # try:
+    #     # Set to rough minimum feasible value
+    #     rho_g[rho_g==0] = np.power(10., -320)
+    # except:
+    #     if (rho_g==0):
+    #         rho_g = np.power(10., -320)
+
+
+    if method.strip().lower() in ['dpdz', 'dlnpdz', 'dpdu', 'dlnpdu', 'dpdz_integrate']:
+        if return_sol:
+            Pzvals, sol= Pz(R, z, sprof=sprof_list_in, halo=halo, method=method, return_sol=return_sol)
+            # raise ValueError
+            sigsqz = Pzvals / rho_g
+
+            # Backpaste the tiny values:
+            try:
+                sigsqz[Pzvals==np.power(10.,-320)] = np.power(10.,-320)
+            except:
+                if Pzvals==np.power(10.,-320):
+                    sigsqz = np.power(10.,-320)
+
+            # # EXTRAPOLATE TO BACKPASTE:
+            # try:
+            #     if np.any(Pzvals==np.power(10.,-320)):
+            #         ztmp = z[Pzvals!=np.power(10.,-320)]
+            #         sigsqztmp = sigsqz[Pzvals!=np.power(10.,-320)]
+            #         interptmp = scp_interp.interp1d(ztmp, sigsqztmp,
+            #                         fill_value='extrapolate', kind='linear') #kind='cubic')
+            #         sigsqz[Pzvals==np.power(10.,-320)] = interptmp(z[Pzvals==np.power(10.,-320)])
+            # except:
+            #     # Backpaste a tiny value:
+            #     if Pzvals==np.power(10.,-320):
+            #         sigsqz = np.power(10.,-320)
+
+
+
+
+            return sigsqz, sol
+        else:
+            Pzvals = Pz(R, z, sprof=sprof_list_in, halo=halo, method=method)
+            sigsqz = Pzvals / rho_g
+            return sigsqz
+
+
+    elif method.strip().lower() in ['dsigsqdz']:
+        # Cast z into an array and invert for evaluation:
+        try:
+            tmp = z[0]
+            zeval = z[::-1]
+        except:
+            zeval = np.array([z])
+
+        # ####
+        # t_span = [np.inf,0.]
+        # y0 = np.array([0.])
+
+        # Solver doesn't like t0 = inf....
+        # t_span = [100.*sprof.q,0.]
+        # t_span = [200.*sprof.q,0.]  # orig fiducial
+        # t_span = [500.*sprof.q,0.]
+        t_span = [1000.*sprof.q,0.]
+
+
+        #sigz_guess = 1.e-6 #0.  # RANDOM GUESS
+        sigz_guess = 1.e-2 #0.  # RANDOM GUESS
+
+        y0 = np.array([sigz_guess])
+
+
+        if ~np.isfinite(y0[0]):
+            raise ValueError("Initial guess is not finite!")
+            # # Set to rough minimum, nonzero feasible value
+            # y0 = np.array([np.power(10., -320)])
+
+        sol = scp_integrate.solve_ivp(_dsigzsqdz, t_span, y0, t_eval=zeval,
+                                      args=(R, sprof_list, halo),
+                                      # method='RK45',  # use for non-stiff problems
+                                      method='Radau', # use for stiff problems
+                                      # method='LSODA', # Auto switcher for stiffness
+                                      dense_output=False )
+        # Used t_eval = z[::-1], in inverse order, so invert output:
+        sigzsqvals = sol.y[0][::-1]
+
+        # return sigzsqvals
+
+        raise ValueError
+
+        # Recast output into same shape as z input:
+        try:
+            tmp = z[0]
+            if return_sol:
+                return sigzsqvals, sol
+            else:
+                return sigzsqvals
+        except:
+            if return_sol:
+                return sigzsqvals[0], sol
+            else:
+                return sigzsqvals[0]
+
+
+
+    elif method.strip().lower() in ['dsigsqdz_bvp']:
+        # Cast z into an array and invert for evaluation:
+        try:
+            tmp = z[0]
+            zeval = z[:]
+        except:
+            zeval = np.array([z])
+
+        # ####
+        # t_span = [np.inf,0.]
+        # y0 = np.array([0.])
+
+        # Solver doesn't like t0 = inf....
+        # t_span = [100.*sprof.q,0.]
+        # t_span = [200.*sprof.q,0.]  # orig fiducial
+        # t_span = [500.*sprof.q,0.]
+        #t_span = [1000.*sprof.q,0.]
+
+
+        # sigz_guess = 1.e-6 #0.  # RANDOM GUESS
+
+
+        # BCs: for the min, max zeval.
+        # if zeval[0] != 0.: raise ValueError
+        # if zeval[-1] < 200.: raise ValueError
+
+        # xmesh = np.arange([0.,200.5, 0.5])
+        #xmesh = np.append(np.array([0.]), np.logspace(-3.,2.5, 201))
+        # xmesh = np.append(np.array([0.]), np.logspace(-3.,3.5, 201))
+
+        xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 201))
+        # xmesh = np.append(np.array([0.]), np.logspace(-1.,3., 201))
+        xmesh = np.append(np.array([0.]), np.logspace(-1.,2., 201))
+
+        xmesh = np.append(np.array([0.]), np.logspace(-3.,4., 201))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 201))
+        # xmesh = np.append(np.array([0.]), np.logspace(-10.,3., 201))  # FAIL
+
+
+        #xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 201))
+
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 51))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 51))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 15))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 7))
+
+
+        xmesh = np.append(np.array([0.]), np.logspace(-2.,3., 7))
+        xmesh = np.append(np.array([0.]), np.logspace(-2.,3., 15))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 15))
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 9))
+
+
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 19))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 25))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3.5, 25))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 25))  # Shape good, normalization WHACK
+
+        xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 25)) # Shape whack
+        xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 35))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 45))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 101))
+        xmesh = np.append(np.array([0.]), np.logspace(-3.5,3.5, 101))
+        xmesh = np.append(np.array([0.]), np.logspace(-3.5,3.5, 15))
+        xmesh = np.append(np.array([0.]), np.logspace(-2.5,3.5, 15))
+        xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 31))
+        xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 11))
+
+
+
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3.5, 11))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,4., 11))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,4., 25))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,4., 25))  # Shape good, normalization WHACK
+
+
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,4., 15)) # Shape good, norm still high
+
+
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,3.5, 15)) #
+
+        # xmesh = np.append(np.array([0.]), np.logspace(-2.,2., 25))
+
+
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 7))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 15))
+        xmesh = np.append(np.array([0.]), np.logspace(-4.,3.5, 11))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 101))
+        xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 51))
+
+        # xmesh = np.append(np.array([0.]), np.logspace(-3.,3.5, 51))
+        # xmesh = np.append(np.array([0.]), np.logspace(-3.,3.5, 15))
+
+
+        # # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 11))  # Singularity in jacobian
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 25))  # Shape good, normalization WHACK
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 19)) # Singularity in jacobian
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 24)) # Singularity in jacobian
+
+
+        # # WTFFF WHY IS OTHER NOT WORKING
+        # xmesh = np.append(np.array([0.]), np.logspace(-9.,3., 51))  # WTFFF WHY IS OTHER NOT WORKING
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.,3.5, 15))
+        # xmesh = np.append(np.array([0.]), np.logspace(-3.,3., 15))
+        # xmesh = np.append(np.array([0.]), np.logspace(-3.,2., 9))
+        # xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 101))
+
+        # bcs = np.array([100.**2, 1.e-2 **2 ])
+        # bcs = np.array([100.**2, 1.e-10 **2 ])
+        # bcs = np.array([100.**2, 0. ])
+        # bcs = np.array([np.NaN, 0. ])
+        # bcs = np.array([np.NaN, 1.e-6**2 ])
+        bcs = np.array([np.NaN, 0. ])
+
+        # bcs = np.array([np.NaN, 1.e-2**2 ])
+
+        # bcs = np.array([np.NaN, 1.e-10**2 ])
+
+        # max_nodes = 1000  # default
+        max_nodes = 1e6
+
+        ymesh = np.zeros((1,len(xmesh)))
+
+        sprof_list_normed = []
+        mass_norm = 0.
+        for sprof in sprof_list_in:
+            if sprof.total_mass > mass_norm:
+                mass_max = sprof.total_mass
+        mass_target = 1.e5
+        # mass_target = 1.e3
+        # mass_target = 1.e1
+        # mass_target = 1.
+        mass_norm_fac = mass_target / mass_max
+        for sprof in sprof_list_in:
+            sprof_new = copy.deepcopy(sprof)
+            sprof_new.total_mass = sprof.total_mass * mass_norm_fac
+            sprof_new = _preprocess_sprof_Pz_calc(sprof_new, R, z,
+                                                  interp_dlnrhodlnm=True)
+            sprof_list_normed.append(sprof_new)
+
+        # Norm the halo:
+        halo_normed = copy.deepcopy(halo)
+        halo_normed.scale_fac = mass_norm_fac
+
+        print(sprof_list[0].total_mass)
+        print(sprof_list_normed[0].total_mass)
+
+        # raise ValueError
+
+        # sprof_list = None
+
+        def _fun_BC_sigzsqdz(ya, yb):
+            #return np.array([ya[0]-bcs[0], yb[0]-bcs[1]])
+            # return np.array([ya[0]-bcs[0]])
+            return np.array([yb[0]-bcs[1]])
+
+
+        def _fun_tmp_sigzsqdz(z, sigsq):
+            # return _dsigzsqdzBVP(z, sigsq, R, sprof_list, halo)
+            return _dsigzsqdzBVP(z, sigsq, R, sprof_list_normed, halo_normed)
+
+
+        sol = scp_integrate.solve_bvp(_fun_tmp_sigzsqdz, _fun_BC_sigzsqdz, xmesh, ymesh,
+                                      max_nodes=max_nodes)
+
+        # sigzsqvals = sol.sol(zeval)[0]
+        # sigzsqvals = -sol.sol(zeval)[0]
+        sigzsqvals = sol.sol(zeval)[0] / mass_norm_fac
+
+
+        # ## TEST:
+        # sigzsqvals = - sol.sol(zeval)[0] / mass_norm_fac
+
+        # # TEST
+        # sigzsqvals = np.abs(sigzsqvals)
+
+        # return sigzsqvals
+
+        # Recast output into same shape as z input:
+        try:
+            tmp = z[0]
+            if return_sol:
+                return sigzsqvals, sol
+            else:
+                return sigzsqvals
+        except:
+            if return_sol:
+                return sigzsqvals[0], sol
+            else:
+                return sigzsqvals[0]
+
+
+    #
+    # elif method.strip().lower() in ['dsigdz_bvp']:
+    #     # Cast z into an array and invert for evaluation:
+    #     try:
+    #         tmp = z[0]
+    #         zeval = z[:]
+    #     except:
+    #         zeval = np.array([z])
+    #
+    #     # ####
+    #     # t_span = [np.inf,0.]
+    #     # y0 = np.array([0.])
+    #
+    #     # Solver doesn't like t0 = inf....
+    #     # t_span = [100.*sprof.q,0.]
+    #     # t_span = [200.*sprof.q,0.]  # orig fiducial
+    #     # t_span = [500.*sprof.q,0.]
+    #     #t_span = [1000.*sprof.q,0.]
+    #
+    #
+    #     # sigz_guess = 1.e-6 #0.  # RANDOM GUESS
+    #
+    #
+    #     # BCs: for the min, max zeval.
+    #     # if zeval[0] != 0.: raise ValueError
+    #     # if zeval[-1] < 200.: raise ValueError
+    #
+    #     # xmesh = np.arange([0.,200.5, 0.5])
+    #     #xmesh = np.append(np.array([0.]), np.logspace(-3.,2.5, 201))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-3.,3.5, 201))
+    #
+    #     xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 201))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-1.,3., 201))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-1.,2., 201))
+    #
+    #     xmesh = np.append(np.array([0.]), np.logspace(-3.,4., 201))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 201))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-10.,3., 201))  # FAIL
+    #
+    #
+    #     #xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 201))
+    #
+    #     xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 51))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 51))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 15))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-4.,3., 7))
+    #
+    #
+    #     xmesh = np.append(np.array([0.]), np.logspace(-2.,3., 7))
+    #     xmesh = np.append(np.array([0.]), np.logspace(-2.,3., 15))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 15))
+    #     # # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 9))
+    #     #
+    #     #
+    #     # # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 19))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,3., 25))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,3.5, 25))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 25))  # Shape good, normalization WHACK
+    #     #
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 25)) # Shape whack
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 35))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 45))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.5,3.5, 101))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-3.5,3.5, 101))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-3.5,3.5, 15))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-2.5,3.5, 15))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 31))
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-2.,3.5, 11))
+    #     #
+    #     #
+    #     # # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 11))  # Singularity in jacobian
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 25))  # Shape good, normalization WHACK
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 19)) # Singularity in jacobian
+    #     # xmesh = np.append(np.array([0.]), np.logspace(-6.,4, 24)) # Singularity in jacobian
+    #
+    #     # bcs = np.array([100.**2, 1.e-2 **2 ])
+    #     # bcs = np.array([100.**2, 1.e-10 **2 ])
+    #     # bcs = np.array([100.**2, 0. ])
+    #     # bcs = np.array([np.NaN, 0. ])
+    #     # bcs = np.array([np.NaN, 1.e-6**2 ])
+    #     bcs = np.array([np.NaN, 0. ])
+    #     # bcs = np.array([np.NaN, 1.e-2**2 ])
+    #
+    #     # max_nodes = 1000  # default
+    #     max_nodes = 1e6
+    #
+    #     ymesh = np.zeros((1,len(xmesh)))
+    #
+    #     def _fun_BC_sigzdz(ya, yb):
+    #         #return np.array([ya[0]-bcs[0], yb[0]-bcs[1]])
+    #         # return np.array([ya[0]-bcs[0]])
+    #         return np.array([yb[0]-bcs[1]])
+    #
+    #
+    #     def _fun_tmp_sigzdz(z, sigsq):
+    #         return _dsigzdzBVP(z, sigsq, R, sprof_list, halo)
+    #
+    #     sol = scp_integrate.solve_bvp(_fun_tmp_sigzdz, _fun_BC_sigzdz, xmesh, ymesh,
+    #                                   max_nodes=max_nodes)
+    #
+    #     # sigzsqvals = sol.sol(zeval)[0]
+    #     # sigzsqvals = -sol.sol(zeval)[0]
+    #     sigzvals = sol.sol(zeval)[0]
+    #     sigzsqvals = sigzvals**2
+    #
+    #     # return sigzsqvals
+    #
+    #     # Recast output into same shape as z input:
+    #     try:
+    #         tmp = z[0]
+    #         if return_sol:
+    #             return sigzsqvals, sol
+    #         else:
+    #             return sigzsqvals
+    #     except:
+    #         if return_sol:
+    #             return sigzsqvals[0], sol
+    #         else:
+    #             return sigzsqvals[0]
+
+    else:
+        raise ValueError("method={}".format(method))
+
+
+def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
+
+    return None
+#
+# def _preprocess_sprof_sigz_integrand_calc(sprof, R, z):
+#     m = np.sqrt(R**2 + (z/sprof.q)**2)
+#
+#     if sprof.isgas:
+#         if sprof.logrhom_interp is not None:
+#             table_Reff =    sprof.table['Reff']
+#             table_mass =    sprof.table['total_mass']
+#
+#             scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
+#             logrho = sprof.logrhom_interp(m / sprof.Reff * table_Reff)
+#             rho_g = np.power(10., logrho) * scale_fac
+#         else:
+#             rho_g = sprof.density(m)
+#     else:
+#         rho_g = m * 0.
+#
+#     if sprof.forcez_interp is not None:
+#         table_Reff =    sprof.table_forcez['Reff']
+#         table_mass =    sprof.table_forcez['total_mass']
+#
+#         scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**2
+#         gz = sprof.forcez_interp(z / sprof.Reff * table_Reff) * scale_fac
+#     else:
+#         gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+#
+#
+#     return gz, rho_g
+#
+#
+# def sigsq_z_integrand(z, R, sprof_list, halo):
+#     """
+#     Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
+#
+#     Parameters
+#     ----------
+#         z: float
+#             Height above midplane [kpc]
+#         R: float
+#             Midplane radius [kpc]
+#
+#         sprof_list: Set of deprojected Sersic model instances, list
+#
+#         halo: Halo instance or None
+#             Optionally include force from a halo component.
+#
+#     Returns
+#     -------
+#         integrand: float
+#
+#     """
+#     rho_g = 0.
+#     gz = 0.
+#
+#     for sprof in sprof_list:
+#         gz_i, rho_g_i = _preprocess_sprof_sigz_integrand_calc(sprof, R, z)
+#         gz += gz_i
+#         rho_g += rho_g_i
+#
+#     if halo is not None:
+#         gz += halo.force_z(R, z)
+#
+#     integrand = rho_g * gz
+#
+#     return integrand
+#
+#
+# def _preprocess_sprof_sigz_calc(sprof, R, z):
+#
+#     m = np.sqrt(R**2 + (z/sprof.q)**2)
+#
+#     # Assume component is gas by default
+#     if 'isgas' not in sprof.__dict__.keys():
+#         sprof.isgas = True
+#
+#     logrhom_interp = None
+#     if 'table' in sprof.__dict__.keys():
+#         if sprof.table is not None:
+#             logrhom_interp = interpolate_sersic_profile_logrho_function(n=sprof.n, invq=sprof.invq,
+#                                                                   table=sprof.table)
+#
+#     if sprof.isgas:
+#         if logrhom_interp is not None:
+#             table_Reff =    sprof.table['Reff']
+#             table_mass =    sprof.table['total_mass']
+#
+#             scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
+#             logrho = logrhom_interp(m / sprof.Reff * table_Reff)
+#             rho_g = np.power(10., logrho) * scale_fac
+#         else:
+#             rho_g = sprof.density(m)
+#     else:
+#         rho_g = m * 0.
+#
+#     forcez_interp = None
+#     if 'table_forcez' in sprof.__dict__.keys():
+#         if sprof.table_forcez is not None:
+#             table_z =       sprof.table_forcez['z']
+#             table_Reff =    sprof.table_forcez['Reff']
+#
+#             # Will need to match exact R:
+#             # whm = np.where(sprof.table_forcez['R'] == (R / sprof.Reff * table_Reff))[0]
+#             tol = 1.e-3
+#             whm = np.where(np.abs(sprof.table_forcez['R']-(R / sprof.Reff * table_Reff))<=tol)[0]
+#             if len(whm) == 0:
+#                 raise ValueError("No matching 'R' in table")
+#             table_gz = sprof.table_forcez['gz_R_{}'.format(whm[0])]
+#
+#             forcez_interp = scp_interp.interp1d(table_z, table_gz,
+#                             fill_value='extrapolate',  kind='cubic')
+#
+#         # #
+#         # if (sprof.n == 4.) & (np.abs(R-5.)<1.e-3) & (np.abs(z-5.)<1.e-3):
+#         #     print("DEBUG TEST")
+#         #     forcez_interp = None
+#
+#
+#     sprof.logrhom_interp = logrhom_interp
+#     sprof.forcez_interp = forcez_interp
+#
+#     return sprof, rho_g
+#
+# def sigmaz_sq(R, z, sprof=None, halo=None):
+#     """
+#     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
+#
+#     .. math::
+#
+#         \sigma^2_z(R,z)=\frac{1}{\rho}\int \rho g_z(R,z)dz
+#
+#     Parameters
+#     ----------
+#         R: float
+#             Midplane radius [kpc]
+#         z: float
+#             Height above midplane [kpc]
+#
+#
+#         sprof: Deprojected Sersic model instance or array of intances
+#
+#         sprof.table: table of (standard) precomputed values, optional
+#             Use pre-computed table to create an interpolation function
+#             that is used for this calculation.
+#         sprof.table_forcez: table of precomputed gz, optional
+#
+#         halo: Halo instance, optional
+#             Optionally include force from a halo component.
+#
+#     Returns
+#     -------
+#         sigzsq: float
+#             Vertical velocity dispersion direction; units [km^2/s^2]
+#
+#     """
+#
+#     try:
+#         tmp = sprof[0]
+#         sprof_list_in = sprof
+#     except:
+#         sprof_list_in = [sprof]
+#
+#
+#     rho_g = np.sqrt(R**2 + z**2) * 0.
+#     sprof_list = []
+#
+#     for sprof in sprof_list_in:
+#         sprof, rho_g_i = _preprocess_sprof_sigz_calc(sprof, R, z)
+#         rho_g += rho_g_i
+#         sprof_list.append(sprof)
+#
+#     # int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
+#     #                                     args=(R, sprof_list, halo))
+#     # # WRONG: ///// No negatives, because delPotl = -gz, so already in there
+#     # return - 1./rho_g * int_sigsq_z
+#
+#
+#     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, z, np.inf,
+#                                         args=(R, sprof_list, halo))
+#
+#     return -1./rho_g * int_sigsq_z
+#
+#
+# def rho_sigmaz_sq(R, z, sprof=None, halo=None):
+#     """
+#     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
+#
+#     .. math::
+#
+#         \rho \sigma^2_z(R,z)=\int \rho g_z(R,z)dz
+#
+#     Parameters
+#     ----------
+#         R: float
+#             Midplane radius [kpc]
+#         z: float
+#             Height above midplane [kpc]
+#
+#
+#         sprof: Deprojected Sersic model instance or array of intances
+#
+#         sprof.table: table of (standard) precomputed values, optional
+#             Use pre-computed table to create an interpolation function
+#             that is used for this calculation.
+#         sprof.table_forcez: table of precomputed gz, optional
+#
+#         halo: Halo instance, optional
+#             Optionally include force from a halo component.
+#
+#     Returns
+#     -------
+#         rho_sigzsq: float
+#             Vertical velocity dispersion direction; units [km^2/s^2]
+#
+#     """
+#
+#     try:
+#         tmp = sprof[0]
+#         sprof_list_in = sprof
+#     except:
+#         sprof_list_in = [sprof]
+#
+#
+#     rho_g = np.sqrt(R**2 + z**2) * 0.
+#     sprof_list = []
+#
+#     for sprof in sprof_list_in:
+#         sprof, rho_g_i = _preprocess_sprof_sigz_calc(sprof, R, z)
+#         rho_g += rho_g_i
+#         sprof_list.append(sprof)
+#
+#     # int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
+#     #                                     args=(R, sprof_list, halo))
+#     # # WRONG: ///// No negatives, because delPotl = -gz, so already in there
+#     # return - int_sigsq_z
+#
+#
+#     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, z, np.inf,
+#                                         args=(R, sprof_list, halo))
+#
+#     return - int_sigsq_z
+
+
+def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
+
+    return None
+
+def force_R_integrand_z0(m, R, z, Reff, n, q, Ie, i, Upsilon, logrhom_interp, table, total_mass):
+    """
+    Integrand :math:`\frac{\rho(m)}{(\tau+1)^2 \sqrt{tau+q^2}}`
+    as part of numerical integration to find :math:`g_r(R,z)`
+
+    Parameters
+    ----------
+        tau: float
+            independent variable
+        R: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -1339,34 +3432,108 @@ def sigsq_z_integrand(z, R, total_mass, Reff, n, q, Ie, i, Upsilon, sersic_table
             Inclination of system [deg]
         Upsilon: float
             Mass-to-light ratio
-        sersic_table: dictionary or None
-            Use pre-computed table to create an interpolation function
-            that is used for this calculation.
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
+        total_mass: log total mass [Msun], optional
 
     Returns
     -------
         integrand: float
 
     """
-    m = np.sqrt(R**2 + (z/q)**2)
-    if sersic_table is not None:
-        rho = interpolate_sersic_profile_rho(R=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
-                                             table=sersic_table)
+    if logrhom_interp is not None:
+        table_Reff =    table['Reff']
+        table_mass =    table['total_mass']
+
+        scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+        # # rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+        # logrho = logrhom_interp(m / Reff * table_Reff)
+
+        logrho = logrhom_interp(m, Reff)
+
+        rho = np.power(10., logrho) * scale_fac
+
+        # Back replace inf, if interpolating at r=0 for n>1:
+        if (table['n'] >= 1.) & (table['R'][0] == 0.):
+            if (~np.isfinite(table['rho'][0]) & (m == 0.)):
+                rho = table['rho'][0]
     else:
         rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
-    gz = force_z(R, z,  Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
-    integrand = rho * gz
+
+    integrand = (rho * m**2) / np.sqrt(R**2 - m**2 * (1.-q**2) )
+
     return integrand
 
-
-def sigmaz_sq(R, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
-              sersic_table=None):
+def force_z_integrand_R0(m, R, z, Reff, n, q, Ie, i, Upsilon, logrhom_interp, table, total_mass):
     """
-    Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
+    Integrand :math:`\frac{\rho(m)}{(\tau+1)(tau+q^2)^{3/2}}`
+    as part of numerical integration to find :math:`g_z(R,z)`
+
+    Parameters
+    ----------
+        tau: float
+            independent variable
+        R: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+        Upsilon: float
+            Mass-to-light ratio
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
+    Returns
+    -------
+        integrand: float
+
+    """
+    if logrhom_interp is not None:
+        table_Reff =    table['Reff']
+        table_mass =    table['total_mass']
+
+        scale_fac = (total_mass / table_mass) * (table_Reff / Reff)**3
+        # rho = rhom_interp(m / Reff * table_Reff) * scale_fac
+        # logrho = logrhom_interp(m / Reff * table_Reff)
+
+        logrho = logrhom_interp(m, Reff)
+
+        rho = np.power(10., logrho) * scale_fac
+
+        # Back replace inf, if interpolating at r=0 for n>1:
+        if (table['n'] >= 1.) & (table['R'][0] == 0.):
+            if (~np.isfinite(table['rho'][0]) & (m == 0.)):
+                rho = table['rho'][0]
+    else:
+        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
+
+    integrand = (rho * m**2) / (z**2 - m**2 * (q**2-1.))
+
+    return integrand
+
+def force_R_z0(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+            logrhom_interp=None, table=None, total_mass=None):
+    """
+    Evalutation of gravitational force in the radial direction
+    :math:`g_R=-\partial\Phi/\partial R`,
+    of a deprojected Sersic density profile at (R,z), by numerically evalutating
 
     .. math::
 
-        \sigma^2_z(R,z)=-\frac{1}{\rho}\int \rho g_z(R,z)dz
+        g_R(R,z) = - 2\pi GqR \int_0^{\infty} d\tau \frac{\rho(m)}{(\tau+1)^2 \sqrt{tau+q^2}},
+        m = \frac{r^2}{\tau+1} + \frac{z^2}{\tau+q^2}
 
     Parameters
     ----------
@@ -1374,8 +3541,6 @@ def sigmaz_sq(R, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1
             Midplane radius [kpc]
         z: float
             Height above midplane [kpc]
-        total_mass: float
-            Total mass of the Sersic mass component [Msun]
         Reff: float
             Effective radius of Sersic profile [kpc]
         n: float
@@ -1389,23 +3554,76 @@ def sigmaz_sq(R, z, total_mass=1., Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1
 
         Upsilon: float or array_like, optional
             Mass-to-light ratio. Default: 1. (i.e., constant ratio)
-        sersic_table: dictionary, optional
-            Use pre-computed table to create an interpolation function
-            that is used for this calculation.
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
 
     Returns
     -------
-        sigzsq: float
-            Vertical velocity dispersion direction; units [km^2/s^2]
+        g_R: float
+            g_R(R,z)  -- gravitational force in the radial direction; units [km^2/s^2/kpc]
 
     """
-    m = np.sqrt(R**2 + (z/q)**2)
-    if sersic_table is not None:
-        rho = interpolate_sersic_profile_rho(R=m, total_mass=total_mass, Reff=Reff, n=n, invq=1./q,
-                                             table=sersic_table)
-    else:
-        rho = rho_m(m, Reff=Reff, n=n, q=q, Ie=Ie, i=i, Upsilon=Upsilon)
-    int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
-                                        args=(R, total_mass, Reff, n, q, Ie, i,
-                                              Upsilon, sersic_table))
-    return - 1./rho * int_sigsq_z
+
+    cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
+    int_force_R, _ = scp_integrate.quad(force_R_integrand_z0, 0, R,
+                                       args=(R, 0., Reff, n, q, Ie, i, Upsilon,
+                                             logrhom_interp, table, total_mass))
+    forceRz0 = (-4.*np.pi*G.cgs.value*q*cnst / R) * int_force_R
+    if R == 0:
+        forceRz0 = 0.
+    return forceRz0
+
+
+def force_z_R0(R, z, Reff=1., n=1., q=0.4, Ie=1., i=90., Upsilon=1.,
+               logrhom_interp=None, table=None, total_mass=None):
+    """
+    Evalutation of gravitational force in the vertical direction
+    :math:`g_z=-\partial\Phi/\partial z`,
+    of a deprojected Sersic density profile at (R,z), by numerically evalutating
+
+    .. math::
+
+        g_z(R,z) = - 2\pi Gqz \int_0^{\infty} d\tau \frac{\rho(m)}{(\tau+1)(tau+q^2)^{3/2}},
+        m = \frac{R^2}{\tau+1} + \frac{z^2}{\tau+q^2}
+
+    Parameters
+    ----------
+        R: float
+            Midplane radius [kpc]
+        z: float
+            Height above midplane [kpc]
+        Reff: float
+            Effective radius of Sersic profile [kpc]
+        n: float
+            Sersic index
+        q: float
+            Intrinsic axis ratio of Sersic profile
+        Ie: float
+            Normalization of Sersic intensity profile at kap = Reff
+        i: float
+            Inclination of system [deg]
+
+        Upsilon: float or array_like, optional
+            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
+        logrhom_interp: function, optional
+            Shortcut to use an interpolation function (from a lookup table)
+            instead of recalculating rho(m)
+        table: Sersic profile table, optional
+
+    Returns
+    -------
+        g_z: float
+            g_z(r,z)  -- gravitational force in the vertial direction; units [km^2/s^2/kpc]
+
+    """
+
+    cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
+    int_force_z, _ = scp_integrate.quad(force_z_integrand_R0, 0, z/(q*1.),
+                                       args=(0., z, Reff, n, q, Ie, i, Upsilon,
+                                             logrhom_interp, table, total_mass))
+    # if z == 0.:
+    #     int_force_z = 0.
+
+    return -4.*np.pi*G.cgs.value*q* cnst * int_force_z
