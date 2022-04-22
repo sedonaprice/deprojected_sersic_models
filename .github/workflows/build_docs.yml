@@ -19,8 +19,9 @@ jobs:
       with:
         docs-folder: "docs/"
         pre-build-command: "apt install --yes git build-essential pandoc"
-        # build-command: "make html"
-        build-command: "sphinx-build -W -D plot_formats='svg,pdf,hires.png' -b html . _build"
+        # # build-command: "make html"
+        # build-command: "sphinx-build -D plot_formats='svg,pdf,hires.png' -b html . _build"
+        build-command: "sphinx-build -M html . _build -D plot_formats='svg,pdf,hires.png'"
     # Publish built docs to gh-pages branch.
     # ===============================
     - name: Commit documentation changes
