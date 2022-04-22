@@ -14,10 +14,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     # Example of using a custom build-command.
-    - uses: ammaraskar/sphinx-action@master
+    # - uses: ammaraskar/sphinx-action@master
+    - uses: ammaraskar/sphinx-action@0.4
       with:
         docs-folder: "docs/"
-        pre-build-command: "python -m pip install sphinx-rtd-theme sphinx_automodapi nbsphinx"
+        # pre-build-command: "python -m pip install sphinx-rtd-theme sphinx_automodapi nbsphinx"
         # build-command: "sphinx-build -b html . _build -D plot_formats='svg,pdf,hires.png'"
         build-command: "make html"
     # Publish built docs to gh-pages branch.
