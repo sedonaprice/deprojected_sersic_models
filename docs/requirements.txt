@@ -7,3 +7,5 @@ dill
 sphinx-rtd-theme
 sphinx-automodapi
 nbsphinx
+
+jinja2<3.1
