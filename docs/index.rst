@@ -79,7 +79,7 @@ Quickstart
    :caption: Contents
 
    installation.rst
-   table_downloads.rst
+   downloads.rst
    acknowledgement.rst
    api.rst
 

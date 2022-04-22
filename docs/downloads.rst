@@ -26,12 +26,13 @@ The pre-computed profile tables are available for download here: `tar.gz`_ | `zi
 Software
 ========
 
-The v1.0 release is available for download as: `tar.gz`_ | `zip`_
+
+The **v1.0 release** is available for download as: `tar.gz`_ | `zip`_
 
 .. _tar.gz: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.tar.gz
 .. _zip: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.zip
 
-Alternatively, the releases can be directly downloaded from the repository
+Alternatively, the releases can be directly downloaded from the **repository**
 (or the repository cloned) at `https://github.com/sedonaprice/sersic_profile_mass_VC`_.
 
 .. _https://github.com/sedonaprice/sersic_profile_mass_VC: https://github.com/sedonaprice/sersic_profile_mass_VC

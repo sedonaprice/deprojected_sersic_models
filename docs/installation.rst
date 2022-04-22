@@ -25,7 +25,7 @@ and the dependent packages (`numpy`, `scipy`, `matplotlib`, `astropy`, `dill`).
 .. _environments: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
 
-Download v1.0: `tar.gz`_ | `zip`_
+**Download v1.0**: `tar.gz`_ | `zip`_
 
 .. _tar.gz: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.tar.gz
 .. _zip: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.zip
