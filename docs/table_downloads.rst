@@ -1,12 +1,14 @@
 .. _table-downloads:
 .. highlight:: shell
 
-==============================
-Download Sersic profile tables
-==============================
+=======================
+Download profile tables
+=======================
 
-< Coming soon >
+The pre-computed profile tables are available for download from:
+`LINK`_.
 
+.. _LINK: LINK_TO_DOWNLOAD_TGZ
 
 
 .. tip::

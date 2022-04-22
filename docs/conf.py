@@ -31,7 +31,7 @@ import sersic_profile_mass_VC
 # -- Project information -----------------------------------------------------
 
 project = 'sersic_profile_mass_VC'
-copyright = '2018-2021, Sedona Price'
+copyright = '2018-2022, Sedona Price'
 author = 'Sedona Price'
 
 # The full version, including alpha/beta/rc tags
@@ -46,7 +46,7 @@ release = sersic_profile_mass_VC.__version__
 # minor parts of the version number, not the micro.  To do a more
 # specific version check, call check_sphinx_version("x.y.z.") from
 # your project's conf.py
-needs_sphinx = '1.8' #'1.3'
+needs_sphinx = '1.8' 
 
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

@@ -1,7 +1,7 @@
 ##################################################################################
 # sersic_profile_mass_VC/table_generation.py                                     #
 #                                                                                #
-# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2022 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 

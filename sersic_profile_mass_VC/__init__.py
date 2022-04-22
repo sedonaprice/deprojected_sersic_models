@@ -12,8 +12,11 @@ import sersic_profile_mass_VC.table_generation
 
 import sersic_profile_mass_VC.utils
 import sersic_profile_mass_VC.plot
-import sersic_profile_mass_VC.paper
+try:
+    import sersic_profile_mass_VC.paper
+except:
+    pass
 
-__version__ = "0.9"
+__version__ = "1.0"
 
 # ---------------------------------------------------------------

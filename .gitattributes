@@ -1,2 +1,2 @@
-# exlude data files from generated tarball
-data/		export-ignore
+# exclude data files from generated tarball
+paper/		export-ignore

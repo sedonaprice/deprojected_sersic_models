@@ -9,7 +9,6 @@ try:
 except:
     from distutils.core import setup
 
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 init_string = open(os.path.join(dir_path, 'sersic_profile_mass_VC', '__init__.py')).read()
@@ -40,15 +39,16 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     description="A package to calculate mass and kinematic profiles of non-spherical Sersic mass distributions.",
     install_requires=requirements,
     setup_requires=setup_requirements,
     license="3-clause BSD",
     long_description=readme,
-    include_package_data=True,
+    # include_package_data=True,
     name='sersic_profile_mass_VC',
-    packages=['sersic_profile_mass_VC'],
-    #package_data={'sersic_profile_mass_VC': ['data/SomethingToFix/*.fits']},
+    packages=['sersic_profile_mass_VC', 'sersic_profile_mass_VC.utils',
+              'sersic_profile_mass_VC.plot'],
     version=__version__
 )

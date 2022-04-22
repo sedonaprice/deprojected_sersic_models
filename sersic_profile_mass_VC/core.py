@@ -1,7 +1,7 @@
 ##################################################################################
 # sersic_profile_mass_VC/core.py                                                 #
 #                                                                                #
-# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2022 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
@@ -16,8 +16,6 @@ import copy
 
 from sersic_profile_mass_VC.utils import calcs as util_calcs
 
-from sersic_profile_mass_VC.utils.interp_profiles import interpolate_sersic_profile_rho_function
-
 __all__ = [ 'DeprojSersicDist' ]
 
 # CONSTANTS
@@ -28,11 +26,6 @@ pc = apy_con.pc
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('SersicProfileMassVC')
-
-
-# TEST:
-from scipy.special import expi
-import scipy.integrate as scp_integrate
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
@@ -258,6 +251,8 @@ class DeprojSersicDist(_SersicDistBase):
         Enclosed 3D mass within a sphere of radius r=R,
         assuming a constant M/L ratio Upsilon.
 
+        See Eq. 8 of Price et al. 2022
+
         Parameters
         ----------
             R: float or array_like
@@ -322,6 +317,8 @@ class DeprojSersicDist(_SersicDistBase):
         """
         Circular velocity in the midplane of the deprojected Sersic mass distribution.
 
+        See Eq. 5 of Price et al. 2022 (also Eq. 10 of Noordermeer 2008)
+
         Parameters
         ----------
             R: float or array_like
@@ -362,6 +359,8 @@ class DeprojSersicDist(_SersicDistBase):
         """
         Density profile at :math:`m=R` of the deprojected Sersic mass distribution.
 
+        See Eq. 2 of Price et al. 2022 (also Eq. 9 of Noordermeer 2008)
+
         Parameters
         ----------
             R: float or array_like
@@ -397,6 +396,8 @@ class DeprojSersicDist(_SersicDistBase):
         Derivative of the density profile, :math:`d\\rho/dR`,
         at distance :math:`m=R` of the deprojected Sersic mass distribution.
 
+        See Eq. 17 of Price et al. 2022
+
         Parameters
         ----------
             R: float or array_like
@@ -429,6 +430,8 @@ class DeprojSersicDist(_SersicDistBase):
         Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,
         in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
 
+        See Eq. 17 of Price et al. 2022
+
         Parameters
         ----------
             R: float or array_like
@@ -455,153 +458,11 @@ class DeprojSersicDist(_SersicDistBase):
 
         return dlnrho_dlnR_arr
 
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-    # vvvvvvvv REMOVE THESE LATER vvvvvvvv
-
-    def _drho_dR_leibniz(self, R):
-        """
-        Derivative of the density profile, :math:`d\\rho/dR`,
-        at distance :math:`m=R` of the deprojected Sersic mass distribution.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Midplane radius at which to evaluate the log density profile slope [kpc]
-
-        Returns
-        -------
-            drho_dR_arR: float or array_like
-                Derivative of density profile at r=m
-
-        """
-        try:
-            if len(R) > 0:
-                drho_dR_arr = np.zeros(len(R))
-                for j in range(len(R)):
-                    drho_dR_arr[j] = util_calcs.drhom_dm_leibniz(R[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-            else:
-                drho_dR_arr = util_calcs.drhom_dm_leibniz(R[0], Reff=self.Reff, n=self.n,
-                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-        except:
-            drho_dR_arr = util_calcs.drhom_dm_leibniz(R, Reff=self.Reff, n=self.n,
-                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-
-        return drho_dR_arr
-
-
-    def _dlnrho_dlnR_leibniz(self, R):
-        """
-        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,
-        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Midplane radius at which to evaluate the log density profile slope [kpc]
-
-        Returns
-        -------
-            dlnrho_dlnR_arR: float or array_like
-                Derivative of log density profile at m=R
-
-        """
-        try:
-            if len(R) > 0:
-                dlnrho_dlnR_arr = np.zeros(len(R))
-                for j in range(len(R)):
-                    dlnrho_dlnR_arr[j] = util_calcs.dlnrhom_dlnm_leibniz(R[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-            else:
-                dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_leibniz(R[0], Reff=self.Reff, n=self.n,
-                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-        except:
-            dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_leibniz(R, Reff=self.Reff, n=self.n,
-                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-
-        return dlnrho_dlnR_arr
-
-
-
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-
-    def _drho_dR_scipy(self, R):
-        """
-        Derivative of the density profile, :math:`d\\rho/dR`,
-        at distance :math:`m=R` of the deprojected Sersic mass distribution.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Midplane radius at which to evaluate the log density profile slope [kpc]
-
-        Returns
-        -------
-            drho_dR_arR: float or array_like
-                Derivative of density profile at m=R
-
-        """
-        try:
-            if len(R) > 0:
-                drho_dR_arr = np.zeros(len(R))
-                for j in range(len(R)):
-                    drho_dR_arr[j] = util_calcs.drhom_dm_scipy_derivative(R[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-            else:
-                drho_dR_arr = util_calcs.drhom_dm_scipy_derivative(R[0], Reff=self.Reff, n=self.n,
-                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-        except:
-            drho_dR_arr = util_calcs.drhom_dm_scipy_derivative(R, Reff=self.Reff, n=self.n,
-                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-
-        return drho_dR_arr
-
-
-    def _dlnrho_dlnR_scipy(self, R):
-        """
-        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,
-        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Midplane radius at which to evaluate the log density profile slope [kpc]
-
-        Returns
-        -------
-            dlnrho_dlnR_arR: float or array_like
-                Derivative of log density profile at m=R
-
-        """
-        try:
-            if len(R) > 0:
-                dlnrho_dlnR_arr = np.zeros(len(R))
-                for j in range(len(R)):
-                    dlnrho_dlnR_arr[j] = util_calcs.dlnrhom_dlnm_scipy_derivative(R[j], Reff=self.Reff, n=self.n,
-                                    q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-            else:
-                dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(R[0], Reff=self.Reff, n=self.n,
-                                q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-        except:
-            dlnrho_dlnR_arr = util_calcs.dlnrhom_dlnm_scipy_derivative(R, Reff=self.Reff, n=self.n,
-                            q=self.q, Ie=self.Ie, i=self.i, Upsilon=self.Upsilon)
-
-        return dlnrho_dlnR_arr
-
-
-    # ^^^^^^^^ REMOVE THESE LATER ^^^^^^^^
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-
-
     def surface_density(self, R):
         """
         Surface density distribution for a Sersic profile, assuming a M/L ratio Upsilon.
+
+        See Price et al. 2002, Eq 3; Noordermeer 2008, Eq 11; Graham & Driver 2005; etc.
 
         Parameters
         ----------
@@ -620,6 +481,8 @@ class DeprojSersicDist(_SersicDistBase):
         """
         Projected 2D mass enclosed within an ellipse
         (or elliptical shell), assuming a constant M/L ratio Upsilon.
+
+        See Graham & Driver 2005.
 
         Parameters
         ----------
@@ -642,6 +505,8 @@ class DeprojSersicDist(_SersicDistBase):
         major axis radius r and intrinsic axis ratio q
         (e.g. the same as the Sersic profile isodensity contours),
         assuming a constant M/L ratio Upsilon.
+
+        See Eq. 6, Price et al. 2022
 
         Parameters
         ----------
@@ -703,6 +568,8 @@ class DeprojSersicDist(_SersicDistBase):
 
         to convert between the circular velocity at any given radius and the total system mass.
 
+        See Eq. 10, Price et al. 2022
+
         Parameters
         ----------
             R: float or array_like
@@ -736,6 +603,8 @@ class DeprojSersicDist(_SersicDistBase):
         to convert between the circular velocity at any given radius
         and the mass enclosed within a sphere of radius R.
 
+        See Eq. 9, Price et al. 2022
+
         Parameters
         ----------
             R: float or array_like
@@ -761,29 +630,6 @@ class DeprojSersicDist(_SersicDistBase):
             vc = self.v_circ(R)
 
         return util_calcs.virial_coeff_3D(R, m3D=m3D, vc=vc)
-
-
-
-    def force_R(self, R, z, table=None, func_logrho=None):
-        if func_logrho is None:
-            if table is not None:
-                func_logrho = interpolate_sersic_profile_logrho_function(n=self.n, invq=self.invq,
-                                                                   table=table)
-        return util_calcs.force_R(R, z, total_mass=self.total_mass, Reff=self.Reff,
-                                  n=self.n, q=self.q, Ie=self.Ie, i=self.i,
-                                  Upsilon=self.Upsilon, logrhom_interp=func_logrho,
-                                  table=table)
-
-
-    def force_z(self, R, z, table=None, func_logrho=None):
-        if func_logrho is None:
-            if table is not None:
-                func_logrho = interpolate_sersic_profile_logrho_function(n=self.n, invq=self.invq,
-                                                                   table=sersic_table)
-        return util_calcs.force_z(R, z, total_mass=self.total_mass, Reff=self.Reff,
-                                  n=self.n, q=self.q, Ie=self.Ie, i=self.i,
-                                  Upsilon=self.Upsilon, logrhom_interp=func_logrho,
-                                  table=table)
 
 
     def profile_table(self, R, cumulative=None, add_reff_table_values=True):
@@ -870,308 +716,5 @@ class DeprojSersicDist(_SersicDistBase):
             raise ValueError("Problem in table calculation: n={:0.1f}, invq={:0.2f}: status={}".format(self.n,
                             self.invq, status))
 
-
-        return table
-
-
-
-
-
-
-
-class DeprojSersicDistTestRho(DeprojSersicDist):
-    """
-    Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).
-
-    Parameters
-    ----------
-        total_mass: float
-            Total mass of the component [Msun]
-        Reff: float
-            Effective radius of Sersic profile [kpc]
-        n: float
-            Sersic index
-        q: float
-            Intrinsic axis ratio of Sersic profile (c/a)
-        i: float
-            Inclination of system [deg]
-
-        Upsilon: float, optional
-            Mass-to-light ratio. Default: 1. (i.e., constant ratio)
-
-        invq: float, derived
-            Flattening of Sersic profile; invq=1/q. (Derived)
-        Ie: float, derived
-            Normalization of Sersic intensity profile at kap = Reff. (Derived)
-
-    """
-
-    def __init__(self, total_mass=1., Reff=1., n=1., q=0.4, i=90., Upsilon=1.,
-                 rho0=1.e9, rs=1., a=1.e-1):
-
-        # self.rho0 = 1.e9
-        # self.rs = 1.
-        # self.a = 1.e-3 #1
-
-        self.rho0 = rho0
-        self.rs = rs
-        self.a = a
-
-        super(DeprojSersicDistTestRho, self).__init__(total_mass=total_mass, Reff=Reff,
-                                               n=n, q=q, i=i, Upsilon=Upsilon)
-
-
-
-
-    def density(self, R):
-        """
-        Density profile at :math:`m=R` of the deprojected Sersic mass distribution.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Distance at which to evaluate the circular velocity [kpc]
-
-        Returns
-        -------
-            rho_arR: float or array_like
-                Density profile at m [Msun / kpc^3]
-
-        """
-
-        try:
-            if len(R) >= 0:
-                Rarr = np.abs(R)
-        except:
-            Rarr = [np.abs(R)]
-
-        Rarr = np.array(Rarr)
-
-
-        rho_arr = Rarr*0.
-        rho_arr[Rarr <= self.rs] = self.rho0
-        rho_arr[Rarr > self.rs] = self.rho0*np.exp((self.rs - Rarr[Rarr>self.rs])/self.a)
-
-        # return rho_arr
-        try:
-            if len(R) >= 0:
-                return rho_arr
-        except:
-            return rho_arr[0]
-
-    def Menc(self, R):
-
-        try:
-            if len(R) >= 0:
-                Rarr = np.abs(R)
-        except:
-            Rarr = [np.abs(R)]
-
-        M_arr = Rarr * 0.
-
-        M_arr[Rarr<=self.rs] = 4*np.pi/3. * self.rho0 * Rarr[Rarr<=self.rs]**3
-        M0 = 4*np.pi/3. * self.rho0 * self.rs**3
-        Me = M0 + 4*np.pi*self.rho0 * self.a * (self.rs**2 + 2.*self.a*self.rs + 2.*self.a**2)
-        M_arr[Rarr>self.rs] = Me - 4*np.pi*self.rho0 * self.a * np.exp(-(Rarr[Rarr>self.rs]-self.rs)/self.a) \
-                * (Rarr[Rarr>self.rs]**2 + 2.*self.a*Rarr[Rarr>self.rs] + 2.*self.a**2)
-        try:
-            if len(R) >= 0:
-                return M_arr
-        except:
-            return M_arr[0]
-
-    def pressure(self, R):
-
-        try:
-            if len(R) >= 0:
-                Rarr = np.abs(R)
-        except:
-            Rarr = [np.abs(R)]
-
-        cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value)
-        Gval = G.cgs.value * cnst
-
-        P_arr = Rarr * 0.
-
-        M0 = 4*np.pi/4.*self.rho0 * self.rs**3
-        Me = M0 + 4*np.pi*self.rho0 * self.a * (self.rs**2 + 2.*self.a*self.rs + 2.*self.a**2)
-
-        P_arr[Rarr>self.rs] = Gval*Me*self.rho0/Rarr[Rarr>self.rs] *np.exp(-(Rarr[Rarr>self.rs]-self.rs)/self.a) \
-                        + Gval*Me*self.rho0/self.a * np.exp(self.rs/self.a) * expi(-Rarr[Rarr>self.rs]/self.a) \
-                        - 2.*np.pi*Gval*self.rho0**2 * self.a**2 * np.exp(-2.*(Rarr[Rarr>self.rs]-self.rs)/self.a) * (1.+ 4*self.a/Rarr[Rarr>self.rs]) \
-                        - 8.*np.pi*Gval*self.rho0**2 * self.a**2 * np.exp(2.*self.rs/self.a) * expi(-2.*Rarr[Rarr>self.rs]/self.a)
-
-
-        P_rs = Gval * Me * self.rho0 / self.rs + Gval * Me * self.rho0 / self.a * np.exp(self.rs/self.a) * expi(-self.rs/self.a) \
-                    - 2*np.pi*Gval*self.rho0**2 * self.a**2 *(1.+ 4.*self.a/self.rs) \
-                    - 8*np.pi*Gval*self.rho0**2 * self.a**2 * np.exp(2.*self.rs/self.a) * expi(-2.*self.rs/self.a)
-
-        P_arr[Rarr==self.rs] = P_rs
-        P_arr[Rarr<self.rs] = P_rs + 2.*np.pi / 3. * Gval * self.rho0**2 * (self.rs**2 - Rarr[Rarr<self.rs]**2)
-
-
-        try:
-            if len(R) >= 0:
-                return P_arr
-        except:
-            return P_arr[0]
-
-
-    def force_z_analytic(self, R, z):
-        m = np.sqrt(R**2 + z**2)
-
-
-        cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
-
-        return - G.cgs.value * cnst * self.Menc(m) * z / (m**3)
-
-
-    def drho_dR(self, R):
-        raise ValueError
-
-
-    def dlnrho_dlnR(self, R):
-        raise ValueERror
-
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-    # vvvvvvvv REMOVE THESE LATER vvvvvvvv
-
-    def _drho_dR_leibniz(self, R):
-        raise ValueError
-
-
-    def _dlnrho_dlnR_leibniz(self, R):
-        raise ValueError
-
-
-
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-
-    def _drho_dR_scipy(self, R):
-        raise ValueError
-
-
-    def _dlnrho_dlnR_scipy(self, R):
-        raise ValueError
-
-
-    # ^^^^^^^^ REMOVE THESE LATER ^^^^^^^^
-    ############################################################################################
-    ############################################################################################
-    ############################################################################################
-
-
-    def surface_density(self, R):
-        raise ValueError
-
-    def projected_enclosed_mass(self, R):
-        raise ValueError
-
-
-
-    def enclosed_mass_ellipsoid(self, R, cumulative=False):
-        raise ValueError
-
-
-    def virial_coeff_tot(self, R, vc=None):
-        raise ValueError
-
-
-
-    def virial_coeff_3D(self, R, m3D=None, vc=None):
-        raise ValueError
-
-
-
-    def force_R(self, R, z, table=None, func_logrho=None):
-        if func_logrho is None:
-            if table is not None:
-                raise ValueError
-        return util_calcs.force_R(R, z, total_mass=self.total_mass, Reff=self.Reff,
-                                  n=self.n, q=self.q, Ie=self.Ie, i=self.i,
-                                  Upsilon=self.Upsilon, logrhom_interp=func_logrho,
-                                  table=table)
-
-
-    def force_z(self, R, z, table=None, func_logrho=None):
-        if func_logrho is None:
-            raise ValueError
-            if table is not None:
-                pass
-        return util_calcs.force_z(R, z, total_mass=self.total_mass, Reff=self.Reff,
-                                  n=self.n, q=self.q, Ie=self.Ie, i=self.i,
-                                  Upsilon=self.Upsilon, logrhom_interp=func_logrho,
-                                  table=table)
-
-
-    def _force_z_integrand_analytic_rho(self, tau, R, z):
-        m = np.sqrt(R**2/(tau+1.) + z**2/(tau+self.q**2))
-        rho = self.density(m)
-        integrand = rho / ( (tau+1.) * np.power((tau + self.q**2), 3./2.) )
-
-        return integrand
-
-    def force_z_analytic_rho(self, R, z):
-        cnst = Msun.cgs.value*1.e-10/(1000.*pc.cgs.value) # cmtokpc * Msuntog * kmtocm^2
-
-        # Check case at R=z=0: Must have force = 0 in this case
-        if ((R**2 + (z/self.q)**2)==0.):
-            int_force_z = 0.
-        else:
-            int_force_z, _ = scp_integrate.quad(self._force_z_integrand_analytic_rho, 0, np.inf,
-                                                args=(R, z))
-
-        return -2.*np.pi*G.cgs.value*self.q*z* cnst * int_force_z
-
-    def profile_table(self, R):
-        """
-        Create a set of profiles as a dictionary, calculated over the specified radii.
-        Also includes constants for the specified Sersic profile parameters,
-        and information about values at Reff or the 3D half mass radius.
-
-        Parameters
-        ----------
-            R: float or array_like
-                Radius array, in kpc
-
-            cumulative: bool, optional
-                Shortcut option to only calculate the next annulus,
-                then add to the previous Menc(r-rdelt).
-                Default: Uses cumulative if n >= 2.
-            add_reff_table_values: bool, optional
-                Add select values at Reff to the table. Requires Reff to be in `R`
-                Default: True
-
-        Returns
-        -------
-            table: dict
-                Dictionary containing the various profiles & values.
-        """
-
-        # ---------------------
-        # Calculate profiles:
-        vcirc =         R * 0. + -99.
-        menc3D_sph =    R * 0. + -99.
-        menc3D_ellip =  R * 0. + -99.
-        rho =           self.density(R)
-        dlnrho_dlnR =   R * 0. + -99.
-
-        # ---------------------
-        # Setup table:
-        table    = { 'R':                   R,
-                     'vcirc':               vcirc,
-                     'menc3D_sph':          menc3D_sph,
-                     'menc3D_ellipsoid':    menc3D_ellip,
-                     'rho':                 rho,
-                     'dlnrho_dlnR':         dlnrho_dlnR,
-                     'total_mass':          self.total_mass,
-                     'Reff':                self.Reff,
-                     'invq':                self.invq,
-                     'q':                   self.q,
-                     'n':                   self.n }
 
         return table
