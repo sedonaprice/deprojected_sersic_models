@@ -4,8 +4,8 @@ scipy
 matplotlib
 astropy
 dill
-sphinx_rtd_theme
-sphinx_automodapi
+sphinx-rtd-theme
+sphinx-automodapi
 nbsphinx
 
 ###### Requirements with Version Specifiers ######
