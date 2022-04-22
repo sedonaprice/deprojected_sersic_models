@@ -390,7 +390,7 @@ div.rendered_html tbody tr:hover {
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">spm.plot.plot_density</span></code></p></td>
 <td><p>Plot mass density</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">spm.plot.plot_dlnrho_dlnr</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">spm.plot.plot_dlnrho_dlnR</span></code></p></td>
 <td><p>Plot log density slope</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">spm.plot.plot_surface_density</span></code></p></td>
@@ -419,7 +419,7 @@ total_mass = 1.e11
 Reff = 5.0
 n = 1.0
 invq = 5.
-r = np.arange(0., 30.1, 0.1)
+R = np.arange(0., 30.1, 0.1)
 </pre></div>
 </div>
 </div>
@@ -430,11 +430,11 @@ r = np.arange(0., 30.1, 0.1)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Load &amp; interpolate circular velocity profile
-vc = spm.interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+vc = spm.interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                                        n=n, invq=invq, path=table_dir)
 
 # Make pseudo table &amp; plot
-table_gather = {&#39;r&#39;: r, &#39;vcirc&#39;: vc, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
+table_gather = {&#39;R&#39;: R, &#39;vcirc&#39;: vc, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
                     &#39;total_mass&#39;: total_mass, &#39;Reff&#39;: Reff }
 
 
@@ -456,11 +456,11 @@ spm.plot.plot_vcirc(table_gather)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Load &amp; interpolate enclosed mass profile
-menc = spm.interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+menc = spm.interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                                            n=n, invq=invq, path=table_dir)
 
 # Make pseudo table &amp; plot
-table_gather = {&#39;r&#39;: r, &#39;menc3D_sph&#39;: menc, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
+table_gather = {&#39;R&#39;: R, &#39;menc3D_sph&#39;: menc, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
                     &#39;total_mass&#39;: total_mass, &#39;Reff&#39;: Reff }
 
 spm.plot.plot_enclosed_mass(table_gather)
@@ -480,7 +480,7 @@ spm.plot.plot_enclosed_mass(table_gather)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>table = spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>table = spm.interpolate_entire_table(R=R, total_mass=total_mass, Reff=Reff,
                                      n=n, invq=invq, path=table_dir)
 
 # Plot all profiles in table
@@ -505,7 +505,7 @@ spm.plot.plot_profiles(table)
 tables = []
 # Load &amp; interpolate table for each n, invq
 for invq in invq_arr:
-    tables.append(spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+    tables.append(spm.interpolate_entire_table(R=R, total_mass=total_mass, Reff=Reff,
                                                n=n, invq=invq, path=table_dir))
 
 # Plot all profiles in tables
@@ -561,7 +561,7 @@ fig_kwargs = {&#39;figure_figsize&#39;: (8., 7.),
               &#39;legend_labelcolor&#39;: &#39;linecolor&#39;}
 
 spm.plot.plot_profiles(tables,
-                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnr&#39;],
+                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnR&#39;],
                        rlog = [False, True, True, False],
                        ylog = [False, True, True, False],
                        plot_kwargs=plot_kwargs, fig_kwargs=fig_kwargs)

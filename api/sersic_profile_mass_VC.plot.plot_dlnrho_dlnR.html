@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>plot_surface_density &mdash; sersic_profile_mass_VC 1.0 documentation</title>
+  <title>plot_dlnrho_dlnR &mdash; sersic_profile_mass_VC 1.0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="plot_vcirc" href="sersic_profile_mass_VC.plot.plot_vcirc.html" />
-    <link rel="prev" title="plot_projected_enclosed_mass" href="sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html" /> 
+    <link rel="next" title="plot_enclosed_mass" href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html" />
+    <link rel="prev" title="plot_density" href="sersic_profile_mass_VC.plot.plot_density.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -61,12 +61,12 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.plot">sersic_profile_mass_VC.plot Package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#id4">Functions</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_density.html">plot_density</a></li>
-<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_dlnrho_dlnR.html">plot_dlnrho_dlnR</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">plot_dlnrho_dlnR</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html">plot_enclosed_mass</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_profiles.html">plot_profiles</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_profiles_single_type.html">plot_profiles_single_type</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html">plot_projected_enclosed_mass</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">plot_surface_density</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_surface_density.html">plot_surface_density</a></li>
 <li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_vcirc.html">plot_vcirc</a></li>
 </ul>
 </li>
@@ -98,9 +98,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api.html">API</a> &raquo;</li>
-      <li>plot_surface_density</li>
+      <li>plot_dlnrho_dlnR</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/api/sersic_profile_mass_VC.plot.plot_surface_density.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/api/sersic_profile_mass_VC.plot.plot_dlnrho_dlnR.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -132,12 +132,12 @@
     text-align: unset;
 }
 </style>
-<section id="plot-surface-density">
-<h1>plot_surface_density<a class="headerlink" href="#plot-surface-density" title="Permalink to this headline"></a></h1>
+<section id="plot-dlnrho-dlnr">
+<h1>plot_dlnrho_dlnR<a class="headerlink" href="#plot-dlnrho-dlnr" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="sersic_profile_mass_VC.plot.plot_surface_density">
-<span class="sig-prename descclassname"><span class="pre">sersic_profile_mass_VC.plot.</span></span><span class="sig-name descname"><span class="pre">plot_surface_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sersic_profs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">1.,</span> <span class="pre">2.,</span> <span class="pre">3.,</span> <span class="pre">4.,</span> <span class="pre">5.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sersic_profile_mass_VC/plot/plots.html#plot_surface_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sersic_profile_mass_VC.plot.plot_surface_density" title="Permalink to this definition"></a></dt>
-<dd><p>Function to show surface density profile(s) for the Sersic mass distribution(s).</p>
+<dt class="sig sig-object py" id="sersic_profile_mass_VC.plot.plot_dlnrho_dlnR">
+<span class="sig-prename descclassname"><span class="pre">sersic_profile_mass_VC.plot.</span></span><span class="sig-name descname"><span class="pre">plot_dlnrho_dlnR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sersic_profs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">1.,</span> <span class="pre">2.,</span> <span class="pre">3.,</span> <span class="pre">4.,</span> <span class="pre">5.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sersic_profile_mass_VC/plot/plots.html#plot_dlnrho_dlnR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sersic_profile_mass_VC.plot.plot_dlnrho_dlnR" title="Permalink to this definition"></a></dt>
+<dd><p>Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -146,10 +146,9 @@ or a list of Sersic profile table dictionaries, or a single instance of either.<
 <li><p><strong>r</strong> (<em>array_like</em><em>, </em><em>optional</em>) – Radii over which to show profile. Ignored if sersic_profs contains tables,
 in favor of the table radii <code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code>.
 Default: np.arange(0., 6., 1.)</p></li>
-<li><p><strong>rlim</strong> (<em>array_like</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – If set, spefcify r plot bounds.
-Default: None (default bounds)</p></li>
-<li><p><strong>rlog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of radius instead of linear. Default: True</p></li>
-<li><p><strong>ylog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of profile instead of linear. Default: True</p></li>
+<li><p><strong>rlim</strong> (<em>array_like</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – If set, spefcify r plot bounds. Default: None (default bounds)</p></li>
+<li><p><strong>rlog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of radius instead of linear. Default: False</p></li>
+<li><p><strong>ylog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of profile instead of linear. Default: False</p></li>
 <li><p><strong>fileout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Filename for saving file. If set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, figure is returned to display.
 Default: None</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib Axes instance</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Target plot axis. If not set, assumes only this panel is to be plot and displayed,
@@ -166,8 +165,8 @@ Default: None</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html" class="btn btn-neutral float-left" title="plot_projected_enclosed_mass" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="sersic_profile_mass_VC.plot.plot_vcirc.html" class="btn btn-neutral float-right" title="plot_vcirc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="sersic_profile_mass_VC.plot.plot_density.html" class="btn btn-neutral float-left" title="plot_density" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html" class="btn btn-neutral float-right" title="plot_enclosed_mass" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

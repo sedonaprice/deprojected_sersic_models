@@ -408,7 +408,7 @@ table = spm.io.read_profile_table(n=1.0, invq=5.0, path=table_dir)
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">r</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">R</span></code></p></td>
 <td><p>Radius</p></td>
 <td><p><span class="math notranslate nohighlight">\(\mathrm{kpc}\)</span></p></td>
 <td><p>array</p></td>
@@ -539,7 +539,7 @@ table = spm.io.read_profile_table(n=1.0, invq=5.0, path=table_dir)
 | | | | |
 | **rhalf3D_sph** | 3D spherical half mass radius | $\mathrm{kpc}$ | const |
 --><p>These profiles can be scaled or interpolated to match different total masses or effective radii.</p>
-<p>The pre-computed table distribution are sampled from logarithmically in <span class="math notranslate nohighlight">\(r\)</span>, ranging from 0.01 to 100 kpc, but also includes the profile values at <span class="math notranslate nohighlight">\(r=0\)</span>.</p>
+<p>The pre-computed table distribution are sampled from logarithmically in <span class="math notranslate nohighlight">\(R\)</span>, ranging from 0.01 to 100 kpc, but also includes the profile values at <span class="math notranslate nohighlight">\(R=0\)</span>.</p>
 </section>
 <section id="Interpolation-functions">
 <h2>Interpolation functions<a class="headerlink" href="#Interpolation-functions" title="Permalink to this headline"></a></h2>
@@ -558,14 +558,14 @@ total_mass = 1.e11
 Reff = 5.
 n = 1.0
 invq = 5.0
-r = np.arange(0., 30.1, 0.1)
-vcirc = spm.interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+R = np.arange(0., 30.1, 0.1)
+vcirc = spm.interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                                           n=n, invq=invq, table=table)
-menc = spm.interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+menc = spm.interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                                            n=n, invq=invq, table=table)
-rho = spm.interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+rho = spm.interpolate_sersic_profile_rho(R=R, total_mass=total_mass, Reff=Reff,
                                          n=n, invq=invq, table=table)
-dlnrho_dlnr = spm.interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff, n=n,
+dlnrho_dlnR = spm.interpolate_sersic_profile_dlnrho_dlnR(R=R, Reff=Reff, n=n,
                                                          invq=invq, table=table)
 </pre></div>
 </div>
@@ -580,16 +580,16 @@ dlnrho_dlnr = spm.interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff, n=n,
 %config InlineBackend.figure_format = &#39;svg&#39;   # Tutorial plot configuration
 
 # Make pseudo table bundle, for plotting
-table_gather = {&#39;r&#39;: r, &#39;vcirc&#39;: vcirc, &#39;menc3D_sph&#39;: menc, &#39;rho&#39;: rho,
-                &#39;dlnrho_dlnr&#39;: dlnrho_dlnr, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
+table_gather = {&#39;R&#39;: R, &#39;vcirc&#39;: vcirc, &#39;menc3D_sph&#39;: menc, &#39;rho&#39;: rho,
+                &#39;dlnrho_dlnR&#39;: dlnrho_dlnR, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
                 &#39;total_mass&#39;: total_mass, &#39;Reff&#39;: Reff }
 
 plot_kwargs = [{&#39;color&#39;:&#39;grey&#39;, &#39;ls&#39;:&#39;:&#39;, &#39;marker&#39;:&#39;+&#39;, &#39;ms&#39;:5, &#39;label&#39;:&#39;Table&#39;},
                {&#39;lw&#39;: 2., &#39;label&#39;:&#39;Interp+scale&#39;}]
 
 spm.plot.plot_profiles([table, table_gather],
-                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnr&#39;],
-                       rlim=[r.min(), r.max()], rlog = [False, False, True, False],
+                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnR&#39;],
+                       rlim=[R.min(), R.max()], rlog = [False, False, True, False],
                        plot_kwargs=plot_kwargs)
 </pre></div>
 </div>
@@ -612,24 +612,24 @@ spm.plot.plot_profiles([table, table_gather],
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>total_mass = 1.e11
 Reff = 5.0
 n = 1.0
-r = np.arange(0., 30.1, 0.1)
+R = np.arange(0., 30.1, 0.1)
 invq_arr = [1., 2.5, 3.33, 5., 10.]
 
-vcs, mencs, rhos, dlnrho_dlnrs = [], [], [], []
+vcs, mencs, rhos, dlnrho_dlnRs = [], [], [], []
 
 for invq in invq_arr:
-    vc = spm.interpolate_sersic_profile_VC(r=r, total_mass=total_mass, Reff=Reff,
+    vc = spm.interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
                                            n=n, invq=invq, path=table_dir)
-    menc = spm.interpolate_sersic_profile_menc(r=r, total_mass=total_mass, Reff=Reff,
+    menc = spm.interpolate_sersic_profile_menc(R=R, total_mass=total_mass, Reff=Reff,
                                                n=n, invq=invq, path=table_dir)
-    rho = spm.interpolate_sersic_profile_rho(r=r, total_mass=total_mass, Reff=Reff,
+    rho = spm.interpolate_sersic_profile_rho(R=R, total_mass=total_mass, Reff=Reff,
                                              n=n, invq=invq, path=table_dir)
-    dlnrho_dlnr = spm.interpolate_sersic_profile_dlnrho_dlnr(r=r, Reff=Reff, n=n,
+    dlnrho_dlnR = spm.interpolate_sersic_profile_dlnrho_dlnR(R=R, Reff=Reff, n=n,
                                                  invq=invq, path=table_dir)
     vcs.append(vc)
     mencs.append(menc)
     rhos.append(rho)
-    dlnrho_dlnrs.append(dlnrho_dlnr)
+    dlnrho_dlnRs.append(dlnrho_dlnR)
 </pre></div>
 </div>
 </div>
@@ -640,9 +640,9 @@ for invq in invq_arr:
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Make pseudo table bundles, for plotting
 tables = []
 plot_kwargs = []
-for invq, vc, menc, rho, dlnrho_dlnr in zip(invq_arr, vcs, mencs, rhos, dlnrho_dlnrs):
-    table_gather = {&#39;r&#39;: r, &#39;vcirc&#39;: vc, &#39;menc3D_sph&#39;: menc, &#39;rho&#39;: rho,
-                    &#39;dlnrho_dlnr&#39;: dlnrho_dlnr, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
+for invq, vc, menc, rho, dlnrho_dlnR in zip(invq_arr, vcs, mencs, rhos, dlnrho_dlnRs):
+    table_gather = {&#39;R&#39;: R, &#39;vcirc&#39;: vc, &#39;menc3D_sph&#39;: menc, &#39;rho&#39;: rho,
+                    &#39;dlnrho_dlnR&#39;: dlnrho_dlnR, &#39;n&#39;: n, &#39;invq&#39;: invq, &#39;q&#39;: 1./invq,
                     &#39;total_mass&#39;: total_mass, &#39;Reff&#39;: Reff }
     tables.append(table_gather)
     plot_kwargs.append({&#39;label&#39;: &#39;q={:0.2f}&#39;.format(1./invq)})
@@ -650,7 +650,7 @@ for invq, vc, menc, rho, dlnrho_dlnr in zip(invq_arr, vcs, mencs, rhos, dlnrho_d
 fig_kwargs = {&#39;legend_title&#39;: &#39;Intrinic axis ratio&#39;}
 
 spm.plot.plot_profiles(tables,
-                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnr&#39;],
+                       prof_names=[&#39;v_circ&#39;, &#39;enclosed_mass&#39;, &#39;density&#39;, &#39;dlnrho_dlnR&#39;],
                        rlog = [False, False, True, False],
                        plot_kwargs=plot_kwargs, fig_kwargs=fig_kwargs)
 </pre></div>
@@ -674,15 +674,15 @@ spm.plot.plot_profiles(tables,
 Reff = 5.0
 n = 0.975
 invq_arr = 4.75
-r = np.arange(0., 30.1, 0.1)
+R = np.arange(0., 30.1, 0.1)
 
-vc = spm.interpolate_sersic_profile_VC_nearest(r=r, total_mass=total_mass, Reff=Reff,
+vc = spm.interpolate_sersic_profile_VC_nearest(R=R, total_mass=total_mass, Reff=Reff,
                                        n=n, invq=invq, path=table_dir)
-menc = spm.interpolate_sersic_profile_menc_nearest(r=r, total_mass=total_mass, Reff=Reff,
+menc = spm.interpolate_sersic_profile_menc_nearest(R=R, total_mass=total_mass, Reff=Reff,
                                            n=n, invq=invq, path=table_dir)
-rho = spm.interpolate_sersic_profile_rho_nearest(r=r, total_mass=total_mass, Reff=Reff,
+rho = spm.interpolate_sersic_profile_rho_nearest(R=R, total_mass=total_mass, Reff=Reff,
                                          n=n, invq=invq, path=table_dir)
-dlnrho_dlnr = spm.interpolate_sersic_profile_dlnrho_dlnr_nearest(r=r, Reff=Reff, n=n,
+dlnrho_dlnrho_dlnRdlnr = spm.interpolate_sersic_profile_dlnrho_dlnR_nearest(R=R, Reff=Reff, n=n,
                                              invq=invq, path=table_dir)
 </pre></div>
 </div>
@@ -698,10 +698,10 @@ dlnrho_dlnr = spm.interpolate_sersic_profile_dlnrho_dlnr_nearest(r=r, Reff=Reff,
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>total_mass = 1.e11
 Reff = 5.0
 n = 1.0
-invq_arr = 5.0
-r = np.arange(0., 30.1, 0.1)
+invq = 5.0
+R = np.arange(0., 30.1, 0.1)
 
-table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Reff,
+table_interp = spm.interpolate_entire_table(R=R, total_mass=total_mass, Reff=Reff,
                                             n=n, invq=invq, path=table_dir)
 </pre></div>
 </div>
@@ -728,7 +728,7 @@ table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass, Reff=Ref
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>table = spm.io.read_profile_table(n=n, invq=invq, path=table_dir)
-table_interp2 = spm.interpolate_entire_table(r=r, total_mass=total_mass,
+table_interp2 = spm.interpolate_entire_table(R=R, total_mass=total_mass,
                                              Reff=Reff, table=table)
 </pre></div>
 </div>

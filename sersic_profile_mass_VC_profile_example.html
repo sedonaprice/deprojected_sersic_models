@@ -374,7 +374,7 @@ div.rendered_html tbody tr:hover {
 import sersic_profile_mass_VC as spm
 
 # Define a radius array
-r = np.arange(0., 10.5, 0.5)
+R = np.arange(0., 10.5, 0.5)
 
 # Deprojected Sérsic mass distribution object
 sprof = spm.DeprojSersicDist(total_mass=1.e11, Reff=5., n=1., q=0.2)
@@ -389,10 +389,10 @@ sprof = spm.DeprojSersicDist(total_mass=1.e11, Reff=5., n=1., q=0.2)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>vcirc = sprof.v_circ(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>vcirc = sprof.v_circ(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;vcirc&#39;: vcirc, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
+table_gather = {&#39;R&#39;: R, &#39;vcirc&#39;: vcirc, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
 # Plot profile
@@ -413,10 +413,10 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;v_circ&#39;,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>menc = sprof.enclosed_mass(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>menc = sprof.enclosed_mass(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;menc3D_sph&#39;: menc, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
+table_gather = {&#39;R&#39;: R, &#39;menc3D_sph&#39;: menc, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
 # Plot profile
@@ -436,10 +436,10 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;enclosed_mass&#3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rho = sprof.density(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>rho = sprof.density(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;rho&#39;: rho, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
+table_gather = {&#39;R&#39;: R, &#39;rho&#39;: rho, &#39;n&#39;: sprof.n, &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
 # Plot profile
@@ -460,15 +460,15 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;density&#39;,
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Log density slope
-dlnrho_dlnr = sprof.dlnrho_dlnr(r)
+dlnrho_dlnR = sprof.dlnrho_dlnR(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;dlnrho_dlnr&#39;: dlnrho_dlnr, &#39;n&#39;: sprof.n,
+table_gather = {&#39;R&#39;: R, &#39;dlnrho_dlnR&#39;: dlnrho_dlnR, &#39;n&#39;: sprof.n,
                 &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
 # Plot profile
-spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;dlnrho_dlnr&#39;,
+spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;dlnrho_dlnR&#39;,
                                    fig_kwargs={&#39;figure_figsize&#39;: (4., 8./9.*4.)})
 </pre></div>
 </div>
@@ -484,10 +484,10 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;dlnrho_dlnr&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>surfdens = sprof.surface_density(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>surfdens = sprof.surface_density(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;surface_density&#39;: surfdens, &#39;n&#39;: sprof.n,
+table_gather = {&#39;R&#39;: R, &#39;surface_density&#39;: surfdens, &#39;n&#39;: sprof.n,
                 &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
@@ -508,10 +508,10 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;surface_density&
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>menc_2D = sprof.projected_enclosed_mass(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>menc_2D = sprof.projected_enclosed_mass(R)
 
 # Make pseudo table for plotting
-table_gather = {&#39;r&#39;: r, &#39;projected_enclosed_mass&#39;: menc_2D, &#39;n&#39;: sprof.n,
+table_gather = {&#39;R&#39;: R, &#39;projected_enclosed_mass&#39;: menc_2D, &#39;n&#39;: sprof.n,
                 &#39;q&#39;: sprof.q, &#39;invq&#39;: sprof.invq,
                 &#39;total_mass&#39;: sprof.total_mass, &#39;Reff&#39;: sprof.Reff}
 
@@ -530,12 +530,12 @@ spm.plot.plot_profiles_single_type(table_gather, prof_name=&#39;projected_enclos
 </section>
 <section id="Table-of-profiles">
 <h2>Table of profiles<a class="headerlink" href="#Table-of-profiles" title="Permalink to this headline"></a></h2>
-<p>Finally, the method <code class="docutils literal notranslate"><span class="pre">DeprojSersicDist.profile_table(r)</span></code> can be used to return a full set of profiles calculated over the radius array <span class="math notranslate nohighlight">\(r\)</span>.</p>
+<p>Finally, the method <code class="docutils literal notranslate"><span class="pre">DeprojSersicDist.profile_table(R)</span></code> can be used to return a full set of profiles calculated over the radius array <span class="math notranslate nohighlight">\(r\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>table = sprof.profile_table(r)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>table = sprof.profile_table(R)
 
 # Plot profiles
 spm.plot.plot_profiles(table)
