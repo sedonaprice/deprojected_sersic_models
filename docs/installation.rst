@@ -25,8 +25,11 @@ and the dependent packages (`numpy`, `scipy`, `matplotlib`, `astropy`, `dill`).
 .. _environments: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
 
+The most recent release version can be downloaded from the `repository`_.
 
-The package can be installed from the command line as follows:
+.. _repository: https://github.com/sedonaprice/sersic_profile_mass_VC/releases
+
+The package can then be installed from the command line as follows:
 
 .. code-block:: console
 
