@@ -7,6 +7,5 @@ dill
 sphinx-rtd-theme
 sphinx-automodapi
 nbsphinx
-pandoc
 
 jinja2<3.1
