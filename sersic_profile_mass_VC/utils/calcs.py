@@ -2216,6 +2216,8 @@ def _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=False,
     # Assume component is gas by default
     if 'isgas' not in sprof.__dict__.keys():
         sprof.isgas = True
+    else:
+        print("Already set: sprof.isgas={}".format(sprof.isgas))
 
     logrhom_interp = None
     dlnrhodlnm_interp = None
