@@ -25,6 +25,11 @@ and the dependent packages (`numpy`, `scipy`, `matplotlib`, `astropy`, `dill`).
 .. _environments: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
 
+Download v1.0: `tar.gz`_ | `zip`_
+
+.. _tar.gz: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.tar.gz
+.. _zip: https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.zip
+
 The most recent release version can be downloaded from the `repository`_.
 
 .. _repository: https://github.com/sedonaprice/sersic_profile_mass_VC/releases
@@ -48,8 +53,10 @@ Code Repository
 ---------------
 
 The most up-to-date version of the code can be obtained
-by cloning the repository on GitHub.
+by cloning the repository on GitHub: `https://github.com/sedonaprice/sersic_profile_mass_VC`_.
 From within the target code location directory, run:
+
+.. _https://github.com/sedonaprice/sersic_profile_mass_VC: https://github.com/sedonaprice/sersic_profile_mass_VC
 
  .. code-block:: console
 

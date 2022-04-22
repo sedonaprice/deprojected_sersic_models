@@ -23,7 +23,7 @@ As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.
 
 Tables for a wide range of Sérsic index :math:`n` and intrinsic axis ratio :math:`q_0`
-are available for :ref:`download<table-downloads>`.
+are available for :ref:`download<downloads>`.
 
 
 .. _quick_start:
