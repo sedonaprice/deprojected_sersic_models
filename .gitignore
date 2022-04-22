@@ -38,4 +38,3 @@ docs/_build
 # Private data
 tests/PYTEST_OUTPUT/
 docs/_static/logo/alts/
-data/

@@ -33,6 +33,9 @@ _PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, '../sersic_profile_mass_VC'))
 sys.path.insert(0, _ROOT_DIR)
 sys.path.insert(0, _PACKAGE_DIR)
 
+_TABLES_DIR = os.path.abspath(os.path.join(_HERE, '_static/tables'))
+os.environ["SERSIC_PROFILE_MASS_VC_DATADIR"] = _TABLES_DIR
+
 import sersic_profile_mass_VC
 
 
