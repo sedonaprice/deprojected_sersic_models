@@ -1,5 +1,5 @@
 ***************************************************************************
-Non-spherical deprojected Sersic mass profiles and circular velocity curves
+Non-spherical deprojected Sérsic mass profiles and circular velocity curves
 ***************************************************************************
 
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
@@ -10,12 +10,12 @@ Non-spherical deprojected Sersic mass profiles and circular velocity curves
 Description
 ###########
 Package to calculate various profiles for deprojected, flattened (or elongated)
-Sersic mass distributions, including:
+Sérsic mass distributions, including:
 enclosed mass, circular velocity, density, log density slope, surface density,
 and projected enclosed mass.
 
 These calculations follow and extend the derivation of rotation curves for flattened
-Sersic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
+Sérsic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
 Further details about the calculations included in this package
 are described in `Price et al., in prep, 2022`_.
 
@@ -23,10 +23,10 @@ are described in `Price et al., in prep, 2022`_.
 .. _Price et al., in prep, 2022: LINK_TO_ADS
 
 Please see `the documentation`_ for this package for detailed information about installation,
-usage, and to download the set of pre-computed Sersic profile tables.
+usage, and to `download`_ the set of pre-computed Sérsic profile tables.
 
-.. _the documentation: https://sersic_profile_mass_VC.github.io/
-
+.. _the documentation: https://sedonaprice.github.io/sersic_profile_mass_VC/
+.. _download: https://sedonaprice.github.io/sersic_profile_mass_VC/downloads.html
 
 Usage
 #####
