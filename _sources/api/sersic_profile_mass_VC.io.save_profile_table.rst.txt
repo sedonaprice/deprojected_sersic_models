@@ -1,0 +1,6 @@
+save_profile_table
+==================
+
+.. currentmodule:: sersic_profile_mass_VC.io
+
+.. autofunction:: save_profile_table

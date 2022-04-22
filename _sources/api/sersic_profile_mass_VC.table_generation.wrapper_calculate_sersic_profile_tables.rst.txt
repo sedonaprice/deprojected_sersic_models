@@ -1,0 +1,6 @@
+wrapper_calculate_sersic_profile_tables
+=======================================
+
+.. currentmodule:: sersic_profile_mass_VC.table_generation
+
+.. autofunction:: wrapper_calculate_sersic_profile_tables

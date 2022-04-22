@@ -1,0 +1,6 @@
+vcirc_spherical_symmetry
+========================
+
+.. currentmodule:: sersic_profile_mass_VC.utils
+
+.. autofunction:: vcirc_spherical_symmetry

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API &mdash; sersic_profile_mass_VC 1.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" /><link rel="shortcut icon" href="_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="interpolate_entire_table" href="api/sersic_profile_mass_VC.interpolate_entire_table.html" />
+    <link rel="prev" title="Acknowledging sersic_profile_mass_VC" href="acknowledgement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> sersic_profile_mass_VC<img src="_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">sersic_profile_mass_VC</a></li>
+</ul>
+<p><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="table_downloads.html">Download profile tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC">sersic_profile_mass_VC Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_entire_table.html">interpolate_entire_table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_entire_table_nearest.html">interpolate_entire_table_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_VC.html">interpolate_sersic_profile_VC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest.html">interpolate_sersic_profile_VC_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR.html">interpolate_sersic_profile_dlnrho_dlnR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function.html">interpolate_sersic_profile_dlnrho_dlnR_function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest.html">interpolate_sersic_profile_dlnrho_dlnR_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest.html">interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function.html">interpolate_sersic_profile_logrho_function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_menc.html">interpolate_sersic_profile_menc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest.html">interpolate_sersic_profile_menc_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_rho.html">interpolate_sersic_profile_rho</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest.html">interpolate_sersic_profile_rho_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.nearest_n_invq.html">nearest_n_invq</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.DeprojSersicDist.html">DeprojSersicDist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.InterpFunc.html">InterpFunc</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC.table_generation">sersic_profile_mass_VC.table_generation Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table.html">calculate_sersic_profile_table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables.html">wrapper_calculate_sersic_profile_tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set.html">wrapper_calculate_full_table_set</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC.io">sersic_profile_mass_VC.io Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.io.save_profile_table.html">save_profile_table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.io.read_profile_table.html">read_profile_table</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC.utils">sersic_profile_mass_VC.utils Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.check_for_inf.html">check_for_inf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.find_rhalf3D_sphere.html">find_rhalf3D_sphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.menc_spherical_symmetry.html">menc_spherical_symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.vcirc_spherical_symmetry.html">vcirc_spherical_symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.virial_coeff_3D.html">virial_coeff_3D</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.utils.virial_coeff_tot.html">virial_coeff_tot</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC.plot">sersic_profile_mass_VC.plot Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_density.html">plot_density</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_dlnrho_dlnr.html">plot_dlnrho_dlnr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_enclosed_mass.html">plot_enclosed_mass</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_profiles.html">plot_profiles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_profiles_single_type.html">plot_profiles_single_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html">plot_projected_enclosed_mass</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_surface_density.html">plot_surface_density</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_vcirc.html">plot_vcirc</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-sersic_profile_mass_VC.paper.paper_plots">sersic_profile_mass_VC.paper.paper_plots Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.paper.paper_plots.make_all_paper_plots.html">make_all_paper_plots</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/sersic_profile_mass_VC.paper.paper_plots.list_table1_values.html">list_table1_values</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sersic_profile_mass_VC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<section id="module-sersic_profile_mass_VC">
+<span id="sersic-profile-mass-vc-package"></span><h2>sersic_profile_mass_VC Package<a class="headerlink" href="#module-sersic_profile_mass_VC" title="Permalink to this headline">¶</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_entire_table.html#sersic_profile_mass_VC.interpolate_entire_table" title="sersic_profile_mass_VC.interpolate_entire_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_entire_table</span></code></a>([R, table, …])</p></td>
+<td><p>Interpolate entire table, returning new profiles sampled at r.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_entire_table_nearest.html#sersic_profile_mass_VC.interpolate_entire_table_nearest" title="sersic_profile_mass_VC.interpolate_entire_table_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_entire_table_nearest</span></code></a>([R, …])</p></td>
+<td><p>Interpolate entire table, returning new profiles sampled at r, using the <strong>nearest values</strong> of n and invq that are included in the Sersic profile table collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_VC.html#sersic_profile_mass_VC.interpolate_sersic_profile_VC" title="sersic_profile_mass_VC.interpolate_sersic_profile_VC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_VC</span></code></a>([R, …])</p></td>
+<td><p>Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest" title="sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_VC_nearest</span></code></a>([R, …])</p></td>
+<td><p>Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff, using the <strong>nearest values of n and invq</strong> that are included in the Sersic profile table collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR" title="sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_dlnrho_dlnR</span></code></a>([R, …])</p></td>
+<td><p>Interpolate dlnrho/dlnR at arbitrary radii R, for arbitrary Reff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function" title="sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_dlnrho_dlnR_function</span></code></a>([…])</p></td>
+<td><p>Return function to interpolate dlnrho/dlnR (R) at arbitrary radii R, for arbitrary Mtot and Reff.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest" title="sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_dlnrho_dlnR_nearest</span></code></a>([…])</p></td>
+<td><p>Interpolate dlnrho_g/dlnR at arbitrary radii R, for arbitrary Reff, using the <strong>nearest values of n and invq</strong> that are included in the Sersic profile table collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest" title="sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</span></code></a>([…])</p></td>
+<td><p>Interpolate dlnrho_g/dlnR at arbitrary radii R, for a composite system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function.html#sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function" title="sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_logrho_function</span></code></a>([…])</p></td>
+<td><p>Return function to interpolate log10(rho(R)) at arbitrary radii R, for arbitrary Mtot and Reff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_menc.html#sersic_profile_mass_VC.interpolate_sersic_profile_menc" title="sersic_profile_mass_VC.interpolate_sersic_profile_menc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_menc</span></code></a>([R, …])</p></td>
+<td><p>Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest" title="sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_menc_nearest</span></code></a>([R, …])</p></td>
+<td><p>Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff, using the <strong>nearest values</strong> of n and invq that are included in the Sersic profile table collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_rho.html#sersic_profile_mass_VC.interpolate_sersic_profile_rho" title="sersic_profile_mass_VC.interpolate_sersic_profile_rho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_rho</span></code></a>([R, …])</p></td>
+<td><p>Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest" title="sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_sersic_profile_rho_nearest</span></code></a>([R, …])</p></td>
+<td><p>Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff, using the <strong>nearest values of n and invq</strong> that are included in the Sersic profile table collection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.nearest_n_invq.html#sersic_profile_mass_VC.nearest_n_invq" title="sersic_profile_mass_VC.nearest_n_invq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nearest_n_invq</span></code></a>([n, invq])</p></td>
+<td><p>Nearest value of n and invq for which a Sersic profile table has been calculated, using the <em>DEFAULT</em> array of n and invq which have been used here.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.DeprojSersicDist.html#sersic_profile_mass_VC.DeprojSersicDist" title="sersic_profile_mass_VC.DeprojSersicDist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeprojSersicDist</span></code></a>([total_mass, Reff, n, q, …])</p></td>
+<td><p>Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.InterpFunc.html#sersic_profile_mass_VC.InterpFunc" title="sersic_profile_mass_VC.InterpFunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InterpFunc</span></code></a>([f_interp, f_extrap, table_Rad, …])</p></td>
+<td><p>Helper class to wrap a returned interpolation function: to allow for cubic/other interpolation within table coverage, but linear extrapolation outside of coverage.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="module-sersic_profile_mass_VC.table_generation">
+<span id="sersic-profile-mass-vc-table-generation-module"></span><h2>sersic_profile_mass_VC.table_generation Module<a class="headerlink" href="#module-sersic_profile_mass_VC.table_generation" title="Permalink to this headline">¶</a></h2>
+<section id="id1">
+<h3>Functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table.html#sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table" title="sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_sersic_profile_table</span></code></a>([n, invq, …])</p></td>
+<td><p>Calculate the Sersic profile table for a specific Sersic index n and inverse axis ratio invq.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables.html#sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables" title="sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrapper_calculate_sersic_profile_tables</span></code></a>([…])</p></td>
+<td><p>Wrapper function to calculate Sersic profile tables over a range of n and invq values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set.html#sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set" title="sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrapper_calculate_full_table_set</span></code></a>([…])</p></td>
+<td><p>Wrapper function to calculate the full set of Sersic profile tables.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="module-sersic_profile_mass_VC.io">
+<span id="sersic-profile-mass-vc-io-module"></span><h2>sersic_profile_mass_VC.io Module<a class="headerlink" href="#module-sersic_profile_mass_VC.io" title="Permalink to this headline">¶</a></h2>
+<section id="id2">
+<h3>Functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.io.save_profile_table.html#sersic_profile_mass_VC.io.save_profile_table" title="sersic_profile_mass_VC.io.save_profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_profile_table</span></code></a>([table, path, …])</p></td>
+<td><p>Save the table of Sersic profile values in a binary FITS table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.io.read_profile_table.html#sersic_profile_mass_VC.io.read_profile_table" title="sersic_profile_mass_VC.io.read_profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_profile_table</span></code></a>([n, invq, path, …])</p></td>
+<td><p>Read the table of Sersic profile values from the binary FITS table.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="module-sersic_profile_mass_VC.utils">
+<span id="sersic-profile-mass-vc-utils-package"></span><h2>sersic_profile_mass_VC.utils Package<a class="headerlink" href="#module-sersic_profile_mass_VC.utils" title="Permalink to this headline">¶</a></h2>
+<section id="id3">
+<h3>Functions<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.check_for_inf.html#sersic_profile_mass_VC.utils.check_for_inf" title="sersic_profile_mass_VC.utils.check_for_inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_inf</span></code></a>([table])</p></td>
+<td><p>Check core table quantities for non-finite entries, to determine if numerical errors occured.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.find_rhalf3D_sphere.html#sersic_profile_mass_VC.utils.find_rhalf3D_sphere" title="sersic_profile_mass_VC.utils.find_rhalf3D_sphere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_rhalf3D_sphere</span></code></a>([R, menc3D_sph, total_mass])</p></td>
+<td><p>Evalutation of the radius corresponding to the sphere that encloses half of the total mass for a Sersic profile of a given intrinsic axis ratio, effective radius, and Sersic index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.menc_spherical_symmetry.html#sersic_profile_mass_VC.utils.menc_spherical_symmetry" title="sersic_profile_mass_VC.utils.menc_spherical_symmetry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">menc_spherical_symmetry</span></code></a>([R, vcirc])</p></td>
+<td><p>Determine Menc for a spherically symmetric mass distribution, given vcirc:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.vcirc_spherical_symmetry.html#sersic_profile_mass_VC.utils.vcirc_spherical_symmetry" title="sersic_profile_mass_VC.utils.vcirc_spherical_symmetry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vcirc_spherical_symmetry</span></code></a>([R, menc])</p></td>
+<td><p>Determine vcirc for a spherically symmetric mass distribution:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.virial_coeff_3D.html#sersic_profile_mass_VC.utils.virial_coeff_3D" title="sersic_profile_mass_VC.utils.virial_coeff_3D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virial_coeff_3D</span></code></a>(R[, m3D, vc])</p></td>
+<td><p>Evalutation of the “total” virial coefficient ktot, which satisfies</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.utils.virial_coeff_tot.html#sersic_profile_mass_VC.utils.virial_coeff_tot" title="sersic_profile_mass_VC.utils.virial_coeff_tot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virial_coeff_tot</span></code></a>(R[, total_mass, vc])</p></td>
+<td><p>Evalutation of the “total” virial coefficient ktot, which satisfies</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="module-sersic_profile_mass_VC.plot">
+<span id="sersic-profile-mass-vc-plot-package"></span><h2>sersic_profile_mass_VC.plot Package<a class="headerlink" href="#module-sersic_profile_mass_VC.plot" title="Permalink to this headline">¶</a></h2>
+<section id="id4">
+<h3>Functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_density.html#sersic_profile_mass_VC.plot.plot_density" title="sersic_profile_mass_VC.plot.plot_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_density</span></code></a>(sersic_profs[, r, rlim, rlog, …])</p></td>
+<td><p>Function to show mass density profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_dlnrho_dlnr.html#sersic_profile_mass_VC.plot.plot_dlnrho_dlnr" title="sersic_profile_mass_VC.plot.plot_dlnrho_dlnr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_dlnrho_dlnr</span></code></a>(sersic_profs[, r, rlim, …])</p></td>
+<td><p>Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_enclosed_mass.html#sersic_profile_mass_VC.plot.plot_enclosed_mass" title="sersic_profile_mass_VC.plot.plot_enclosed_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_enclosed_mass</span></code></a>(sersic_profs[, r, rlim, …])</p></td>
+<td><p>Function to show enclosed mass profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_profiles.html#sersic_profile_mass_VC.plot.plot_profiles" title="sersic_profile_mass_VC.plot.plot_profiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_profiles</span></code></a>(sersic_profs[, r, rlim, rlog, …])</p></td>
+<td><p>Function to show all six parameter profiles for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_profiles_single_type.html#sersic_profile_mass_VC.plot.plot_profiles_single_type" title="sersic_profile_mass_VC.plot.plot_profiles_single_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_profiles_single_type</span></code></a>(sersic_profs[, …])</p></td>
+<td><p>Base function to plot single parameter profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html#sersic_profile_mass_VC.plot.plot_projected_enclosed_mass" title="sersic_profile_mass_VC.plot.plot_projected_enclosed_mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_projected_enclosed_mass</span></code></a>(sersic_profs[, …])</p></td>
+<td><p>Function to show projected (2D) enclosed mass profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_surface_density.html#sersic_profile_mass_VC.plot.plot_surface_density" title="sersic_profile_mass_VC.plot.plot_surface_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_surface_density</span></code></a>(sersic_profs[, r, …])</p></td>
+<td><p>Function to show surface density profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.plot.plot_vcirc.html#sersic_profile_mass_VC.plot.plot_vcirc" title="sersic_profile_mass_VC.plot.plot_vcirc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_vcirc</span></code></a>(sersic_profs[, r, rlim, rlog, …])</p></td>
+<td><p>Function to show circular velocity profile(s) for the Sersic mass distribution(s).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="module-sersic_profile_mass_VC.paper.paper_plots">
+<span id="sersic-profile-mass-vc-paper-paper-plots-module"></span><h2>sersic_profile_mass_VC.paper.paper_plots Module<a class="headerlink" href="#module-sersic_profile_mass_VC.paper.paper_plots" title="Permalink to this headline">¶</a></h2>
+<section id="id5">
+<h3>Functions<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.paper.paper_plots.make_all_paper_plots.html#sersic_profile_mass_VC.paper.paper_plots.make_all_paper_plots" title="sersic_profile_mass_VC.paper.paper_plots.make_all_paper_plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_all_paper_plots</span></code></a>([output_path, table_path])</p></td>
+<td><p>Wrapper function to make all plots for the paper.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/sersic_profile_mass_VC.paper.paper_plots.list_table1_values.html#sersic_profile_mass_VC.paper.paper_plots.list_table1_values" title="sersic_profile_mass_VC.paper.paper_plots.list_table1_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">list_table1_values</span></code></a>([table_path, n_arr, …])</p></td>
+<td><p>Wrapper to list ktot, k3D values for Table 1.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="acknowledgement.html" class="btn btn-neutral float-left" title="Acknowledging sersic_profile_mass_VC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/sersic_profile_mass_VC.interpolate_entire_table.html" class="btn btn-neutral float-right" title="interpolate_entire_table" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 22 Apr 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

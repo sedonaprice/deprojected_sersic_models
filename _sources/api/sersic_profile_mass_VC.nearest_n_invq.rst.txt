@@ -1,0 +1,6 @@
+nearest_n_invq
+==============
+
+.. currentmodule:: sersic_profile_mass_VC
+
+.. autofunction:: nearest_n_invq

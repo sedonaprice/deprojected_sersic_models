@@ -1,0 +1,6 @@
+find_rhalf3D_sphere
+===================
+
+.. currentmodule:: sersic_profile_mass_VC.utils
+
+.. autofunction:: find_rhalf3D_sphere

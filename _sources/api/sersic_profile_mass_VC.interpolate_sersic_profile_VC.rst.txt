@@ -1,0 +1,6 @@
+interpolate_sersic_profile_VC
+=============================
+
+.. currentmodule:: sersic_profile_mass_VC
+
+.. autofunction:: interpolate_sersic_profile_VC

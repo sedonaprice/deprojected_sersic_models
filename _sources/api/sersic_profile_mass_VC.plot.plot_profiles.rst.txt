@@ -1,0 +1,6 @@
+plot_profiles
+=============
+
+.. currentmodule:: sersic_profile_mass_VC.plot
+
+.. autofunction:: plot_profiles

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wrapper_calculate_sersic_profile_tables &mdash; sersic_profile_mass_VC 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" /><link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wrapper_calculate_full_table_set" href="sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set.html" />
+    <link rel="prev" title="calculate_sersic_profile_table" href="sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> sersic_profile_mass_VC<img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">sersic_profile_mass_VC</a></li>
+</ul>
+<p><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../table_downloads.html">Download profile tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC">sersic_profile_mass_VC Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.table_generation">sersic_profile_mass_VC.table_generation Module</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#id1">Functions</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table.html">calculate_sersic_profile_table</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">wrapper_calculate_sersic_profile_tables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set.html">wrapper_calculate_full_table_set</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.io">sersic_profile_mass_VC.io Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.utils">sersic_profile_mass_VC.utils Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.plot">sersic_profile_mass_VC.plot Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.paper.paper_plots">sersic_profile_mass_VC.paper.paper_plots Module</a></li>
+</ul>
+</li>
+</ul>
+<p><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sersic_profile_mass_VC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+      <li>wrapper_calculate_sersic_profile_tables</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="wrapper-calculate-sersic-profile-tables">
+<h1>wrapper_calculate_sersic_profile_tables<a class="headerlink" href="#wrapper-calculate-sersic-profile-tables" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables">
+<code class="sig-prename descclassname">sersic_profile_mass_VC.table_generation.</code><code class="sig-name descname">wrapper_calculate_sersic_profile_tables</code><span class="sig-paren">(</span><em class="sig-param">n_arr=None</em>, <em class="sig-param">invq_arr=None</em>, <em class="sig-param">output_path=None</em>, <em class="sig-param">total_mass=50000000000.0</em>, <em class="sig-param">Reff=1.0</em>, <em class="sig-param">logR_min=-2.0</em>, <em class="sig-param">logR_max=2.0</em>, <em class="sig-param">nSteps=101</em>, <em class="sig-param">include_R0=True</em>, <em class="sig-param">i=90.0</em>, <em class="sig-param">cumulative=None</em>, <em class="sig-param">filename_base='mass_VC_profile_sersic'</em>, <em class="sig-param">overwrite=False</em>, <em class="sig-param">f_log=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sersic_profile_mass_VC/table_generation.html#wrapper_calculate_sersic_profile_tables"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sersic_profile_mass_VC.table_generation.wrapper_calculate_sersic_profile_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function to calculate Sersic profile tables over a range of n and invq values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_arr</strong> (<em>array_like</em>) – Array of Sersic indices</p></li>
+<li><p><strong>invq_arr</strong> (<em>array_like</em>) – Array of inverse intrinsic axis ratio</p></li>
+<li><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to directory where the Sersic profile table will be saved
+If not set, system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">SERSIC_PROFILE_MASS_VC_DATADIR</span></code> must be set.
+Default: system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">SERSIC_PROFILE_MASS_VC_DATADIR</span></code>, if specified.</p></li>
+<li><p><strong>total_mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun</p></li>
+<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Effective radius [kpc]. Default: Reff = 1 kpc</p></li>
+<li><p><strong>logR_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Log of minimum radius to calculate, relative to Reff.
+Default: logR_min = -2. (or R_min = 10^(-2.) * Reff)</p></li>
+<li><p><strong>logR_max</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Log of maximum radius to calculate, relative to Reff.
+Default: logR_max = +2. (or R_max = 10^(+2.) * Reff)</p></li>
+<li><p><strong>nSteps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of radii steps to calculate. Default: 101</p></li>
+<li><p><strong>include_R0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Include R=0 in table or not. Default: True</p></li>
+<li><p><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Inclination of model (to determin q_obs relative to the
+intrinsic axis ratio q.) Default: i = 90 deg</p></li>
+<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
+then add to the previous Menc(r-rdelt).
+Default: Uses cumulative if n &gt;= 2.</p></li>
+<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, for the default naming convention:
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;filename_base&gt;_nX.X_invqX.XX.fits</span></code>.
+Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_VC_profile_sersic</span></code></p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to overwrite the FITS file, if a previous version exists.
+Default: False (will throw an error if the file already exists).</p></li>
+<li><p><strong>f_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Filename of log file, to save information output while calculation is in progress.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sersic_profile_mass_VC.table_generation.calculate_sersic_profile_table.html" class="btn btn-neutral float-left" title="calculate_sersic_profile_table" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sersic_profile_mass_VC.table_generation.wrapper_calculate_full_table_set.html" class="btn btn-neutral float-right" title="wrapper_calculate_full_table_set" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 22 Apr 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

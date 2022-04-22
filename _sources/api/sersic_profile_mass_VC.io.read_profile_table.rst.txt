@@ -1,0 +1,6 @@
+read_profile_table
+==================
+
+.. currentmodule:: sersic_profile_mass_VC.io
+
+.. autofunction:: read_profile_table

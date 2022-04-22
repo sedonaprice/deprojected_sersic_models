@@ -1,0 +1,6 @@
+calculate_sersic_profile_table
+==============================
+
+.. currentmodule:: sersic_profile_mass_VC.table_generation
+
+.. autofunction:: calculate_sersic_profile_table

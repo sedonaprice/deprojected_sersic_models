@@ -1,0 +1,6 @@
+plot_vcirc
+==========
+
+.. currentmodule:: sersic_profile_mass_VC.plot
+
+.. autofunction:: plot_vcirc

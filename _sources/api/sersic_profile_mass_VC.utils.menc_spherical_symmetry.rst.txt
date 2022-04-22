@@ -1,0 +1,6 @@
+menc_spherical_symmetry
+=======================
+
+.. currentmodule:: sersic_profile_mass_VC.utils
+
+.. autofunction:: menc_spherical_symmetry

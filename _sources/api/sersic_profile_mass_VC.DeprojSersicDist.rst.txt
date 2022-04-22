@@ -1,0 +1,37 @@
+DeprojSersicDist
+================
+
+.. currentmodule:: sersic_profile_mass_VC
+
+.. autoclass:: DeprojSersicDist
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~DeprojSersicDist.density
+      ~DeprojSersicDist.dlnrho_dlnR
+      ~DeprojSersicDist.drho_dR
+      ~DeprojSersicDist.enclosed_mass
+      ~DeprojSersicDist.enclosed_mass_ellipsoid
+      ~DeprojSersicDist.profile_table
+      ~DeprojSersicDist.projected_enclosed_mass
+      ~DeprojSersicDist.surface_density
+      ~DeprojSersicDist.v_circ
+      ~DeprojSersicDist.virial_coeff_3D
+      ~DeprojSersicDist.virial_coeff_tot
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: density
+   .. automethod:: dlnrho_dlnR
+   .. automethod:: drho_dR
+   .. automethod:: enclosed_mass
+   .. automethod:: enclosed_mass_ellipsoid
+   .. automethod:: profile_table
+   .. automethod:: projected_enclosed_mass
+   .. automethod:: surface_density
+   .. automethod:: v_circ
+   .. automethod:: virial_coeff_3D
+   .. automethod:: virial_coeff_tot

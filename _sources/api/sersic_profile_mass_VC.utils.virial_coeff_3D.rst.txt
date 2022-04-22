@@ -1,0 +1,6 @@
+virial_coeff_3D
+===============
+
+.. currentmodule:: sersic_profile_mass_VC.utils
+
+.. autofunction:: virial_coeff_3D

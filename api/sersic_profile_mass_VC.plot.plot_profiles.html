@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>plot_profiles &mdash; sersic_profile_mass_VC 1.0 documentation</title><link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" /><link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="plot_profiles_single_type" href="sersic_profile_mass_VC.plot.plot_profiles_single_type.html" />
+    <link rel="prev" title="plot_enclosed_mass" href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> sersic_profile_mass_VC<img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">sersic_profile_mass_VC</a></li>
+</ul>
+<p><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../table_downloads.html">Download profile tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC">sersic_profile_mass_VC Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.table_generation">sersic_profile_mass_VC.table_generation Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.io">sersic_profile_mass_VC.io Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.utils">sersic_profile_mass_VC.utils Package</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.plot">sersic_profile_mass_VC.plot Package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#id4">Functions</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_density.html">plot_density</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_dlnrho_dlnr.html">plot_dlnrho_dlnr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html">plot_enclosed_mass</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">plot_profiles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_profiles_single_type.html">plot_profiles_single_type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_projected_enclosed_mass.html">plot_projected_enclosed_mass</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_surface_density.html">plot_surface_density</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sersic_profile_mass_VC.plot.plot_vcirc.html">plot_vcirc</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-sersic_profile_mass_VC.paper.paper_plots">sersic_profile_mass_VC.paper.paper_plots Module</a></li>
+</ul>
+</li>
+</ul>
+<p><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sersic_profile_mass_VC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+      <li>plot_profiles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/sersic_profile_mass_VC.plot.plot_profiles.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="plot-profiles">
+<h1>plot_profiles<a class="headerlink" href="#plot-profiles" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="sersic_profile_mass_VC.plot.plot_profiles">
+<code class="sig-prename descclassname">sersic_profile_mass_VC.plot.</code><code class="sig-name descname">plot_profiles</code><span class="sig-paren">(</span><em class="sig-param">sersic_profs</em>, <em class="sig-param">r=array([0.</em>, <em class="sig-param">1.</em>, <em class="sig-param">2.</em>, <em class="sig-param">3.</em>, <em class="sig-param">4.</em>, <em class="sig-param">5.])</em>, <em class="sig-param">rlim=None</em>, <em class="sig-param">rlog=True</em>, <em class="sig-param">ylog=None</em>, <em class="sig-param">prof_names=None</em>, <em class="sig-param">plot_kwargs=None</em>, <em class="sig-param">fig_kwargs=None</em>, <em class="sig-param">fileout=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sersic_profile_mass_VC/plot/plots.html#plot_profiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sersic_profile_mass_VC.plot.plot_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to show all six parameter profiles for the Sersic mass distribution(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sersic_profs</strong> (array_like or <code class="docutils literal notranslate"><span class="pre">DeprojSersicDist</span></code> instance or Sersic profile table dictionary.) – Distributions to plot. Can be a list of <code class="docutils literal notranslate"><span class="pre">DeprojSersicDist</span></code> instances,
+or a list of Sersic profile table dictionaries, or a single instance of either.</p></li>
+<li><p><strong>r</strong> (<em>array_like</em><em>, </em><em>optional</em>) – Radii over which to show profile. Ignored if sersic_profs contains tables,
+in favor of the table radii <code class="xref py py-obj docutils literal notranslate"><span class="pre">r</span></code>.
+Default: np.arange(0., 6., 1.)</p></li>
+<li><p><strong>rlim</strong> (<em>array_like</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><em>None</em></a><em>, </em><em>optional</em>) – If set, spefcify r plot bounds. Default: None (default bounds)</p></li>
+<li><p><strong>rlog</strong> (<em>array_like</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of radius instead of linear. Default: True</p></li>
+<li><p><strong>ylog</strong> (<em>array_like</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of profile instead of linear. Default: Specified per panel</p></li>
+<li><p><strong>prof_names</strong> (<em>array_like</em><em>, </em><em>optional</em>) – Specify which profilies to plot.
+Default: None (all six standard profiiles)</p></li>
+<li><p><strong>plot_kwargs</strong> (<em>array_like</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Option to pass plotting keyword arguments.
+Should include either dict or list of dicts, to match number of input profiles.
+Default: None</p></li>
+<li><p><strong>fig_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Option to pass other arguments to figure.
+Default: None</p></li>
+<li><p><strong>fileout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><em>None</em></a><em>, </em><em>optional</em>) – Filename for saving file. If set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.10)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, figure is returned to display.
+Default: None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sersic_profile_mass_VC.plot.plot_enclosed_mass.html" class="btn btn-neutral float-left" title="plot_enclosed_mass" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sersic_profile_mass_VC.plot.plot_profiles_single_type.html" class="btn btn-neutral float-right" title="plot_profiles_single_type" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 22 Apr 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

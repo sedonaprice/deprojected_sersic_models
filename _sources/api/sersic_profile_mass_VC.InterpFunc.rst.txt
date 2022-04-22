@@ -1,0 +1,19 @@
+InterpFunc
+==========
+
+.. currentmodule:: sersic_profile_mass_VC
+
+.. autoclass:: InterpFunc
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~InterpFunc.__call__
+      ~InterpFunc.evaluate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: evaluate

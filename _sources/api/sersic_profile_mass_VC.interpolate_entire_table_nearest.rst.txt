@@ -1,0 +1,6 @@
+interpolate_entire_table_nearest
+================================
+
+.. currentmodule:: sersic_profile_mass_VC
+
+.. autofunction:: interpolate_entire_table_nearest

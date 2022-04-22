@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sersic_profile_mass_VC.utils.interp_profiles &mdash; sersic_profile_mass_VC 1.0 documentation</title><link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" /><link rel="shortcut icon" href="../../../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> sersic_profile_mass_VC<img src="../../../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">sersic_profile_mass_VC</a></li>
+</ul>
+<p><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../table_downloads.html">Download profile tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+<p><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sersic_profile_mass_VC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>sersic_profile_mass_VC.utils.interp_profiles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sersic_profile_mass_VC.utils.interp_profiles</h1><div class="highlight"><pre>
+<span></span><span class="c1">##################################################################################</span>
+<span class="c1"># sersic_profile_mass_VC/utils/interp_profiles.py                                #</span>
+<span class="c1">#                                                                                #</span>
+<span class="c1"># Copyright 2018-2022 Sedona Price &lt;sedona.price@gmail.com&gt; / MPE IR/Submm Group #</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
+<span class="c1">##################################################################################</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Supress warnings: Runtime &amp; integration warnings are frequent</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">scp_interp</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">sersic_profile_mass_VC.io</span> <span class="kn">import</span> <span class="n">read_profile_table</span><span class="p">,</span> <span class="n">_sersic_profile_filename_base</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;interpolate_entire_table&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_menc&#39;</span><span class="p">,</span> <span class="s1">&#39;interpolate_sersic_profile_VC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_rho&#39;</span><span class="p">,</span> <span class="s1">&#39;interpolate_sersic_profile_dlnrho_dlnR&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_entire_table_nearest&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_menc_nearest&#39;</span><span class="p">,</span> <span class="s1">&#39;interpolate_sersic_profile_VC_nearest&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_rho_nearest&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_dlnrho_dlnR_nearest&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nearest_n_invq&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;InterpFunc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_logrho_function&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;interpolate_sersic_profile_dlnrho_dlnR_function&#39;</span><span class="p">]</span>
+
+
+<span class="c1"># LOGGER SETTINGS</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;SersicProfileMassVC&#39;</span><span class="p">)</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+
+<span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
+<span class="c1"># Interpolation functions:</span>
+
+<div class="viewcode-block" id="interpolate_entire_table"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_entire_table.html#sersic_profile_mass_VC.interpolate_entire_table">[docs]</a><span class="k">def</span> <span class="nf">interpolate_entire_table</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate entire table, returning new profiles sampled at r.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate table [kpc]</span>
+
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+
+<span class="sd">        n: float, optional</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">            Must be specified if `table=None`.</span>
+<span class="sd">        invq: float, optional</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+<span class="sd">            Must be specified if `table=None`.</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        table_interp: dict</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify &#39;n&#39; if &#39;table&#39; is not set!&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">invq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify &#39;n&#39; if &#39;table&#39; is not set!&quot;</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                                   <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">vcirc</span> <span class="o">=</span>         <span class="n">interpolate_sersic_profile_VC</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                                  <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">invq</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                                                  <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+    <span class="n">menc3D_sph</span> <span class="o">=</span>    <span class="n">interpolate_sersic_profile_menc</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                                    <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">invq</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                                                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+    <span class="n">menc3D_ellip</span> <span class="o">=</span>  <span class="n">interpolate_sersic_profile_menc</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                                    <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">invq</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                                                    <span class="n">sphere</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+    <span class="n">rho</span> <span class="o">=</span>           <span class="n">interpolate_sersic_profile_rho</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                                   <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">invq</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                                                   <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+    <span class="n">dlnrho_dlnR</span> <span class="o">=</span>   <span class="n">interpolate_sersic_profile_dlnrho_dlnR</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span>
+                                                           <span class="n">invq</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                                                           <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Setup table:</span>
+    <span class="n">table_interp</span> <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>                   <span class="n">R</span><span class="p">,</span>
+                     <span class="s1">&#39;total_mass&#39;</span><span class="p">:</span>          <span class="n">total_mass</span><span class="p">,</span>
+                     <span class="s1">&#39;Reff&#39;</span><span class="p">:</span>                <span class="n">Reff</span><span class="p">,</span>
+                     <span class="s1">&#39;vcirc&#39;</span><span class="p">:</span>               <span class="n">vcirc</span><span class="p">,</span>
+                     <span class="s1">&#39;menc3D_sph&#39;</span><span class="p">:</span>          <span class="n">menc3D_sph</span><span class="p">,</span>
+                     <span class="s1">&#39;menc3D_ellipsoid&#39;</span><span class="p">:</span>    <span class="n">menc3D_ellip</span><span class="p">,</span>
+                     <span class="s1">&#39;rho&#39;</span><span class="p">:</span>                 <span class="n">rho</span><span class="p">,</span>
+                     <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">:</span>         <span class="n">dlnrho_dlnR</span> <span class="p">}</span>
+
+
+    <span class="c1"># Scale at Reff:</span>
+    <span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;menc3D_sph_Reff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph_Reff&#39;</span><span class="p">]</span> <span class="o">*</span> \
+                                      <span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">]</span>
+    <span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;menc3D_ellipsoid_Reff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_ellipsoid_Reff&#39;</span><span class="p">]</span> <span class="o">*</span> \
+                                  <span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">]</span>
+    <span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">]</span> <span class="o">*</span> \
+                                 <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span> <span class="o">*</span> \
+                                 <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">table_interp</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+
+    <span class="n">keys_copy</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;invq&#39;</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;rhalf3D_sph&#39;</span><span class="p">,</span> <span class="s1">&#39;ktot_Reff&#39;</span><span class="p">,</span> <span class="s1">&#39;k3D_sph_Reff&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_copy</span><span class="p">:</span>
+        <span class="n">table_interp</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">table_interp</span></div>
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_menc"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_menc.html#sersic_profile_mass_VC.interpolate_sersic_profile_menc">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_menc</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">sphere</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff.</span>
+
+<span class="sd">    Uses the saved table of Menc3D_sphere(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Mtot and Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff) )</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">        sphere: bool, optional</span>
+<span class="sd">            Flag to calculate enclosed mass in sphere (True) vs spheroid/ellipsoid (False).</span>
+<span class="sd">            Default: True</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        menc_interp: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                                   <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sphere</span><span class="p">:</span>
+        <span class="n">table_menc</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">table_menc</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_ellipsoid&#39;</span><span class="p">])</span>
+
+    <span class="n">table_Rad</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Clean up values inside rmin:  Add the value at r=0: menc=0</span>
+    <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">table_Rad</span><span class="p">)</span>
+        <span class="n">table_menc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">table_menc</span><span class="p">)</span>
+
+
+    <span class="c1"># Ensure it&#39;s an array:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">R</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+    <span class="c1"># Ensure all radii are 0. or positive:</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span>
+
+    <span class="n">scale_fac</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_mass</span> <span class="o">/</span> <span class="n">table_mass</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="n">m_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_menc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">m_interp_extrap</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_menc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">menc_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">))</span>
+        <span class="n">wh_in</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&lt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&gt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">wh_extrap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&gt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&lt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">menc_interp</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">=</span>     <span class="p">(</span><span class="n">m_interp</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span> <span class="p">)</span>
+        <span class="n">menc_interp</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">m_interp_extrap</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span> <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">m_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_menc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">menc_interp</span> <span class="o">=</span> <span class="n">m_interp</span><span class="p">(</span><span class="n">Rarr</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">menc_interp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># Float input</span>
+            <span class="k">return</span> <span class="n">menc_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Length 1 array input</span>
+            <span class="k">return</span> <span class="n">menc_interp</span></div>
+
+<div class="viewcode-block" id="interpolate_sersic_profile_VC"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_VC.html#sersic_profile_mass_VC.interpolate_sersic_profile_VC">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_VC</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff.</span>
+
+<span class="sd">    Uses the saved table of vcirc(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Mtot and Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff), and scaling for the difference</span>
+<span class="sd">    between Mtot and table_Mtot)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        vcirc_interp: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">table_vcirc</span> <span class="o">=</span>   <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc&#39;</span><span class="p">])</span>
+    <span class="n">table_Rad</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Clean up values inside rmin:  Add the value at r=0: vcirc=0</span>
+    <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">table_Rad</span><span class="p">)</span>
+        <span class="n">table_vcirc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">table_vcirc</span><span class="p">)</span>
+
+    <span class="c1"># Ensure it&#39;s an array:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">R</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+    <span class="c1"># Ensure all radii are 0. or positive:</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span>
+
+    <span class="n">scale_fac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">total_mass</span> <span class="o">/</span> <span class="n">table_mass</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">table_Reff</span> <span class="o">/</span> <span class="n">Reff</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="n">v_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_vcirc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">v_interp_extrap</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_vcirc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">vcirc_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">))</span>
+        <span class="n">wh_in</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&lt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&gt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">wh_extrap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&gt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&lt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">vcirc_interp</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">=</span>     <span class="p">(</span><span class="n">v_interp</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span>  <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span> <span class="p">)</span>
+        <span class="n">vcirc_interp</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_interp_extrap</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span>  <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span> <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">v_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_vcirc</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">vcirc_interp</span> <span class="o">=</span> <span class="p">(</span><span class="n">v_interp</span><span class="p">(</span><span class="n">Rarr</span>  <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span> <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">vcirc_interp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># Float input</span>
+            <span class="k">return</span> <span class="n">vcirc_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Length 1 array input</span>
+            <span class="k">return</span> <span class="n">vcirc_interp</span></div>
+
+<div class="viewcode-block" id="interpolate_sersic_profile_rho"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_rho.html#sersic_profile_mass_VC.interpolate_sersic_profile_rho">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_rho</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff.</span>
+
+<span class="sd">    Uses the saved table of rho(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Mtot and Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff) )</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        rho_interp: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span>  <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">table_rho</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">])</span>
+    <span class="n">table_Rad</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+
+    <span class="c1"># Clean up values inside rmin:  Add the value at r=0: menc=0</span>
+    <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="o">/</span><span class="n">Reff</span><span class="p">,</span> <span class="n">table_Rad</span><span class="p">)</span>
+            <span class="n">table_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">*</span> <span class="n">table_Reff</span><span class="o">/</span><span class="n">Reff</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">table_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">table_Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]),</span> <span class="n">table_rho</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># Clean up if n&gt;1: TECHNICALLY asymptotic at r=0, but replace with large value</span>
+    <span class="c1">#                  so scipy interpolation works.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">):</span>
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table_rho</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">table_rho</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_rho</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">table_rho</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.e3</span>
+
+
+    <span class="c1"># Take log: density profiles are ~linear in log space.</span>
+    <span class="n">table_logrho</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">table_rho</span><span class="p">)</span>
+
+    <span class="c1"># Ensure it&#39;s an array:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">R</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+    <span class="c1"># Ensure all radii are 0. or positive:</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span>
+
+    <span class="n">scale_fac</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_mass</span> <span class="o">/</span> <span class="n">table_mass</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">table_Reff</span> <span class="o">/</span> <span class="n">Reff</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span>
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_logrho</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">r_interp_extrap</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_logrho</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">logrho_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">))</span>
+        <span class="n">wh_in</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&lt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&gt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">wh_extrap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&gt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&lt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">logrho_interp</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">=</span>     <span class="n">r_interp</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span>
+        <span class="n">logrho_interp</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="n">r_interp_extrap</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_logrho</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">logrho_interp</span> <span class="o">=</span>  <span class="n">r_interp</span><span class="p">(</span><span class="n">Rarr</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+    <span class="n">rho_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span> <span class="n">logrho_interp</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale_fac</span>
+
+    <span class="c1"># Back replace inf, if interpolating at r=0 for n&gt;1:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rarr</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">)):</span>
+            <span class="n">rho_interp</span><span class="p">[</span><span class="n">Rarr</span><span class="o">==</span><span class="mf">0.</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">rho_interp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># Float input</span>
+            <span class="k">return</span> <span class="n">rho_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Length 1 array input</span>
+            <span class="k">return</span> <span class="n">rho_interp</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_dlnrho_dlnR"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_dlnrho_dlnR</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate dlnrho/dlnR at arbitrary radii R, for arbitrary Reff.</span>
+
+<span class="sd">    Uses the saved table of dlnrho/dlnR(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff) )</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        dlnrho_dlnR_interp: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span>  <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">table_dlnrho_dlnR</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">])</span>
+    <span class="n">table_Rad</span> <span class="o">=</span>             <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Clean up values inside rmin:  Add the value at r=0: menc=0</span>
+    <span class="k">if</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="o">/</span><span class="n">Reff</span><span class="p">,</span> <span class="n">table_Rad</span><span class="p">)</span>
+            <span class="n">table_dlnrho_dlnR</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dlnrho_dlnR</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">*</span> <span class="n">table_Reff</span><span class="o">/</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">table_mass</span><span class="p">,</span>
+                                        <span class="n">Reff</span><span class="o">=</span><span class="n">table_Reff</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">]),</span> <span class="n">table_dlnrho_dlnR</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># Catch NaNs:</span>
+    <span class="n">whfin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table_dlnrho_dlnR</span><span class="p">))</span>
+    <span class="n">table_dlnrho_dlnR</span> <span class="o">=</span> <span class="n">table_dlnrho_dlnR</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+    <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">table_Rad</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+
+    <span class="c1"># Ensure it&#39;s an array:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">R</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+    <span class="c1"># Ensure all radii are 0. or positive:</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_dlnrho_dlnR</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">NaN</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">r_interp_extrap</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_dlnrho_dlnR</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+
+        <span class="n">dlnrho_dlnR_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">))</span>
+        <span class="n">wh_in</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&lt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&gt;=</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">wh_extrap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rarr</span> <span class="o">&gt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">|</span> <span class="p">(</span><span class="n">Rarr</span> <span class="o">&lt;</span> <span class="n">table_Rad</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dlnrho_dlnR_interp</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">=</span>     <span class="p">(</span><span class="n">r_interp</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">dlnrho_dlnR_interp</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">r_interp_extrap</span><span class="p">(</span><span class="n">Rarr</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_dlnrho_dlnR</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">dlnrho_dlnR_interp</span> <span class="o">=</span>     <span class="p">(</span><span class="n">r_interp</span><span class="p">(</span><span class="n">Rarr</span> <span class="o">/</span> <span class="n">Reff</span> <span class="o">*</span> <span class="n">table_Reff</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rarr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dlnrho_dlnR_interp</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="mf">1.</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="c1"># Float input</span>
+            <span class="k">return</span> <span class="n">dlnrho_dlnR_interp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Length 1 array input</span>
+            <span class="k">return</span> <span class="n">dlnrho_dlnR_interp</span></div>
+
+
+
+
+
+
+
+<span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
+<span class="c1"># Nearest n, invq values and aliases to the Menc, vcirc interpolation functions</span>
+
+<div class="viewcode-block" id="nearest_n_invq"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.nearest_n_invq.html#sersic_profile_mass_VC.nearest_n_invq">[docs]</a><span class="k">def</span> <span class="nf">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Nearest value of n and invq for which a Sersic profile table</span>
+<span class="sd">    has been calculated, using the *DEFAULT* array of n and invq which have been used here.</span>
+
+<span class="sd">    A similar function can be defined if a different set of Sersic profile tables</span>
+<span class="sd">    (over n, invq) have been calculated.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; nearest_n, nearest_invq = nearest_n_invq(n=n, invq=invq)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        nearest_n: float</span>
+<span class="sd">            Nearest value of Sersic index n from lookup array</span>
+<span class="sd">        nearest_invq: float</span>
+<span class="sd">            Nearest value of flattening invq from lookup array</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">table_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">8.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>   <span class="c1"># Sersic indices</span>
+    <span class="n">table_invq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">7.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span>
+                    <span class="mf">1.11</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.67</span><span class="p">,</span> <span class="mf">3.33</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.67</span><span class="p">])</span>
+    <span class="c1"># 1:1, 1:2, 1:3, ... flattening  [also elongated 2:1, 1.5:1]</span>
+
+    <span class="n">nearest_n</span> <span class="o">=</span> <span class="n">table_n</span><span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">table_n</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span> <span class="p">)</span> <span class="p">]</span>
+    <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">table_invq</span><span class="p">[</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span> <span class="n">table_invq</span> <span class="o">-</span> <span class="n">invq</span><span class="p">)</span> <span class="p">)</span> <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span></div>
+
+<div class="viewcode-block" id="interpolate_entire_table_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_entire_table_nearest.html#sersic_profile_mass_VC.interpolate_entire_table_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_entire_table_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate entire table, returning new profiles sampled at r,</span>
+<span class="sd">    using the **nearest values** of n and invq that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate table [kpc]</span>
+
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+
+<span class="sd">        n: float, optional</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">            Must be specified if `table=None`.</span>
+<span class="sd">        invq: float, optional</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+<span class="sd">            Must be specified if `table=None`.</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        table_interp_nearest: dict</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">table_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_entire_table</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">table_interp_nearest</span></div>
+
+<div class="viewcode-block" id="interpolate_sersic_profile_menc_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_menc_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_menc_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff,</span>
+<span class="sd">    using the **nearest values** of n and invq that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Finds the nearest n, invq for the &quot;default&quot; table collection,</span>
+<span class="sd">    then calls `interpolate_sersic_profile_menc()` with these values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        menc_interp_nearest: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">menc_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_menc</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">menc_interp_nearest</span></div>
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_VC_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_VC_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_VC_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate vcirc(R) at arbitrary radii R, for arbitrary Mtot and Reff,</span>
+<span class="sd">    using the **nearest values of n and invq** that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Finds the nearest n, invq for the &quot;default&quot; table collection,</span>
+<span class="sd">    then calls `interpolate_sersic_profile_VC()` with these values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        vcirc_interp_nearest: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">vcirc_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_VC</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">vcirc_interp_nearest</span></div>
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_rho_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_rho_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_rho_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate Rho(R) at arbitrary radii R, for arbitrary Mtot and Reff,</span>
+<span class="sd">    using the **nearest values of n and invq** that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Finds the nearest n, invq for the &quot;default&quot; table collection,</span>
+<span class="sd">    then calls `interpolate_sersic_profile_rho()` with these values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q.</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        rho_interp_nearest: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">rho_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_rho</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">rho_interp_nearest</span></div>
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_dlnrho_dlnR_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_dlnrho_dlnR_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate dlnrho_g/dlnR at arbitrary radii R, for arbitrary Reff,</span>
+<span class="sd">    using the **nearest values of n and invq** that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Finds the nearest n, invq for the &quot;default&quot; table collection,</span>
+<span class="sd">    then calls `interpolate_sersic_profile_dlnrho_dlnR()` with these values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q.</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        dlnrho_dlnR_interp_nearest: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">dlnrho_dlnR_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_dlnrho_dlnR</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dlnrho_dlnR_interp_nearest</span></div>
+
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">mass_comp1</span><span class="o">=</span><span class="mf">1.e11</span><span class="p">,</span> <span class="n">mass_comp2</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="n">Reff_comp1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_comp1</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_comp1</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">Reff_comp2</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>   <span class="n">n_comp2</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_comp2</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate dlnrho_g/dlnR at arbitrary radii R, for a composite system.</span>
+<span class="sd">    Both comp1 and comp2 (e.g., disk and bulge) can have arbitary Reff,</span>
+<span class="sd">    but this uses the **nearest values of n and invq** that are included</span>
+<span class="sd">    in the Sersic profile table collection.</span>
+
+<span class="sd">    Finds the nearest n, invq for the &quot;default&quot; table collection,</span>
+<span class="sd">    then returns `dlnrho_dlnR_interp_nearest()` for the total system.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        R: float or array_like</span>
+<span class="sd">            Radius at which to interpolate profile [kpc]</span>
+
+<span class="sd">        mass_comp1: float</span>
+<span class="sd">            Total mass of the first component [Msun]    [Default: 10^11 Msun]</span>
+<span class="sd">        Reff_comp1: float</span>
+<span class="sd">            Effective radius of the first component Sersic profile [kpc]</span>
+<span class="sd">        n_comp1: float</span>
+<span class="sd">            Sersic index of the first component.  [Default: 1.]</span>
+<span class="sd">        invq_comp1: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of the first component Sersic profile, invq = 1/q.</span>
+<span class="sd">            [Default: 5.]</span>
+<span class="sd">        mass_comp2: float</span>
+<span class="sd">            Total mass of the second component [Msun]    [Default: 0 Msun]</span>
+<span class="sd">        Reff_comp2: float</span>
+<span class="sd">            Effective radius of the second component Sersic profile [kpc]. [Default: 1 kpc]</span>
+<span class="sd">        n_comp2: float</span>
+<span class="sd">            Sersic index of the second component. [Default: 4]</span>
+<span class="sd">        invq_comp2: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of the second component Sersic profile, invq = 1/q.</span>
+<span class="sd">            [Default: 1.]</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        dlnrho_dlnR_interp_nearest: float or array_like</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Use the &quot;typical&quot; collection of table values:</span>
+    <span class="n">rho_t</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="mf">0.</span>
+    <span class="n">rho_dlnrho_dlnR_sum</span> <span class="o">=</span> <span class="n">R</span> <span class="o">*</span> <span class="mf">0.</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">M</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">n_comp1</span><span class="p">,</span> <span class="n">n_comp2</span><span class="p">],</span> <span class="p">[</span><span class="n">invq_comp1</span><span class="p">,</span> <span class="n">invq_comp2</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">Reff_comp1</span><span class="p">,</span> <span class="n">Reff_comp2</span><span class="p">],</span> <span class="p">[</span><span class="n">mass_comp1</span><span class="p">,</span> <span class="n">mass_comp2</span><span class="p">]):</span>
+        <span class="n">nearest_n</span><span class="p">,</span> <span class="n">nearest_invq</span> <span class="o">=</span> <span class="n">nearest_n_invq</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
+
+        <span class="n">dlnrho_dlnR_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_dlnrho_dlnR</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+        <span class="n">rho_interp_nearest</span> <span class="o">=</span> <span class="n">interpolate_sersic_profile_rho</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">M</span><span class="p">,</span>
+                <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">nearest_n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">nearest_invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">)</span>
+
+        <span class="n">rho_t</span> <span class="o">+=</span> <span class="n">rho_interp_nearest</span>
+        <span class="n">rho_dlnrho_dlnR_sum</span> <span class="o">+=</span> <span class="n">rho_interp_nearest</span> <span class="o">*</span> <span class="n">dlnrho_dlnR_interp_nearest</span>
+
+    <span class="n">dlnrho_dlnR_interp_total</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">rho_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">rho_dlnrho_dlnR_sum</span>
+
+    <span class="k">return</span> <span class="n">dlnrho_dlnR_interp_total</span></div>
+
+
+
+
+<div class="viewcode-block" id="InterpFunc"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.InterpFunc.html#sersic_profile_mass_VC.InterpFunc">[docs]</a><span class="k">class</span> <span class="nc">InterpFunc</span><span class="p">:</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper class to wrap a returned interpolation function:</span>
+<span class="sd">    to allow for cubic/other interpolation within table coverage,</span>
+<span class="sd">    but linear extrapolation outside of coverage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f_interp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">f_extrap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">table_Rad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_Reff</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_interp</span>      <span class="o">=</span> <span class="n">f_interp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_extrap</span>      <span class="o">=</span> <span class="n">f_extrap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span> <span class="o">=</span> <span class="n">table_Rad</span><span class="o">/</span><span class="n">table_Reff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span>    <span class="o">=</span> <span class="n">table_Reff</span>
+
+<div class="viewcode-block" id="InterpFunc.__call__"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.InterpFunc.html#sersic_profile_mass_VC.InterpFunc.__call__">[docs]</a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="InterpFunc.evaluate"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.InterpFunc.html#sersic_profile_mass_VC.InterpFunc.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="p">):</span>
+        <span class="n">Rnorm</span> <span class="o">=</span> <span class="n">R</span> <span class="o">/</span> <span class="n">Reff</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">interpvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Rnorm</span><span class="p">))</span>
+            <span class="n">wh_in</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rnorm</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> \
+                                 <span class="p">(</span><span class="n">Rnorm</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">wh_extrap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rnorm</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">|</span> \
+                                 <span class="p">(</span><span class="n">Rnorm</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">min</span><span class="p">()))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">interpvals</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">=</span>     <span class="bp">self</span><span class="o">.</span><span class="n">f_interp</span><span class="p">(</span><span class="n">Rnorm</span><span class="p">[</span><span class="n">wh_in</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_extrap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">interpvals</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_extrap</span><span class="p">(</span><span class="n">Rnorm</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interpvals</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_interp</span><span class="p">(</span><span class="n">Rnorm</span><span class="p">[</span><span class="n">wh_extrap</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># Scalar R:</span>
+            <span class="k">if</span> <span class="p">((</span><span class="n">Rnorm</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rnorm</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Radnorm</span><span class="o">.</span><span class="n">min</span><span class="p">())):</span>
+                <span class="n">interpvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_interp</span><span class="p">(</span><span class="n">Rnorm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_extrap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">interpvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_extrap</span><span class="p">(</span><span class="n">Rnorm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">interpvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_interp</span><span class="p">(</span><span class="n">Rnorm</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_Reff</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">interpvals</span></div></div>
+
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_logrho_function"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function.html#sersic_profile_mass_VC.interpolate_sersic_profile_logrho_function">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_logrho_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return function to interpolate log10(rho(R)) at arbitrary radii R,</span>
+<span class="sd">    for arbitrary Mtot and Reff.</span>
+
+<span class="sd">    Uses the saved table of rho(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Mtot and Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff) )</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        logrho_interp_func: function</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span>  <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">table_rho</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;rho&#39;</span><span class="p">])</span>
+    <span class="n">table_Rad</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>    <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+    <span class="n">table_logrho</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">table_rho</span><span class="p">)</span>
+
+    <span class="c1"># Clean up if n&gt;1: TECHNICALLY asymptotic at r=0, but replace with large value</span>
+    <span class="c1">#                  so scipy interpolation works.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">):</span>
+        <span class="k">if</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table_rho</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">table_logrho</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">table_logrho</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">table_logrho</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mf">2.</span>
+
+    <span class="c1"># Catch NaNs:</span>
+    <span class="n">whfin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table_logrho</span><span class="p">))</span>
+    <span class="n">table_logrho</span> <span class="o">=</span> <span class="n">table_logrho</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+    <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">table_Rad</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="c1"># CUBIC EXTRAPOLATION:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_logrho</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">r_extrap</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_logrho</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">r_extrap</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+
+    <span class="n">func_interp</span> <span class="o">=</span> <span class="n">InterpFunc</span><span class="p">(</span><span class="n">f_interp</span><span class="o">=</span><span class="n">r_interp</span><span class="p">,</span> <span class="n">f_extrap</span><span class="o">=</span><span class="n">r_extrap</span><span class="p">,</span> <span class="n">table_Rad</span><span class="o">=</span><span class="n">table_Rad</span><span class="p">,</span>
+                             <span class="n">table_Reff</span><span class="o">=</span><span class="n">table_Reff</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func_interp</span></div>
+
+
+<div class="viewcode-block" id="interpolate_sersic_profile_dlnrho_dlnR_function"><a class="viewcode-back" href="../../../api/sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function.html#sersic_profile_mass_VC.interpolate_sersic_profile_dlnrho_dlnR_function">[docs]</a><span class="k">def</span> <span class="nf">interpolate_sersic_profile_dlnrho_dlnR_function</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interp_type</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return function to interpolate dlnrho/dlnR (R) at arbitrary radii R,</span>
+<span class="sd">    for arbitrary Mtot and Reff.</span>
+
+<span class="sd">    Uses the saved table of dlnrho/dlnR(R) values for a given Sersic index n and invq,</span>
+<span class="sd">    and performs scaling and interpolation to map the profile onto the new Reff.</span>
+<span class="sd">    (by mapping the radius using R&#39; = (R/Reff * table_Reff) )</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits`</span>
+<span class="sd">            Default: `mass_VC_profile_sersic`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+<span class="sd">        interp_type: str, optional</span>
+<span class="sd">            Default profile interpolation within the table Rarr region.</span>
+<span class="sd">            (Extrapolation is always linear). Default: `cubic`</span>
+<span class="sd">        table: dict, optional</span>
+<span class="sd">            Option to pass the Sersic profile table, if already loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        dlnrho_dlnR_interpp_func: function</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">read_profile_table</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span>  <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">)</span>
+
+    <span class="n">table_dlnrho_dlnR</span> <span class="o">=</span>     <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">])</span>
+    <span class="n">table_Rad</span> <span class="o">=</span>             <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">])</span>
+    <span class="n">table_Reff</span> <span class="o">=</span>            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])</span>
+    <span class="n">table_mass</span> <span class="o">=</span>            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Catch NaNs:</span>
+    <span class="n">whfin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">table_dlnrho_dlnR</span><span class="p">))</span>
+    <span class="n">table_dlnrho_dlnR</span> <span class="o">=</span> <span class="n">table_dlnrho_dlnR</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+    <span class="n">table_Rad</span> <span class="o">=</span> <span class="n">table_Rad</span><span class="p">[</span><span class="n">whfin</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;cubic&#39;</span><span class="p">:</span>
+        <span class="c1"># CUBIC EXTRAPOLATION:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_dlnrho_dlnR</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;cubic&#39;</span><span class="p">)</span>
+        <span class="n">r_extrap</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">elif</span> <span class="n">interp_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;linear&#39;</span><span class="p">:</span>
+        <span class="n">r_interp</span> <span class="o">=</span> <span class="n">scp_interp</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">table_Rad</span><span class="p">,</span> <span class="n">table_dlnrho_dlnR</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;extrapolate&#39;</span><span class="p">,</span>
+                                       <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)</span>
+        <span class="n">r_extrap</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;interp type &#39;</span><span class="si">{}</span><span class="s2">&#39; unknown!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">interp_type</span><span class="p">))</span>
+
+
+    <span class="n">func_interp</span> <span class="o">=</span> <span class="n">InterpFunc</span><span class="p">(</span><span class="n">f_interp</span><span class="o">=</span><span class="n">r_interp</span><span class="p">,</span> <span class="n">f_extrap</span><span class="o">=</span><span class="n">r_extrap</span><span class="p">,</span> <span class="n">table_Rad</span><span class="o">=</span><span class="n">table_Rad</span><span class="p">,</span>
+                             <span class="n">table_Reff</span><span class="o">=</span><span class="n">table_Reff</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func_interp</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 22 Apr 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

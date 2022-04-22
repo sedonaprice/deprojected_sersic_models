@@ -1,0 +1,6 @@
+make_all_paper_plots
+====================
+
+.. currentmodule:: sersic_profile_mass_VC.paper.paper_plots
+
+.. autofunction:: make_all_paper_plots
