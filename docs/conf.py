@@ -25,6 +25,14 @@ from distutils.version import LooseVersion
 
 from pkg_resources import DistributionNotFound, get_distribution
 
+
+_HERE = os.path.dirname(__file__)
+_ROOT_DIR = os.path.abspath(os.path.join(_HERE, '..'))
+_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, '../sersic_profile_mass_VC'))
+
+sys.path.insert(0, _ROOT_DIR)
+sys.path.insert(0, _PACKAGE_DIR)
+
 import sersic_profile_mass_VC
 
 
@@ -46,7 +54,7 @@ release = sersic_profile_mass_VC.__version__
 # minor parts of the version number, not the micro.  To do a more
 # specific version check, call check_sphinx_version("x.y.z.") from
 # your project's conf.py
-needs_sphinx = '1.8' 
+needs_sphinx = '1.8'
 
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
