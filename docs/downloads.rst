@@ -9,11 +9,9 @@ Downloads
 Profile tables
 ==============
 
-The pre-computed profile tables are available for download here: `tar.gz`_ | `zip`_
-
-.. _tar.gz: https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.tar.gz
-.. _zip: https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.zip
-
+The pre-computed profile tables are available for download here:
+`tar.gz <https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.tar.gz>`_ |
+`zip <https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.zip>`_
 
 .. tip::
     If using the pre-downloaded tables, or your own pre-computed tables,
