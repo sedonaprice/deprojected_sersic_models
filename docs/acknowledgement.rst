@@ -1,9 +1,9 @@
 .. _acknowledgement:
 .. highlight:: shell
 
-========================================
-Acknowledging ``sersic_profile_mass_VC``
-========================================
+===========================================
+Acknowledging ``deprojected_sersic_models``
+===========================================
 If you use this package or the precomputed profile tables in a publication,
 please cite Price et al., 2022, in prep (`ADS`_ | `arXiv`_).
 

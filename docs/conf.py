@@ -28,26 +28,26 @@ from pkg_resources import DistributionNotFound, get_distribution
 
 _HERE = os.path.dirname(__file__)
 _ROOT_DIR = os.path.abspath(os.path.join(_HERE, '..'))
-_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, '../sersic_profile_mass_VC'))
+_PACKAGE_DIR = os.path.abspath(os.path.join(_HERE, '../deprojected_sersic_models'))
 
 sys.path.insert(0, _ROOT_DIR)
 sys.path.insert(0, _PACKAGE_DIR)
 
 _TABLES_DIR = os.path.abspath(os.path.join(_HERE, '_static/tables'))
-os.environ["SERSIC_PROFILE_MASS_VC_DATADIR"] = _TABLES_DIR
+os.environ["DEPROJECTED_SERSIC_MODELS_DATADIR"] = _TABLES_DIR
 
-import sersic_profile_mass_VC
+import deprojected_sersic_models
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'sersic_profile_mass_VC'
+project = 'deprojected_sersic_models'
 copyright = '2018-2022, Sedona Price'
 author = 'Sedona Price'
 
 # The full version, including alpha/beta/rc tags
-version = sersic_profile_mass_VC.__version__
-release = sersic_profile_mass_VC.__version__
+version = deprojected_sersic_models.__version__
+release = deprojected_sersic_models.__version__
 
 
 

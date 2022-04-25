@@ -11,7 +11,7 @@ except:
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-init_string = open(os.path.join(dir_path, 'sersic_profile_mass_VC', '__init__.py')).read()
+init_string = open(os.path.join(dir_path, 'deprojected_sersic_models', '__init__.py')).read()
 VERS = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VERS, init_string, re.M)
 __version__ = mo.group(1)
@@ -47,8 +47,8 @@ setup(
     license="3-clause BSD",
     long_description=readme,
     # include_package_data=True,
-    name='sersic_profile_mass_VC',
-    packages=['sersic_profile_mass_VC', 'sersic_profile_mass_VC.utils',
-              'sersic_profile_mass_VC.plot'],
+    name='deprojected_sersic_models',
+    packages=['deprojected_sersic_models', 'deprojected_sersic_models.utils',
+              'deprojected_sersic_models.plot'],
     version=__version__
 )

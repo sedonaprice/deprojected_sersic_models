@@ -25,8 +25,8 @@ are described in `Price et al., in prep, 2022`_.
 Please see `the documentation`_ for this package for detailed information about installation,
 usage, and to `download`_ the set of pre-computed Sérsic profile tables.
 
-.. _the documentation: https://sedonaprice.github.io/sersic_profile_mass_VC/
-.. _download: https://sedonaprice.github.io/sersic_profile_mass_VC/downloads.html
+.. _the documentation: https://sedonaprice.github.io/deprojected_sersic_models/
+.. _download: https://sedonaprice.github.io/deprojected_sersic_models/downloads.html
 
 Usage
 #####
@@ -35,8 +35,8 @@ Usage
 
     import os
     import numpy as np
-    import sersic_profile_mass_VC as spm
-    table_dir = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR')
+    import deprojected_sersic_models as deproj_sersic
+    table_dir = os.getenv('DEPROJECTED_SERSIC_MODELS_DATADIR')
 
     # Sersic profile properties & radius array
     total_mass = 1.e11
@@ -47,9 +47,9 @@ Usage
     r = np.arange(0., 30.1, 0.1)
 
     # Load & interpolate all profiles in saved table:
-    table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass,
-                                                Reff=Reff, n=n, invq=invq,
-                                                path=table_dir)
+    table_interp = deproj_sersic.interpolate_entire_table(r=r, total_mass=total_mass,
+                                                          Reff=Reff, n=n, invq=invq,
+                                                          path=table_dir)
 
 
 Dependencies

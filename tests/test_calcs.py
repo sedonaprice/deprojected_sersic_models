@@ -1,7 +1,7 @@
 # coding=utf8
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #
-# Testing of sersic_profile_mass_VC calculations
+# Testing of deprojected_sersic_models calculations
 
 import os
 import shutil
@@ -9,10 +9,10 @@ import math
 
 import numpy as np
 
-from sersic_profile_mass_VC import core, io
-from sersic_profile_mass_VC.utils import calcs as util_calcs
+from deprojected_sersic_models import core, io
+from deprojected_sersic_models.utils import calcs as util_calcs
 try:
-    from sersic_profile_mass_VC.paper import plot_calcs
+    from deprojected_sersic_models.paper import plot_calcs
     _plot_calcs_loaded = True
 except:
     _plot_calcs_loaded = False
@@ -24,7 +24,7 @@ _dir_tests = os.path.dirname(path) + '/'
 _dir_tests_output = _dir_tests+'PYTEST_OUTPUT/'
 
 class TestSersic:
-    sprof = core.DeprojSersicDist(total_mass=1.e10, Reff=1., n=1., q=0.4, i=90., Upsilon=1.)
+    smodel = core.DeprojSersicModel(total_mass=1.e10, Reff=1., n=1., q=0.4, i=90., Upsilon=1.)
     Rarr = np.array([0.,0.5,1.,2.,5.])
     ftol = 1.e-9
 
@@ -46,36 +46,36 @@ class TestSersic:
 
     def test_menc(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.enclosed_mass(R), self.menc_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.enclosed_mass(R), self.menc_true[i], rel_tol=self.ftol)
 
     def test_vcirc(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.v_circ(R), self.vcirc_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.v_circ(R), self.vcirc_true[i], rel_tol=self.ftol)
 
     def test_density(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.density(R), self.rho_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.density(R), self.rho_true[i], rel_tol=self.ftol)
 
     def test_dlnrho_dlnR(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.dlnrho_dlnR(R), self.dlnrho_dlnR_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.dlnrho_dlnR(R), self.dlnrho_dlnR_true[i], rel_tol=self.ftol)
 
     def test_surface_density(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.surface_density(R), self.surf_dens_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.surface_density(R), self.surf_dens_true[i], rel_tol=self.ftol)
 
     def test_projected_enclosed_mass(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.projected_enclosed_mass(R),
+            assert math.isclose(self.smodel.projected_enclosed_mass(R),
                                 self.menc_2D_proj_true[i], rel_tol=self.ftol)
 
     def test_enclosed_mass_ellipsoid(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.enclosed_mass_ellipsoid(R),
+            assert math.isclose(self.smodel.enclosed_mass_ellipsoid(R),
                                 self.menc_ellip_true[i], rel_tol=self.ftol)
 
     def test_table(self):
-        table = self.sprof.profile_table(self.Rarr)
+        table = self.smodel.profile_table(self.Rarr)
 
         # Save table
         io.save_profile_table(table=table, path=_dir_tests_output, overwrite=True)
