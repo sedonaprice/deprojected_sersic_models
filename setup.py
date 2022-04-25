@@ -9,10 +9,9 @@ try:
 except:
     from distutils.core import setup
 
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-init_string = open(os.path.join(dir_path, 'sersic_profile_mass_VC', '__init__.py')).read()
+init_string = open(os.path.join(dir_path, 'deprojected_sersic_models', '__init__.py')).read()
 VERS = r"^__version__ = ['\"]([^'\"]*)['\"]"
 mo = re.search(VERS, init_string, re.M)
 __version__ = mo.group(1)
@@ -40,15 +39,16 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
     description="A package to calculate mass and kinematic profiles of non-spherical Sersic mass distributions.",
     install_requires=requirements,
     setup_requires=setup_requirements,
     license="3-clause BSD",
     long_description=readme,
-    include_package_data=True,
-    name='sersic_profile_mass_VC',
-    packages=['sersic_profile_mass_VC'],
-    #package_data={'sersic_profile_mass_VC': ['data/SomethingToFix/*.fits']},
+    # include_package_data=True,
+    name='deprojected_sersic_models',
+    packages=['deprojected_sersic_models', 'deprojected_sersic_models.utils',
+              'deprojected_sersic_models.plot'],
     version=__version__
 )

@@ -1,7 +1,7 @@
 ##################################################################################
-# sersic_profile_mass_VC/table_generation.py                                     #
+# deprojected_sersic_models/table_generation.py                                  #
 #                                                                                #
-# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2022 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
@@ -13,18 +13,18 @@ import numpy as np
 import math
 import logging
 
-from sersic_profile_mass_VC import io
-from sersic_profile_mass_VC import core
-from sersic_profile_mass_VC.io import _sersic_profile_filename_base
+from deprojected_sersic_models import io
+from deprojected_sersic_models import core
+from deprojected_sersic_models.io import _sersic_profile_filename_base
 
 __all__ = [ 'calculate_sersic_profile_table', 'wrapper_calculate_sersic_profile_tables',
             'wrapper_calculate_full_table_set' ]
 
 # LOGGER SETTINGS
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('SersicProfileMassVC')
+logger = logging.getLogger('DeprojectedSersicModels')
 
-_dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
+_dir_deprojected_sersic_models = os.getenv('DEPROJECTED_SERSIC_MODELS_DATADIR', None)
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
@@ -49,8 +49,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
             Inverse intrinsic axis ratio
         output_path: str
             Path to directory where the Sersic profile table will be saved
-            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
-            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.
+            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.
 
         total_mass: float, optional
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
@@ -76,7 +76,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-            Default: `mass_VC_profile_sersic`
+            Default: `deproj_sersic_model`
         fileout: str, optional
             Option to override the default filename convention
             and instead directly specify the file location.
@@ -90,8 +90,8 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     """
     if fileout is None:
         if output_path is None:
-            if _dir_sersic_profile_mass_VC is not None:
-                output_path = _dir_sersic_profile_mass_VC
+            if _dir_deprojected_sersic_models is not None:
+                output_path = _dir_deprojected_sersic_models
             else:
                 raise ValueError("Must set 'output_path' if 'filename' is not set !")
 
@@ -116,7 +116,7 @@ def calculate_sersic_profile_table(n=1., invq=5.,
     if include_R0:
         Rarr = np.append(0., Rarr)
 
-    sersicprof = core.DeprojSersicDist(total_mass=total_mass, Reff=Reff, n=n, q=q, i=i)
+    sersicprof = core.DeprojSersicModel(total_mass=total_mass, Reff=Reff, n=n, q=q, i=i)
     table = sersicprof.profile_table(Rarr, cumulative=cumulative, add_reff_table_values=True)
 
     # ---------------------
@@ -147,8 +147,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
             Array of inverse intrinsic axis ratio
         output_path: str
             Path to directory where the Sersic profile table will be saved
-            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
-            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.
+            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.
 
         total_mass: float, optional
             Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun
@@ -174,7 +174,7 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
         filename_base: str, optional
             Base filename to use, for the default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-            Default: `mass_VC_profile_sersic`
+            Default: `deproj_sersic_model`
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
             Default: False (will throw an error if the file already exists).
@@ -187,8 +187,8 @@ def wrapper_calculate_sersic_profile_tables(n_arr=None, invq_arr=None,
     """
 
     if output_path is None:
-        if _dir_sersic_profile_mass_VC is not None:
-            output_path = _dir_sersic_profile_mass_VC
+        if _dir_deprojected_sersic_models is not None:
+            output_path = _dir_deprojected_sersic_models
         else:
             raise ValueError("Must set 'output_path' if 'filename' is not set !")
     # Ensure output path ends in trailing slash:
@@ -234,13 +234,13 @@ def wrapper_calculate_full_table_set(output_path=None,
     ----------
         output_path: str
             Path to directory where the Sersic profile table will be saved.
-            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
-            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.
+            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.
 
         filename_base: str, optional
             Base filename to use, for the default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-            Default: `mass_VC_profile_sersic`
+            Default: `deproj_sersic_model`
         overwrite: bool, optional
             Option to overwrite the FITS file, if a previous version exists.
             Default: False (will throw an error if the file already exists).
@@ -263,8 +263,8 @@ def wrapper_calculate_full_table_set(output_path=None,
 
     """
     if output_path is None:
-        if _dir_sersic_profile_mass_VC is not None:
-            output_path = _dir_sersic_profile_mass_VC
+        if _dir_deprojected_sersic_models is not None:
+            output_path = _dir_deprojected_sersic_models
         else:
             raise ValueError("Must set 'output_path' if 'filename' is not set !")
 

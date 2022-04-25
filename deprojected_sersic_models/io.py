@@ -1,7 +1,7 @@
 ##################################################################################
-# sersic_profile_mass_VC/io.py                                                   #
+# deprojected_sersic_models/io.py                                                #
 #                                                                                #
-# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2022 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
@@ -12,8 +12,8 @@ from astropy.table import Table
 
 __all__ = [ 'save_profile_table', 'read_profile_table' ]
 
-_dir_sersic_profile_mass_VC = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR', None)
-_sersic_profile_filename_base = 'mass_VC_profile_sersic'
+_dir_deprojected_sersic_models = os.getenv('DEPROJECTED_SERSIC_MODELS_DATADIR', None)
+_sersic_profile_filename_base = 'deproj_sersic_model'
 
 def _default_table_fname(path, filename_base, n, invq):
     return path+filename_base+'_n{:0.1f}_invq{:0.2f}.fits'.format(n, invq)
@@ -30,12 +30,12 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
 
         path: str, optional
             Path to directory containing the saved Sersic profile tables.
-            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
-            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.
+            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-            Default: `mass_VC_profile_sersic`
+            Default: `deproj_sersic_model`
         filename: str, optional
             Option to override the default filename convention and
             instead directly specify the file location. (FITS format)
@@ -84,8 +84,8 @@ def save_profile_table(table=None, path=None, filename_base=_sersic_profile_file
     if table is None:       raise ValueError("Must set 'table'!")
     if filename is None:
         if path is None:
-            if _dir_sersic_profile_mass_VC is not None:
-                path = _dir_sersic_profile_mass_VC
+            if _dir_deprojected_sersic_models is not None:
+                path = _dir_deprojected_sersic_models
             else:
                 raise ValueError("Must set 'path' if 'filename' is not set !")
 
@@ -126,12 +126,12 @@ def read_profile_table(n=None, invq=None, path=None,
 
         path: str or None, optional
             Path to directory containing the saved Sersic profile tables.
-            If not set, system variable `SERSIC_PROFILE_MASS_VC_DATADIR` must be set.
-            Default: system variable `SERSIC_PROFILE_MASS_VC_DATADIR`, if specified.
+            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.
+            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.
         filename_base: str, optional
             Base filename to use, when combined with default naming convention:
             `<filename_base>_nX.X_invqX.XX.fits`.
-            Default: `mass_VC_profile_sersic`
+            Default: `deproj_sersic_model`
         filename: str, optional
             Option to override the default filename convention and
             instead directly specify the file location.
@@ -145,8 +145,8 @@ def read_profile_table(n=None, invq=None, path=None,
 
     if filename is None:
         if path is None:
-            if _dir_sersic_profile_mass_VC is not None:
-                path = _dir_sersic_profile_mass_VC
+            if _dir_deprojected_sersic_models is not None:
+                path = _dir_deprojected_sersic_models
             else:
                 raise ValueError("Must set 'path' if 'filename' is not set !")
         if n is None:       raise ValueError("Must set 'n' if 'filename' is not set !")

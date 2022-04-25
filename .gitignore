@@ -37,11 +37,4 @@ docs/_build
 
 # Private data
 tests/PYTEST_OUTPUT/
-wrapper_add_r0.py
-wrapper_add_rho_calcs.py
-wrapper_change_names.py
-paper_expl_plots.py
-junk*
 docs/_static/logo/alts/
-paper/
-paper

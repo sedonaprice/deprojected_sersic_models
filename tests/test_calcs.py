@@ -1,7 +1,7 @@
 # coding=utf8
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 #
-# Testing of sersic_profile_mass_VC calculations
+# Testing of deprojected_sersic_models calculations
 
 import os
 import shutil
@@ -9,9 +9,13 @@ import math
 
 import numpy as np
 
-from sersic_profile_mass_VC import core, io
-from sersic_profile_mass_VC.utils import calcs as util_calcs
-from sersic_profile_mass_VC.paper import plot_calcs
+from deprojected_sersic_models import core, io
+from deprojected_sersic_models.utils import calcs as util_calcs
+try:
+    from deprojected_sersic_models.paper import plot_calcs
+    _plot_calcs_loaded = True
+except:
+    _plot_calcs_loaded = False
 
 
 # TESTING DIRECTORY
@@ -20,7 +24,7 @@ _dir_tests = os.path.dirname(path) + '/'
 _dir_tests_output = _dir_tests+'PYTEST_OUTPUT/'
 
 class TestSersic:
-    sprof = core.DeprojSersicDist(total_mass=1.e10, Reff=1., n=1., q=0.4, i=90., Upsilon=1.)
+    smodel = core.DeprojSersicModel(total_mass=1.e10, Reff=1., n=1., q=0.4, i=90., Upsilon=1.)
     Rarr = np.array([0.,0.5,1.,2.,5.])
     ftol = 1.e-9
 
@@ -42,36 +46,36 @@ class TestSersic:
 
     def test_menc(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.enclosed_mass(R), self.menc_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.enclosed_mass(R), self.menc_true[i], rel_tol=self.ftol)
 
     def test_vcirc(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.v_circ(R), self.vcirc_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.v_circ(R), self.vcirc_true[i], rel_tol=self.ftol)
 
     def test_density(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.density(R), self.rho_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.density(R), self.rho_true[i], rel_tol=self.ftol)
 
     def test_dlnrho_dlnR(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.dlnrho_dlnR(R), self.dlnrho_dlnR_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.dlnrho_dlnR(R), self.dlnrho_dlnR_true[i], rel_tol=self.ftol)
 
     def test_surface_density(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.surface_density(R), self.surf_dens_true[i], rel_tol=self.ftol)
+            assert math.isclose(self.smodel.surface_density(R), self.surf_dens_true[i], rel_tol=self.ftol)
 
     def test_projected_enclosed_mass(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.projected_enclosed_mass(R),
+            assert math.isclose(self.smodel.projected_enclosed_mass(R),
                                 self.menc_2D_proj_true[i], rel_tol=self.ftol)
 
     def test_enclosed_mass_ellipsoid(self):
         for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.sprof.enclosed_mass_ellipsoid(R),
+            assert math.isclose(self.smodel.enclosed_mass_ellipsoid(R),
                                 self.menc_ellip_true[i], rel_tol=self.ftol)
 
     def test_table(self):
-        table = self.sprof.profile_table(self.Rarr)
+        table = self.smodel.profile_table(self.Rarr)
 
         # Save table
         io.save_profile_table(table=table, path=_dir_tests_output, overwrite=True)
@@ -93,27 +97,31 @@ class TestSersic:
 
 
 class TestHalos:
-    nfw = plot_calcs.NFW(z=2., Mvir=1.e12, conc=4.)
-    tph = plot_calcs.TPH(z=2., Mvir=1.e12, conc=4., alpha=0., beta=3.)
-    Rarr = np.array([0.,5.,10.,15.,20.])
-    ftol = 1.e-9
+    if _plot_calcs_loaded:
+        nfw = plot_calcs.NFW(z=2., Mvir=1.e12, conc=4.)
+        tph = plot_calcs.TPH(z=2., Mvir=1.e12, conc=4., alpha=0., beta=3.)
+        Rarr = np.array([0.,5.,10.,15.,20.])
+        ftol = 1.e-9
 
     def test_rvir(self):
-        assert math.isclose(self.nfw.rvir, 99.9142529492978, rel_tol=self.ftol)
-        assert math.isclose(self.tph.rvir, 99.9142529492978, rel_tol=self.ftol)
+        if _plot_calcs_loaded:
+            assert math.isclose(self.nfw.rvir, 99.9142529492978, rel_tol=self.ftol)
+            assert math.isclose(self.tph.rvir, 99.9142529492978, rel_tol=self.ftol)
 
     def test_menc(self):
-        menc_true_nfw = np.array([0.0, 19369905672.91485, 62794218888.21235,
-                                  117518991877.56961, 177298034319.76498 ])
-        menc_true_tph = np.array([0.0, 3616346279.4748654, 20353246885.7532,
-                                  50540431345.8649, 91231496358.292 ])
-        for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.nfw.enclosed_mass(R), menc_true_nfw[i], rel_tol=self.ftol)
-            assert math.isclose(self.tph.enclosed_mass(R), menc_true_tph[i], rel_tol=self.ftol)
+        if _plot_calcs_loaded:
+            menc_true_nfw = np.array([0.0, 19369905672.91485, 62794218888.21235,
+                                      117518991877.56961, 177298034319.76498 ])
+            menc_true_tph = np.array([0.0, 3616346279.4748654, 20353246885.7532,
+                                      50540431345.8649, 91231496358.292 ])
+            for i, R in enumerate(self.Rarr):
+                assert math.isclose(self.nfw.enclosed_mass(R), menc_true_nfw[i], rel_tol=self.ftol)
+                assert math.isclose(self.tph.enclosed_mass(R), menc_true_tph[i], rel_tol=self.ftol)
 
     def test_vcirc(self):
-        vcirc_true_nfw = np.array([0., 129.08010058, 164.33889998, 183.56460474, 195.2618982 ])
-        vcirc_true_tph = np.array([0.,  55.77384005,  93.56154714, 120.38001329, 140.06768333])
-        for i, R in enumerate(self.Rarr):
-            assert math.isclose(self.nfw.v_circ(R), vcirc_true_nfw[i], rel_tol=self.ftol)
-            assert math.isclose(self.tph.v_circ(R), vcirc_true_tph[i], rel_tol=self.ftol)
+        if _plot_calcs_loaded:
+            vcirc_true_nfw = np.array([0., 129.08010058, 164.33889998, 183.56460474, 195.2618982 ])
+            vcirc_true_tph = np.array([0.,  55.77384005,  93.56154714, 120.38001329, 140.06768333])
+            for i, R in enumerate(self.Rarr):
+                assert math.isclose(self.nfw.v_circ(R), vcirc_true_nfw[i], rel_tol=self.ftol)
+                assert math.isclose(self.tph.v_circ(R), vcirc_true_tph[i], rel_tol=self.ftol)

@@ -1,5 +1,5 @@
 ***************************************************************************
-Non-spherical deprojected Sersic mass profiles and circular velocity curves
+Non-spherical deprojected Sérsic mass profiles and circular velocity curves
 ***************************************************************************
 
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
@@ -10,23 +10,23 @@ Non-spherical deprojected Sersic mass profiles and circular velocity curves
 Description
 ###########
 Package to calculate various profiles for deprojected, flattened (or elongated)
-Sersic mass distributions, including:
+Sérsic mass distributions, including:
 enclosed mass, circular velocity, density, log density slope, surface density,
 and projected enclosed mass.
 
 These calculations follow and extend the derivation of rotation curves for flattened
-Sersic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
+Sérsic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
 Further details about the calculations included in this package
-are described in `Price et al., in prep, 2021`_.
+are described in `Price et al., in prep, 2022`_.
 
 .. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price et al., in prep, 2021: tofix
+.. _Price et al., in prep, 2022: LINK_TO_ADS
 
 Please see `the documentation`_ for this package for detailed information about installation,
-usage, and to download the set of pre-computed Sersic profile tables.
+usage, and to `download`_ the set of pre-computed Sérsic profile tables.
 
-.. _the documentation: https://sersic_profile_mass_VC.github.io/
-
+.. _the documentation: https://sedonaprice.github.io/deprojected_sersic_models/
+.. _download: https://sedonaprice.github.io/deprojected_sersic_models/downloads.html
 
 Usage
 #####
@@ -35,8 +35,8 @@ Usage
 
     import os
     import numpy as np
-    import sersic_profile_mass_VC as spm
-    table_dir = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR')
+    import deprojected_sersic_models as deproj_sersic
+    table_dir = os.getenv('DEPROJECTED_SERSIC_MODELS_DATADIR')
 
     # Sersic profile properties & radius array
     total_mass = 1.e11
@@ -47,9 +47,9 @@ Usage
     r = np.arange(0., 30.1, 0.1)
 
     # Load & interpolate all profiles in saved table:
-    table_interp = spm.interpolate_entire_table(r=r, total_mass=total_mass,
-                                                Reff=Reff, n=n, invq=invq,
-                                                path=table_dir)
+    table_interp = deproj_sersic.interpolate_entire_table(r=r, total_mass=total_mass,
+                                                          Reff=Reff, n=n, invq=invq,
+                                                          path=table_dir)
 
 
 Dependencies
@@ -64,7 +64,7 @@ Dependencies
 Acknowledgement
 ###############
 If you use this package or the precomputed profile tables in a publication,
-please cite Price et al., 2021, in prep (`ADS`_ | `arXiv`_).
+please cite Price et al., 2022, in prep (`ADS`_ | `arXiv`_).
 
 .. _ADS: LINK_TO_ADS
 .. _arXiv: LINK_TO_ARXIV

@@ -4,9 +4,9 @@
 
 # ---------------------------------------------------------------
 
-from sersic_profile_mass_VC.utils.calcs import *
+from deprojected_sersic_models.utils.calcs import *
 
-import sersic_profile_mass_VC.utils.interp_profiles
-import sersic_profile_mass_VC.utils.calcs
+import deprojected_sersic_models.utils.interp_profiles
+import deprojected_sersic_models.utils.calcs
 
 # ---------------------------------------------------------------

@@ -1,7 +1,7 @@
 ##################################################################################
-# sersic_profile_mass_VC/plot/plots.py                                           #
+# deprojected_sersic_models/plot/plots.py                                        #
 #                                                                                #
-# Copyright 2018-2021 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
+# Copyright 2018-2022 Sedona Price <sedona.price@gmail.com> / MPE IR/Submm Group #
 # Licensed under a 3-clause BSD style license - see LICENSE.rst                  #
 ##################################################################################
 
@@ -14,10 +14,10 @@ from astropy.table import Table, Row
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-from sersic_profile_mass_VC import core
+from deprojected_sersic_models import core
 
 __all__ = [ 'plot_profiles', 'plot_enclosed_mass', 'plot_vcirc',
-            'plot_density', 'plot_dlnrho_dlnr',
+            'plot_density', 'plot_dlnrho_dlnR',
             'plot_surface_density', 'plot_projected_enclosed_mass']
 
 # ---------------------
@@ -26,14 +26,14 @@ __all__ = [ 'plot_profiles', 'plot_enclosed_mass', 'plot_vcirc',
 _aliases_profiles_table = {'enclosed_mass': 'menc3D_sph',
                           'v_circ': 'vcirc',
                           'density': 'rho',
-                          'dlnrho_dlnr': 'dlnrho_dlnr',
+                          'dlnrho_dlnR': 'dlnrho_dlnR',
                           'surface_density': None,
                           'projected_enclosed_mass': None}
 
 _labels_profiles = {'enclosed_mass': r'Enclosed mass [$M_{\odot}$]',
                     'v_circ': r'Circular velocity [km/s]',
                     'density': r'Mass density [$M_{\odot}/\mathrm{kpc}^3$]',
-                    'dlnrho_dlnr': r'Log density slope',
+                    'dlnrho_dlnR': r'Log density slope',
                     'surface_density': r'Projected mass surface density [$M_{\odot}/\mathrm{kpc}^2$]',
                     'projected_enclosed_mass': r'Projected enclosed mass [$M_{\odot}$]'}
 
@@ -48,8 +48,8 @@ def plot_profiles(sersic_profs, r=np.arange(0., 6., 1.),
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -79,7 +79,7 @@ def plot_profiles(sersic_profs, r=np.arange(0., 6., 1.),
 
     """
     prof_names_defaults = ['v_circ', 'enclosed_mass', 'density',
-                           'dlnrho_dlnr', 'surface_density', 'projected_enclosed_mass']
+                           'dlnrho_dlnR', 'surface_density', 'projected_enclosed_mass']
     ylogs_defaults = {}
     for pn, yl in zip(prof_names_defaults, [False, False, True, False, True, False]):
         ylogs_defaults[pn] = yl
@@ -155,8 +155,8 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Disributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Disributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
         prof_name: str
             Name of the profile to plot. Default: `enclosed_mass`
@@ -205,7 +205,7 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
         ax_in = True
 
     # Check if multiple or single:
-    if isinstance(sersic_profs, (Table, Row, dict, core.DeprojSersicDist)):
+    if isinstance(sersic_profs, (Table, Row, dict, core.DeprojSersicModel)):
         # Single: coerce into list:
         nProf = 1
         sprof = copy.deepcopy(sersic_profs)
@@ -223,27 +223,30 @@ def plot_profiles_single_type(sersic_profs, prof_name='enclosed_mass',
     # Loop over instances
     rs, paramprofs = [], []
     for i, sprof in enumerate(sersic_profs):
-        if isinstance(sprof, core.DeprojSersicDist):
+        if isinstance(sprof, core.DeprojSersicModel):
             paramprof = getattr(sprof, prof_name)(r)
             total_mass, Reff, n, q = sprof.total_mass, sprof.Reff, sprof.n, sprof.q
             rplot = r
         else:
-            rplot = sprof['r']
+            rplot = sprof['R']
             keyalias = _aliases_profiles_table[prof_name]
             if keyalias is not None:
                 paramprof = sprof[keyalias]
             else:
-                paramprof = sprof.get(prof_name, None)
+                try:
+                    paramprof = sprof.get(prof_name, None)
+                except:
+                    paramprof = None
                 if paramprof is None:
-                    sprof_tmp = core.DeprojSersicDist(total_mass=sprof['total_mass'],
+                    sprof_tmp = core.DeprojSersicModel(total_mass=sprof['total_mass'],
                             Reff=sprof['Reff'], n=sprof['n'], q=sprof['q'])
                     paramprof = getattr(sprof_tmp, prof_name)(rplot)
-            total_mass, Reff, n, q = sprof['total_mass'], sprof['Reff'], sprof['n'], sprof['invq']
+            total_mass, Reff, n, invq = sprof['total_mass'], sprof['Reff'], sprof['n'], sprof['invq']
 
         rs.append(rplot)
         paramprofs.append(paramprof)
 
-        lbl = 'totM={:0.1e}, Reff={:0.1f}, n={:0.1f}, invq={:0.1f}'.format(total_mass, Reff, n, q)
+        lbl = 'totM={:0.1e}, Reff={:0.1f}, n={:0.1f}, invq={:0.1f}'.format(total_mass, Reff, n, invq)
         if plot_kwargs is not None:
             if 'label' not in plot_kwargs[i].keys():
                 plot_kwargs[i]['label'] = lbl
@@ -313,8 +316,8 @@ def plot_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=Fa
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -347,8 +350,8 @@ def plot_vcirc(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylo
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -382,8 +385,8 @@ def plot_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, yl
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -410,15 +413,15 @@ def plot_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, yl
                               r=r, rlim=rlim, rlog=rlog, ylog=ylog, fileout=fileout, ax=ax)
 
 
-def plot_dlnrho_dlnr(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylog=False,
+def plot_dlnrho_dlnR(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=False, ylog=False,
                      fileout=None, ax=None):
     """
     Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -441,7 +444,7 @@ def plot_dlnrho_dlnr(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=Fals
             Default: None
 
     """
-    plot_profiles_single_type(sersic_profs, prof_name='dlnrho_dlnr',
+    plot_profiles_single_type(sersic_profs, prof_name='dlnrho_dlnR',
                               r=r, rlim=rlim, rlog=rlog, ylog=ylog, fileout=fileout, ax=ax)
 
 def plot_surface_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=True, ylog=True,
@@ -451,8 +454,8 @@ def plot_surface_density(sersic_profs, r=np.arange(0., 6., 1.), rlim=None, rlog=
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
@@ -487,8 +490,8 @@ def plot_projected_enclosed_mass(sersic_profs, r=np.arange(0., 6., 1.),
 
     Parameters
     ----------
-        sersic_profs: array_like or ``DeprojSersicDist`` instance or Sersic profile table dictionary.
-            Distributions to plot. Can be a list of ``DeprojSersicDist`` instances,
+        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.
+            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,
             or a list of Sersic profile table dictionaries, or a single instance of either.
 
         r: array_like, optional
