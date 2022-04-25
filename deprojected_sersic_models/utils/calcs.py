@@ -1570,46 +1570,46 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
     return None
 
 
-def _sprof_get_rhog(sprof, m):
-    if sprof.isgas:
-        if sprof.logrhom_interp is not None:
-            table_Reff = sprof.table['Reff']
-            table_mass = sprof.table['total_mass']
+def _smodel_get_rhog(smodel, m):
+    if smodel.isgas:
+        if smodel.logrhom_interp is not None:
+            table_Reff = smodel.table['Reff']
+            table_mass = smodel.table['total_mass']
 
-            scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
-            # logrho = logrhom_interp(m / sprof.Reff * table_Reff)
+            scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**3
+            # logrho = logrhom_interp(m / smodel.Reff * table_Reff)
 
-            logrho = sprof.logrhom_interp(m, sprof.Reff)
+            logrho = smodel.logrhom_interp(m, smodel.Reff)
 
             rho_g = np.power(10., logrho) * scale_fac
         else:
-            rho_g = sprof.density(m)
+            rho_g = smodel.density(m)
     else:
         rho_g = m * 0.
 
     return rho_g
 
-def _preprocess_sprof_dPdz_calc(sprof, R, z):
+def _preprocess_smodel_dPdz_calc(smodel, R, z):
     # Note R and z are both scalars
 
-    m = np.sqrt(R**2 + (z/sprof.q)**2)
+    m = np.sqrt(R**2 + (z/smodel.q)**2)
 
-    rho_g = _sprof_get_rhog(sprof, m)
+    rho_g = _smodel_get_rhog(smodel, m)
 
-    if sprof.forcez_interp is not None:
-        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
-        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+    if smodel.forcez_interp is not None:
+        # gz = smodel.forcez_interp(z / smodel.Reff * smodel.table['Reff']) * smodel.forcez_scale_fac
+        gz = smodel.forcez_interp(z, smodel.Reff) * smodel.forcez_scale_fac
 
         # Catch nans: set to 0.
         if ~np.isfinite(gz):
             gz = 0.
     else:
-        gz = sprof.force_z(R, z, table=sprof.table, func_logrho=sprof.logrhom_interp)
+        gz = smodel.force_z(R, z, table=smodel.table, func_logrho=smodel.logrhom_interp)
 
     return gz, rho_g
 
 
-def _dPdz(z, P_z, R, sprof_list, halo):
+def _dPdz(z, P_z, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -1630,7 +1630,7 @@ def _dPdz(z, P_z, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1644,8 +1644,8 @@ def _dPdz(z, P_z, R, sprof_list, halo):
     rho_g = 0.*P_z
     gz = 0.*P_z
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i = _preprocess_smodel_dPdz_calc(smodel, R, z)
         gz[0] += gz_i
         rho_g[0] += rho_g_i
 
@@ -1662,7 +1662,7 @@ def _dPdz(z, P_z, R, sprof_list, halo):
     else:
         return dPdz
 
-def _dPdz_int_quad(z, R, sprof_list, halo):
+def _dPdz_int_quad(z, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -1679,7 +1679,7 @@ def _dPdz_int_quad(z, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1693,8 +1693,8 @@ def _dPdz_int_quad(z, R, sprof_list, halo):
     rho_g = 0.*z
     gz = 0.*z
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i = _preprocess_smodel_dPdz_calc(smodel, R, z)
         gz += gz_i
         rho_g += rho_g_i
 
@@ -1715,7 +1715,7 @@ def _dPdz_int_quad(z, R, sprof_list, halo):
         return dPdz
 
 
-def _dlnPdz(z, lnP_z, R, sprof_list, halo):
+def _dlnPdz(z, lnP_z, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -1735,7 +1735,7 @@ def _dlnPdz(z, lnP_z, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1749,8 +1749,8 @@ def _dlnPdz(z, lnP_z, R, sprof_list, halo):
     rho_g = 0.*lnP_z
     gz = 0.*lnP_z
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i = _preprocess_smodel_dPdz_calc(smodel, R, z)
         gz[0] += gz_i
         rho_g[0] += rho_g_i
 
@@ -1778,7 +1778,7 @@ def _dlnPdz(z, lnP_z, R, sprof_list, halo):
 
 ################################
 
-def _dPdu(u, P_z, R, sprof_list, halo):
+def _dPdu(u, P_z, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,u=1/z),
     based on hydrostatic equilibrium in the vertical direction with the
@@ -1800,7 +1800,7 @@ def _dPdu(u, P_z, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1819,8 +1819,8 @@ def _dPdu(u, P_z, R, sprof_list, halo):
     else:
         z = np.inf
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i = _preprocess_smodel_dPdz_calc(smodel, R, z)
         gz[0] += gz_i
         rho_g[0] += rho_g_i
 
@@ -1845,7 +1845,7 @@ def _dPdu(u, P_z, R, sprof_list, halo):
     else:
         return dPdu
 
-def _dlnPdu(u, lnP_z, R, sprof_list, halo):
+def _dlnPdu(u, lnP_z, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,u=1/z),
     based on hydrostatic equilibrium in the vertical direction with the
@@ -1866,7 +1866,7 @@ def _dlnPdu(u, lnP_z, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1885,8 +1885,8 @@ def _dlnPdu(u, lnP_z, R, sprof_list, halo):
     else:
         z = np.inf
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i = _preprocess_sprof_dPdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i = _preprocess_smodel_dPdz_calc(smodel, R, z)
         gz[0] += gz_i
         rho_g[0] += rho_g_i
 
@@ -1919,39 +1919,39 @@ def _dlnPdu(u, lnP_z, R, sprof_list, halo):
 ################################
 
 
-def _preprocess_sprof_dsigzsqdz_calc(sprof, R, z):
+def _preprocess_smodel_dsigzsqdz_calc(smodel, R, z):
     # Note R and z are both scalars
 
-    m = np.sqrt(R**2 + (z/sprof.q)**2)
+    m = np.sqrt(R**2 + (z/smodel.q)**2)
 
 
-    rho_g = _sprof_get_rhog(sprof, m)
-    if sprof.isgas:
-        if sprof.dlnrhodlnm_interp is not None:
-            # dlnrhodlnm = sprof.dlnrhodlnm_interp(m / sprof.Reff * sprof.table['Reff'])
-            dlnrhodlnm = sprof.dlnrhodlnm_interp(m, sprof.Reff)
+    rho_g = _smodel_get_rhog(smodel, m)
+    if smodel.isgas:
+        if smodel.dlnrhodlnm_interp is not None:
+            # dlnrhodlnm = smodel.dlnrhodlnm_interp(m / smodel.Reff * smodel.table['Reff'])
+            dlnrhodlnm = smodel.dlnrhodlnm_interp(m, smodel.Reff)
         else:
-            dlnrhodlnm = sprof.dlnrho_dlnR(m)
-        dlnrhogdz = (z / (sprof.q**2 * R**2 + z**2)) * dlnrhodlnm
+            dlnrhodlnm = smodel.dlnrho_dlnR(m)
+        dlnrhogdz = (z / (smodel.q**2 * R**2 + z**2)) * dlnrhodlnm
     else:
         dlnrhogdz = m * 0.
 
 
-    if sprof.forcez_interp is not None:
-        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
-        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+    if smodel.forcez_interp is not None:
+        # gz = smodel.forcez_interp(z / smodel.Reff * smodel.table['Reff']) * smodel.forcez_scale_fac
+        gz = smodel.forcez_interp(z, smodel.Reff) * smodel.forcez_scale_fac
 
         # Catch nans: set to 0.
         if ~np.isfinite(gz):
             gz = 0.
     else:
-        gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+        gz = smodel.force_z(R, z , table=smodel.table, func_logrho=smodel.logrhom_interp)
 
     return gz, rho_g, dlnrhogdz
 
 
 
-def _dsigzsqdz(z, sigzsq, R, sprof_list, halo):
+def _dsigzsqdz(z, sigzsq, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -1971,7 +1971,7 @@ def _dsigzsqdz(z, sigzsq, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -1986,13 +1986,13 @@ def _dsigzsqdz(z, sigzsq, R, sprof_list, halo):
     gz = 0.*sigzsq
     drhogdz = 0.*sigzsq
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calc(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_smodel_dsigzsqdz_calc(smodel, R, z)
         if ~np.isfinite(dlnrhogdz_i):
             raise ValueError("dlnrhogdz_i is not finite!")
 
         # # Hack for calculation: Set to rough minimum, nonzero feasible value
-        # if sprof.isgas & (rho_g_i == 0):
+        # if smodel.isgas & (rho_g_i == 0):
         #     rho_g_i = np.power(10., -320)
 
         gz[0] += gz_i
@@ -2017,19 +2017,19 @@ def _dsigzsqdz(z, sigzsq, R, sprof_list, halo):
     return dsigzsqdz
 
 
-def _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z):
+def _preprocess_smodel_dsigzsqdz_calcBVP(smodel, R, z):
 
-    m = np.sqrt(R**2 + (z/sprof.q)**2)
+    m = np.sqrt(R**2 + (z/smodel.q)**2)
 
 
-    rho_g = _sprof_get_rhog(sprof, m)
-    if sprof.isgas:
-        if sprof.dlnrhodlnm_interp is not None:
-            # dlnrhodlnm = sprof.dlnrhodlnm_interp(m / sprof.Reff * sprof.table['Reff'])
-            dlnrhodlnm = sprof.dlnrhodlnm_interp(m, sprof.Reff)
+    rho_g = _smodel_get_rhog(smodel, m)
+    if smodel.isgas:
+        if smodel.dlnrhodlnm_interp is not None:
+            # dlnrhodlnm = smodel.dlnrhodlnm_interp(m / smodel.Reff * smodel.table['Reff'])
+            dlnrhodlnm = smodel.dlnrhodlnm_interp(m, smodel.Reff)
         else:
-            dlnrhodlnm = sprof.dlnrho_dlnR(m)
-        dlnrhogdz = (z / (sprof.q**2 * R**2 + z**2)) * dlnrhodlnm
+            dlnrhodlnm = smodel.dlnrho_dlnR(m)
+        dlnrhogdz = (z / (smodel.q**2 * R**2 + z**2)) * dlnrhodlnm
     else:
         dlnrhogdz = m * 0.
 
@@ -2037,9 +2037,9 @@ def _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z):
         dlnrhogdz[z==0] = np.log(np.power(10., -320))
 
 
-    if sprof.forcez_interp is not None:
-        # gz = sprof.forcez_interp(z / sprof.Reff * sprof.table['Reff']) * sprof.forcez_scale_fac
-        gz = sprof.forcez_interp(z, sprof.Reff) * sprof.forcez_scale_fac
+    if smodel.forcez_interp is not None:
+        # gz = smodel.forcez_interp(z / smodel.Reff * smodel.table['Reff']) * smodel.forcez_scale_fac
+        gz = smodel.forcez_interp(z, smodel.Reff) * smodel.forcez_scale_fac
 
         # Catch nans: set to 0.
         # if ~np.isfinite(gz):
@@ -2047,17 +2047,17 @@ def _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z):
         if np.any(~np.isfinite(gz)):
             gz[~np.isfinite(gz)] = 0.
     else:
-        gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+        gz = smodel.force_z(R, z , table=smodel.table, func_logrho=smodel.logrhom_interp)
 
     # ## Test
     # gz_recalc = 0.*z
     # for i, zz in enumerate(z):
-    #     gz_recalc[i] = sprof.force_z(R, zz , table=sprof.table, func_logrho=sprof.logrhom_interp)
+    #     gz_recalc[i] = smodel.force_z(R, zz , table=smodel.table, func_logrho=smodel.logrhom_interp)
     # raise ValueError
 
     return gz, rho_g, dlnrhogdz
 
-def _dsigzsqdzBVP(z, sigzsq, R, sprof_list, halo):
+def _dsigzsqdzBVP(z, sigzsq, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -2077,7 +2077,7 @@ def _dsigzsqdzBVP(z, sigzsq, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -2092,15 +2092,15 @@ def _dsigzsqdzBVP(z, sigzsq, R, sprof_list, halo):
     gz = 0.*sigzsq
     drhogdz = 0.*sigzsq
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_smodel_dsigzsqdz_calcBVP(smodel, R, z)
         # if ~np.isfinite(dlnrhogdz_i):
         #     raise ValueError("dlnrhogdz_i is not finite!")
         if np.any(~np.isfinite(dlnrhogdz_i)):
             raise ValueError("dlnrhogdz_i is not finite!")
 
         # # Hack for calculation: Set to rough minimum, nonzero feasible value
-        # if sprof.isgas & (rho_g_i == 0):
+        # if smodel.isgas & (rho_g_i == 0):
         #     rho_g_i = np.power(10., -320)
 
         gz += gz_i
@@ -2134,7 +2134,7 @@ def _dsigzsqdzBVP(z, sigzsq, R, sprof_list, halo):
 
     return dsigzsqdz
 
-def _dsigzdzBVP(z, sigz, R, sprof_list, halo):
+def _dsigzdzBVP(z, sigz, R, smodel_list, halo):
     """
     Vertical pressure gradient of a deprojected Sersic density profile at (R,z),
     based on hydrostatic equilibrium in the vertical direction
@@ -2154,7 +2154,7 @@ def _dsigzdzBVP(z, sigz, R, sprof_list, halo):
         R: float
             Midplane radius [kpc]
 
-        sprof_list: list
+        smodel_list: list
             Set of deprojected Sersic model instances
 
         halo: Halo instance or None
@@ -2169,15 +2169,15 @@ def _dsigzdzBVP(z, sigz, R, sprof_list, halo):
     gz = 0.*sigz
     drhogdz = 0.*sigz
 
-    for sprof in sprof_list:
-        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_sprof_dsigzsqdz_calcBVP(sprof, R, z)
+    for smodel in smodel_list:
+        gz_i, rho_g_i, dlnrhogdz_i = _preprocess_smodel_dsigzsqdz_calcBVP(smodel, R, z)
         # if ~np.isfinite(dlnrhogdz_i):
         #     raise ValueError("dlnrhogdz_i is not finite!")
         if np.any(~np.isfinite(dlnrhogdz_i)):
             raise ValueError("dlnrhogdz_i is not finite!")
 
         # # Hack for calculation: Set to rough minimum, nonzero feasible value
-        # if sprof.isgas & (rho_g_i == 0):
+        # if smodel.isgas & (rho_g_i == 0):
         #     rho_g_i = np.power(10., -320)
 
         gz += gz_i
@@ -2209,42 +2209,42 @@ def _dsigzdzBVP(z, sigz, R, sprof_list, halo):
 
     return dsigzdz
 
-def _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=False,
+def _preprocess_smodel_Pz_calc(smodel, R, z, return_rho=False,
                               interp_dlnrhodlnm=False):
 
     # Assume component is gas by default
-    if 'isgas' not in sprof.__dict__.keys():
-        sprof.isgas = True
+    if 'isgas' not in smodel.__dict__.keys():
+        smodel.isgas = True
     else:
-        print("Already set: sprof.isgas={}".format(sprof.isgas))
+        print("Already set: smodel.isgas={}".format(smodel.isgas))
 
     logrhom_interp = None
     dlnrhodlnm_interp = None
-    if 'table' in sprof.__dict__.keys():
-        if sprof.table is not None:
-            logrhom_interp = interpolate_sersic_profile_logrho_function(n=sprof.n, invq=sprof.invq,
-                                                                        table=sprof.table)
-            table_Reff = sprof.table['Reff']
-            table_mass = sprof.table['total_mass']
+    if 'table' in smodel.__dict__.keys():
+        if smodel.table is not None:
+            logrhom_interp = interpolate_sersic_profile_logrho_function(n=smodel.n, invq=smodel.invq,
+                                                                        table=smodel.table)
+            table_Reff = smodel.table['Reff']
+            table_mass = smodel.table['total_mass']
 
-            sprof.rhom_scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
+            smodel.rhom_scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**3
 
             if interp_dlnrhodlnm:
-                dlnrhodlnm_interp = interpolate_sersic_profile_dlnrho_dlnR_function(n=sprof.n, invq=sprof.invq,
-                                                                                    table=sprof.table)
+                dlnrhodlnm_interp = interpolate_sersic_profile_dlnrho_dlnR_function(n=smodel.n, invq=smodel.invq,
+                                                                                    table=smodel.table)
 
     forcez_interp = None
-    if 'table_forcez' in sprof.__dict__.keys():
-        if sprof.table_forcez is not None:
-            table_z =    sprof.table_forcez['z']
-            table_Reff = sprof.table_forcez['Reff']
+    if 'table_forcez' in smodel.__dict__.keys():
+        if smodel.table_forcez is not None:
+            table_z =    smodel.table_forcez['z']
+            table_Reff = smodel.table_forcez['Reff']
 
             # Will need to match exact R:
             tol = 1.e-3
-            whm = np.where(np.abs(sprof.table_forcez['R']-(R / sprof.Reff * table_Reff))<=tol)[0]
+            whm = np.where(np.abs(smodel.table_forcez['R']-(R / smodel.Reff * table_Reff))<=tol)[0]
             if len(whm) == 0:
                 raise ValueError("No matching 'R' in table")
-            table_gz = sprof.table_forcez['gz_R_{}'.format(whm[0])]
+            table_gz = smodel.table_forcez['gz_R_{}'.format(whm[0])]
 
             # forcez_interp = scp_interp.interp1d(table_z, table_gz,
             #                 fill_value='extrapolate',  kind='cubic')
@@ -2261,37 +2261,37 @@ def _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=False,
 
             forcez_interp = InterpFunc(f_interp=fz_interp, f_extrap=fz_extrap, table_Rad=table_z, table_Reff=table_Reff)
 
-            table_mass = sprof.table_forcez['total_mass']
+            table_mass = smodel.table_forcez['total_mass']
 
-            sprof.forcez_scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**2
+            smodel.forcez_scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**2
 
 
     # # Only replace if not already in the dict:
-    # if 'logrhom_interp' not in sprof.__dict__.keys():
-    #     sprof.logrhom_interp = logrhom_interp
-    # if 'forcez_interp' not in sprof.__dict__.keys():
-    #     sprof.forcez_interp = forcez_interp
-    # if 'dlnrhodlnm_interp' not in sprof.__dict__.keys():
-    #     sprof.dlnrhodlnm_interp = dlnrhodlnm_interp
+    # if 'logrhom_interp' not in smodel.__dict__.keys():
+    #     smodel.logrhom_interp = logrhom_interp
+    # if 'forcez_interp' not in smodel.__dict__.keys():
+    #     smodel.forcez_interp = forcez_interp
+    # if 'dlnrhodlnm_interp' not in smodel.__dict__.keys():
+    #     smodel.dlnrhodlnm_interp = dlnrhodlnm_interp
 
-    sprof.logrhom_interp = logrhom_interp
-    sprof.forcez_interp = forcez_interp
-    sprof.dlnrhodlnm_interp = dlnrhodlnm_interp
+    smodel.logrhom_interp = logrhom_interp
+    smodel.forcez_interp = forcez_interp
+    smodel.dlnrhodlnm_interp = dlnrhodlnm_interp
 
     if not return_rho:
-        return sprof
+        return smodel
 
     else:
         # Also calculate rho:
-        m = np.sqrt(R**2 + (z/sprof.q)**2)
-        rho_g = _sprof_get_rhog(sprof, m)
+        m = np.sqrt(R**2 + (z/smodel.q)**2)
+        rho_g = _smodel_get_rhog(smodel, m)
 
-        return sprof, rho_g
-
-
+        return smodel, rho_g
 
 
-def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
+
+
+def Pz(R, z, smodel=None, halo=None, return_sol=False, method=None):
     """
     Evalutation of vertical pressure of a deprojected Sersic density profile at (R,z),
     by solving the following differential equation:
@@ -2308,12 +2308,12 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
             Height above midplane [kpc]
 
 
-        sprof: Deprojected Sersic model instance or array of intances
+        smodel: Deprojected Sersic model instance or array of intances
 
-        sprof.table: table of (standard) precomputed values, optional
+        smodel.table: table of (standard) precomputed values, optional
             Use pre-computed table to create an interpolation function
             that is used for this calculation.
-        sprof.table_forcez: table of precomputed gz, optional
+        smodel.table_forcez: table of precomputed gz, optional
 
         halo: Halo instance, optional
             Optionally include force from a halo component.
@@ -2354,10 +2354,10 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         raise ValueError("Should use method='dPdz_integrate' !!!")
 
     try:
-        tmp = sprof[0]
-        sprof_list_in = sprof
+        tmp = smodel[0]
+        smodel_list_in = smodel
     except:
-        sprof_list_in = [sprof]
+        smodel_list_in = [smodel]
 
     # Cast z into an array and invert for evaluation:
     try:
@@ -2369,20 +2369,20 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
     if method.strip().lower() in ['dsigsqdz', 'dsigsqdz_bvp', 'dsigdz_bvp']:
         rho_g = np.sqrt(R**2 + z**2) * 0.
 
-    sprof_list = []
+    smodel_list = []
 
-    # for sprof in sprof_list_in:
-    #     sprof = _preprocess_sprof_Pz_calc(sprof, R, z)
-    #     sprof_list.append(sprof)
+    # for smodel in smodel_list_in:
+    #     smodel = _preprocess_smodel_Pz_calc(smodel, R, z)
+    #     smodel_list.append(smodel)
 
 
-    for sprof in sprof_list_in:
+    for smodel in smodel_list_in:
         if method.strip().lower() in ['dsigsqdz', 'dsigsqdz_bvp', 'dsigdz_bvp']:
-            sprof, rho_g_i = _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=True)
+            smodel, rho_g_i = _preprocess_smodel_Pz_calc(smodel, R, z, return_rho=True)
             rho_g += rho_g_i
         else:
-            sprof = _preprocess_sprof_Pz_calc(sprof, R, z)
-        sprof_list.append(sprof)
+            smodel = _preprocess_smodel_Pz_calc(smodel, R, z)
+        smodel_list.append(smodel)
 
 
     if method.strip().lower() == 'dpdz':
@@ -2390,17 +2390,17 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         # y0 = np.array([0.])
 
         # Solver doesn't like t0 = inf....
-        # t_span = [100.*sprof.q,0.]
-        # t_span = [200.*sprof.q,0.] # orig fiducial
-        # t_span = [500.*sprof.q,0.]
-        t_span = [1000.*sprof.q,0.]
+        # t_span = [100.*smodel.q,0.]
+        # t_span = [200.*smodel.q,0.] # orig fiducial
+        # t_span = [500.*smodel.q,0.]
+        t_span = [1000.*smodel.q,0.]
 
 
         sigz_guess = 1.e-6 #1.
-        mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        mguess = np.sqrt(R**2 + (t_span[0]/smodel.q)**2)
         Pz_guess = 0.
-        for sprof in sprof_list:
-            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+        for smodel in smodel_list:
+            Pz_guess += _smodel_get_rhog(smodel, mguess) * (sigz_guess**2)
 
         y0 = np.array([Pz_guess])
         # if ~np.isfinite(y0[0]):
@@ -2411,7 +2411,7 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
             y0 = np.array([np.power(10., -320)])
 
         sol = scp_integrate.solve_ivp(_dPdz, t_span, y0, t_eval=zeval,
-                                      args=(R, sprof_list, halo),
+                                      args=(R, smodel_list, halo),
                                       # method='RK45',  # use for non-stiff problems
                                       method='Radau', # use for stiff problems
                                       # method='LSODA', # Auto switcher for stiffness
@@ -2426,18 +2426,18 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
     #     # y0 = np.array([-np.inf])
     #
     #     # Solver doesn't like t0 = inf....
-    #     # t_span = [100.*sprof.q,0.]
-    #     # t_span = [200.*sprof.q,0.]  # orig fiducial
-    #     # t_span = [300.*sprof.q,0.]
-    #     # t_span = [500.*sprof.q,0.]
-    #     t_span = [1000.*sprof.q,0.]
+    #     # t_span = [100.*smodel.q,0.]
+    #     # t_span = [200.*smodel.q,0.]  # orig fiducial
+    #     # t_span = [300.*smodel.q,0.]
+    #     # t_span = [500.*smodel.q,0.]
+    #     t_span = [1000.*smodel.q,0.]
     #
     #     # sigz_guess = 1.e-2
     #     sigz_guess = 1.e-6 #1.
-    #     mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+    #     mguess = np.sqrt(R**2 + (t_span[0]/smodel.q)**2)
     #     Pz_guess = 0.
-    #     for sprof in sprof_list:
-    #         Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+    #     for smodel in smodel_list:
+    #         Pz_guess += _smodel_get_rhog(smodel, mguess) * (sigz_guess**2)
     #
     #     y0 = np.array([np.log(Pz_guess)])
     #     if ~np.isfinite(y0[0]):
@@ -2448,7 +2448,7 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
     #     # raise ValueError
     #
     #     sol = scp_integrate.solve_ivp(_dlnPdz, t_span, y0, t_eval=zeval,
-    #                                   args=(R, sprof_list, halo),
+    #                                   args=(R, smodel_list, halo),
     #                                   # method='RK45',  # use for non-stiff problems
     #                                   method='Radau', # use for stiff problems
     #                                   # method='LSODA', # Auto switcher for stiffness
@@ -2464,18 +2464,18 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         # y0 = np.array([-np.inf])
 
         # Solver doesn't like t0 = inf....
-        # t_span = [100.*sprof.q,0.]
-        # t_span = [200.*sprof.q,0.]  # orig fiducial
-        # t_span = [300.*sprof.q,0.]
-        # t_span = [500.*sprof.q,0.]
-        t_span = [1000.*sprof.q,0.]
+        # t_span = [100.*smodel.q,0.]
+        # t_span = [200.*smodel.q,0.]  # orig fiducial
+        # t_span = [300.*smodel.q,0.]
+        # t_span = [500.*smodel.q,0.]
+        t_span = [1000.*smodel.q,0.]
 
         # sigz_guess = 1.e-2
         sigz_guess = 1.e-6 #1.
-        mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        mguess = np.sqrt(R**2 + (t_span[0]/smodel.q)**2)
         Pz_guess = 0.
-        for sprof in sprof_list:
-            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+        for smodel in smodel_list:
+            Pz_guess += _smodel_get_rhog(smodel, mguess) * (sigz_guess**2)
 
         y0 = np.array([np.log(Pz_guess)])
         if ~np.isfinite(y0[0]):
@@ -2486,7 +2486,7 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         # raise ValueError
 
         sol = scp_integrate.solve_ivp(_dlnPdz, t_span, y0, t_eval=zeval,
-                                      args=(R, sprof_list, halo),
+                                      args=(R, smodel_list, halo),
                                       # method='RK45',  # use for non-stiff problems
                                       method='Radau', # use for stiff problems
                                       # method='LSODA', # Auto switcher for stiffness
@@ -2509,15 +2509,15 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
 
         # t_span = [0., np.inf]     # u limits
         # Nor a non-finite upper limit?
-        t_span = [1./(1000.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+        t_span = [1./(1000.*smodel.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*smodel.q])] #1000.*smodel.q]
         y0 = np.array([0.])   # Pz(u=ulim[0]).
         # As ulim[0]=0., or z=inf, this is Pz(z->inf)=0.
 
         # sigz_guess = 1.e-6 #1.
-        # mguess = np.sqrt(R**2 + (t_span[0]/sprof.q)**2)
+        # mguess = np.sqrt(R**2 + (t_span[0]/smodel.q)**2)
         # Pz_guess = 0.
-        # for sprof in sprof_list:
-        #     Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+        # for smodel in smodel_list:
+        #     Pz_guess += _smodel_get_rhog(smodel, mguess) * (sigz_guess**2)
         #
         # y0 = np.array([Pz_guess])
         # # if ~np.isfinite(y0[0]):
@@ -2528,7 +2528,7 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         #     y0 = np.array([np.power(10., -320)])
 
         sol = scp_integrate.solve_ivp(_dPdu, t_span, y0, t_eval=ueval,
-                                      args=(R, sprof_list, halo),
+                                      args=(R, smodel_list, halo),
                                       # method='RK45',  # use for non-stiff problems
                                       method='Radau', # use for stiff problems
                                       # method='LSODA', # Auto switcher for stiffness
@@ -2548,18 +2548,18 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
         ueval = 1./zeval
 
         # It doesn't like non-finite y0 either. Okayyyy
-        #t_span = [1./(1000.*sprof.q),np.inf]
+        #t_span = [1./(1000.*smodel.q),np.inf]
         # Nor a non-finite upper limit?
-        # t_span = [1./(1000.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+        # t_span = [1./(1000.*smodel.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*smodel.q])] #1000.*smodel.q]
 
-        t_span = [1./(200.*sprof.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*sprof.q])] #1000.*sprof.q]
+        t_span = [1./(200.*smodel.q),np.max([ueval[np.isfinite(ueval)].max(),1000.*smodel.q])] #1000.*smodel.q]
 
         sigz_guess = 1.e-2
         # sigz_guess = 1.e-6 #1.
-        mguess = np.sqrt(R**2 + ((1./t_span[0])/sprof.q)**2)
+        mguess = np.sqrt(R**2 + ((1./t_span[0])/smodel.q)**2)
         Pz_guess = 0.
-        for sprof in sprof_list:
-            Pz_guess += _sprof_get_rhog(sprof, mguess) * (sigz_guess**2)
+        for smodel in smodel_list:
+            Pz_guess += _smodel_get_rhog(smodel, mguess) * (sigz_guess**2)
 
         y0 = np.array([np.log(Pz_guess)])
         if ~np.isfinite(y0[0]):
@@ -2568,12 +2568,12 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
             y0 = np.array([np.log(np.power(10., -320))])
 
 
-        # test = _dlnPdu(t_span[0], y0, R, sprof_list, halo)
+        # test = _dlnPdu(t_span[0], y0, R, smodel_list, halo)
         #
         # raise ValueError
 
         sol = scp_integrate.solve_ivp(_dlnPdu, t_span, y0, t_eval=ueval,
-                                      args=(R, sprof_list, halo),
+                                      args=(R, smodel_list, halo),
                                       # method='RK45',  # use for non-stiff problems
                                       method='Radau', # use for stiff problems
                                       # method='LSODA', # Auto switcher for stiffness
@@ -2598,18 +2598,18 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
             Pzvals = np.array([0.])
             isarr = False
 
-        # _dPdz(z, P_z, R, sprof_list, halo)
+        # _dPdz(z, P_z, R, smodel_list, halo)
 
-        # z0 = sprof.q*sprof.Reff
+        # z0 = smodel.q*smodel.Reff
         # z0 = np.inf
 
         for jj, zz in enumerate(zarr):
             # Pzval_C, _ = scp_integrate.quad(_dPdz_int_quad, z0, zz,
-            #                                args=(R, sprof_list, halo))
+            #                                args=(R, smodel_list, halo))
 
 
             Pzval_C, _ = scp_integrate.quad(_dPdz_int_quad, np.inf, zz,
-                                           args=(R, sprof_list, halo))
+                                           args=(R, smodel_list, halo))
 
             Pzvals[jj] = Pzval_C
 
@@ -2620,30 +2620,30 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
 
     elif method.strip().lower() == 'dsigsqdz':
         if return_sol:
-            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+            sigzsq, sol = sigmaz_sq(R, z, smodel=smodel_list, halo=halo,
                                     method=method, return_sol=True)
         else:
-            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+            sigzsq = sigmaz_sq(R, z, smodel=smodel_list, halo=halo, method=method)
         # if len(sol.t[::-1]
         Pzvals = rho_g * sigzsq
 
 
     elif method.strip().lower() == 'dsigsqdz_bvp':
         if return_sol:
-            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+            sigzsq, sol = sigmaz_sq(R, z, smodel=smodel_list, halo=halo,
                                     method=method, return_sol=True)
         else:
-            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+            sigzsq = sigmaz_sq(R, z, smodel=smodel_list, halo=halo, method=method)
         # if len(sol.t[::-1]
         Pzvals = rho_g * sigzsq
 
         # raise ValueError
     elif method.strip().lower() == 'dsigdz_bvp':
         if return_sol:
-            sigzsq, sol = sigmaz_sq(R, z, sprof=sprof_list, halo=halo,
+            sigzsq, sol = sigmaz_sq(R, z, smodel=smodel_list, halo=halo,
                                     method=method, return_sol=True)
         else:
-            sigzsq = sigmaz_sq(R, z, sprof=sprof_list, halo=halo, method=method)
+            sigzsq = sigmaz_sq(R, z, smodel=smodel_list, halo=halo, method=method)
         # if len(sol.t[::-1]
         Pzvals = rho_g * sigzsq
 
@@ -2668,7 +2668,7 @@ def Pz(R, z, sprof=None, halo=None, return_sol=False, method=None):
             return Pzvals[0]
 
 
-def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
+def sigmaz_sq(R, z, smodel=None, halo=None, method=None, return_sol=False):
     """
     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
 
@@ -2684,12 +2684,12 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
             Height above midplane [kpc]
 
 
-        sprof: Deprojected Sersic model instance or array of intances
+        smodel: Deprojected Sersic model instance or array of intances
 
-        sprof.table: table of (standard) precomputed values, optional
+        smodel.table: table of (standard) precomputed values, optional
             Use pre-computed table to create an interpolation function
             that is used for this calculation.
-        sprof.table_forcez: table of precomputed gz, optional
+        smodel.table_forcez: table of precomputed gz, optional
 
         halo: Halo instance, optional
             Optionally include force from a halo component.
@@ -2727,19 +2727,19 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
         raise ValueError("Should use method='dPdz_integrate' !!!")
 
     try:
-        tmp = sprof[0]
-        sprof_list_in = sprof
+        tmp = smodel[0]
+        smodel_list_in = smodel
     except:
-        sprof_list_in = [sprof]
+        smodel_list_in = [smodel]
 
     rho_g = np.sqrt(R**2 + z**2) * 0.
-    sprof_list = []
+    smodel_list = []
 
-    for sprof in sprof_list_in:
-        sprof, rho_g_i = _preprocess_sprof_Pz_calc(sprof, R, z, return_rho=True,
+    for smodel in smodel_list_in:
+        smodel, rho_g_i = _preprocess_smodel_Pz_calc(smodel, R, z, return_rho=True,
                                                    interp_dlnrhodlnm=True)
         rho_g += rho_g_i
-        sprof_list.append(sprof)
+        smodel_list.append(smodel)
 
     # try:
     #     # Set to rough minimum feasible value
@@ -2751,7 +2751,7 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
 
     if method.strip().lower() in ['dpdz', 'dlnpdz', 'dpdu', 'dlnpdu', 'dpdz_integrate']:
         if return_sol:
-            Pzvals, sol= Pz(R, z, sprof=sprof_list_in, halo=halo, method=method, return_sol=return_sol)
+            Pzvals, sol= Pz(R, z, smodel=smodel_list_in, halo=halo, method=method, return_sol=return_sol)
             # raise ValueError
             sigsqz = Pzvals / rho_g
 
@@ -2780,7 +2780,7 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
 
             return sigsqz, sol
         else:
-            Pzvals = Pz(R, z, sprof=sprof_list_in, halo=halo, method=method)
+            Pzvals = Pz(R, z, smodel=smodel_list_in, halo=halo, method=method)
             sigsqz = Pzvals / rho_g
             return sigsqz
 
@@ -2798,10 +2798,10 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
         # y0 = np.array([0.])
 
         # Solver doesn't like t0 = inf....
-        # t_span = [100.*sprof.q,0.]
-        # t_span = [200.*sprof.q,0.]  # orig fiducial
-        # t_span = [500.*sprof.q,0.]
-        t_span = [1000.*sprof.q,0.]
+        # t_span = [100.*smodel.q,0.]
+        # t_span = [200.*smodel.q,0.]  # orig fiducial
+        # t_span = [500.*smodel.q,0.]
+        t_span = [1000.*smodel.q,0.]
 
 
         #sigz_guess = 1.e-6 #0.  # RANDOM GUESS
@@ -2816,7 +2816,7 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
             # y0 = np.array([np.power(10., -320)])
 
         sol = scp_integrate.solve_ivp(_dsigzsqdz, t_span, y0, t_eval=zeval,
-                                      args=(R, sprof_list, halo),
+                                      args=(R, smodel_list, halo),
                                       # method='RK45',  # use for non-stiff problems
                                       method='Radau', # use for stiff problems
                                       # method='LSODA', # Auto switcher for stiffness
@@ -2856,10 +2856,10 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
         # y0 = np.array([0.])
 
         # Solver doesn't like t0 = inf....
-        # t_span = [100.*sprof.q,0.]
-        # t_span = [200.*sprof.q,0.]  # orig fiducial
-        # t_span = [500.*sprof.q,0.]
-        #t_span = [1000.*sprof.q,0.]
+        # t_span = [100.*smodel.q,0.]
+        # t_span = [200.*smodel.q,0.]  # orig fiducial
+        # t_span = [500.*smodel.q,0.]
+        #t_span = [1000.*smodel.q,0.]
 
 
         # sigz_guess = 1.e-6 #0.  # RANDOM GUESS
@@ -2966,33 +2966,33 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
 
         ymesh = np.zeros((1,len(xmesh)))
 
-        sprof_list_normed = []
+        smodel_list_normed = []
         mass_norm = 0.
-        for sprof in sprof_list_in:
-            if sprof.total_mass > mass_norm:
-                mass_max = sprof.total_mass
+        for smodel in smodel_list_in:
+            if smodel.total_mass > mass_norm:
+                mass_max = smodel.total_mass
         mass_target = 1.e5
         # mass_target = 1.e3
         # mass_target = 1.e1
         # mass_target = 1.
         mass_norm_fac = mass_target / mass_max
-        for sprof in sprof_list_in:
-            sprof_new = copy.deepcopy(sprof)
-            sprof_new.total_mass = sprof.total_mass * mass_norm_fac
-            sprof_new = _preprocess_sprof_Pz_calc(sprof_new, R, z,
+        for smodel in smodel_list_in:
+            smodel_new = copy.deepcopy(smodel)
+            smodel_new.total_mass = smodel.total_mass * mass_norm_fac
+            smodel_new = _preprocess_smodel_Pz_calc(smodel_new, R, z,
                                                   interp_dlnrhodlnm=True)
-            sprof_list_normed.append(sprof_new)
+            smodel_list_normed.append(smodel_new)
 
         # Norm the halo:
         halo_normed = copy.deepcopy(halo)
         halo_normed.scale_fac = mass_norm_fac
 
-        print(sprof_list[0].total_mass)
-        print(sprof_list_normed[0].total_mass)
+        print(smodel_list[0].total_mass)
+        print(smodel_list_normed[0].total_mass)
 
         # raise ValueError
 
-        # sprof_list = None
+        # smodel_list = None
 
         def _fun_BC_sigzsqdz(ya, yb):
             #return np.array([ya[0]-bcs[0], yb[0]-bcs[1]])
@@ -3001,8 +3001,8 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
 
 
         def _fun_tmp_sigzsqdz(z, sigsq):
-            # return _dsigzsqdzBVP(z, sigsq, R, sprof_list, halo)
-            return _dsigzsqdzBVP(z, sigsq, R, sprof_list_normed, halo_normed)
+            # return _dsigzsqdzBVP(z, sigsq, R, smodel_list, halo)
+            return _dsigzsqdzBVP(z, sigsq, R, smodel_list_normed, halo_normed)
 
 
         sol = scp_integrate.solve_bvp(_fun_tmp_sigzsqdz, _fun_BC_sigzsqdz, xmesh, ymesh,
@@ -3049,10 +3049,10 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
     #     # y0 = np.array([0.])
     #
     #     # Solver doesn't like t0 = inf....
-    #     # t_span = [100.*sprof.q,0.]
-    #     # t_span = [200.*sprof.q,0.]  # orig fiducial
-    #     # t_span = [500.*sprof.q,0.]
-    #     #t_span = [1000.*sprof.q,0.]
+    #     # t_span = [100.*smodel.q,0.]
+    #     # t_span = [200.*smodel.q,0.]  # orig fiducial
+    #     # t_span = [500.*smodel.q,0.]
+    #     #t_span = [1000.*smodel.q,0.]
     #
     #
     #     # sigz_guess = 1.e-6 #0.  # RANDOM GUESS
@@ -3130,7 +3130,7 @@ def sigmaz_sq(R, z, sprof=None, halo=None, method=None, return_sol=False):
     #
     #
     #     def _fun_tmp_sigzdz(z, sigsq):
-    #         return _dsigzdzBVP(z, sigsq, R, sprof_list, halo)
+    #         return _dsigzdzBVP(z, sigsq, R, smodel_list, halo)
     #
     #     sol = scp_integrate.solve_bvp(_fun_tmp_sigzdz, _fun_BC_sigzdz, xmesh, ymesh,
     #                                   max_nodes=max_nodes)
@@ -3163,36 +3163,36 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 
     return None
 #
-# def _preprocess_sprof_sigz_integrand_calc(sprof, R, z):
-#     m = np.sqrt(R**2 + (z/sprof.q)**2)
+# def _preprocess_smodel_sigz_integrand_calc(smodel, R, z):
+#     m = np.sqrt(R**2 + (z/smodel.q)**2)
 #
-#     if sprof.isgas:
-#         if sprof.logrhom_interp is not None:
-#             table_Reff =    sprof.table['Reff']
-#             table_mass =    sprof.table['total_mass']
+#     if smodel.isgas:
+#         if smodel.logrhom_interp is not None:
+#             table_Reff =    smodel.table['Reff']
+#             table_mass =    smodel.table['total_mass']
 #
-#             scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
-#             logrho = sprof.logrhom_interp(m / sprof.Reff * table_Reff)
+#             scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**3
+#             logrho = smodel.logrhom_interp(m / smodel.Reff * table_Reff)
 #             rho_g = np.power(10., logrho) * scale_fac
 #         else:
-#             rho_g = sprof.density(m)
+#             rho_g = smodel.density(m)
 #     else:
 #         rho_g = m * 0.
 #
-#     if sprof.forcez_interp is not None:
-#         table_Reff =    sprof.table_forcez['Reff']
-#         table_mass =    sprof.table_forcez['total_mass']
+#     if smodel.forcez_interp is not None:
+#         table_Reff =    smodel.table_forcez['Reff']
+#         table_mass =    smodel.table_forcez['total_mass']
 #
-#         scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**2
-#         gz = sprof.forcez_interp(z / sprof.Reff * table_Reff) * scale_fac
+#         scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**2
+#         gz = smodel.forcez_interp(z / smodel.Reff * table_Reff) * scale_fac
 #     else:
-#         gz = sprof.force_z(R, z , table=sprof.table, func_logrho=sprof.logrhom_interp)
+#         gz = smodel.force_z(R, z , table=smodel.table, func_logrho=smodel.logrhom_interp)
 #
 #
 #     return gz, rho_g
 #
 #
-# def sigsq_z_integrand(z, R, sprof_list, halo):
+# def sigsq_z_integrand(z, R, smodel_list, halo):
 #     """
 #     Integrand as part of numerical integration to find :math:`\sigma^2_z(r,z)`
 #
@@ -3203,7 +3203,7 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #         R: float
 #             Midplane radius [kpc]
 #
-#         sprof_list: Set of deprojected Sersic model instances, list
+#         smodel_list: Set of deprojected Sersic model instances, list
 #
 #         halo: Halo instance or None
 #             Optionally include force from a halo component.
@@ -3216,8 +3216,8 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #     rho_g = 0.
 #     gz = 0.
 #
-#     for sprof in sprof_list:
-#         gz_i, rho_g_i = _preprocess_sprof_sigz_integrand_calc(sprof, R, z)
+#     for smodel in smodel_list:
+#         gz_i, rho_g_i = _preprocess_smodel_sigz_integrand_calc(smodel, R, z)
 #         gz += gz_i
 #         rho_g += rho_g_i
 #
@@ -3229,62 +3229,62 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #     return integrand
 #
 #
-# def _preprocess_sprof_sigz_calc(sprof, R, z):
+# def _preprocess_smodel_sigz_calc(smodel, R, z):
 #
-#     m = np.sqrt(R**2 + (z/sprof.q)**2)
+#     m = np.sqrt(R**2 + (z/smodel.q)**2)
 #
 #     # Assume component is gas by default
-#     if 'isgas' not in sprof.__dict__.keys():
-#         sprof.isgas = True
+#     if 'isgas' not in smodel.__dict__.keys():
+#         smodel.isgas = True
 #
 #     logrhom_interp = None
-#     if 'table' in sprof.__dict__.keys():
-#         if sprof.table is not None:
-#             logrhom_interp = interpolate_sersic_profile_logrho_function(n=sprof.n, invq=sprof.invq,
-#                                                                   table=sprof.table)
+#     if 'table' in smodel.__dict__.keys():
+#         if smodel.table is not None:
+#             logrhom_interp = interpolate_sersic_profile_logrho_function(n=smodel.n, invq=smodel.invq,
+#                                                                   table=smodel.table)
 #
-#     if sprof.isgas:
+#     if smodel.isgas:
 #         if logrhom_interp is not None:
-#             table_Reff =    sprof.table['Reff']
-#             table_mass =    sprof.table['total_mass']
+#             table_Reff =    smodel.table['Reff']
+#             table_mass =    smodel.table['total_mass']
 #
-#             scale_fac = (sprof.total_mass / table_mass) * (table_Reff / sprof.Reff)**3
-#             logrho = logrhom_interp(m / sprof.Reff * table_Reff)
+#             scale_fac = (smodel.total_mass / table_mass) * (table_Reff / smodel.Reff)**3
+#             logrho = logrhom_interp(m / smodel.Reff * table_Reff)
 #             rho_g = np.power(10., logrho) * scale_fac
 #         else:
-#             rho_g = sprof.density(m)
+#             rho_g = smodel.density(m)
 #     else:
 #         rho_g = m * 0.
 #
 #     forcez_interp = None
-#     if 'table_forcez' in sprof.__dict__.keys():
-#         if sprof.table_forcez is not None:
-#             table_z =       sprof.table_forcez['z']
-#             table_Reff =    sprof.table_forcez['Reff']
+#     if 'table_forcez' in smodel.__dict__.keys():
+#         if smodel.table_forcez is not None:
+#             table_z =       smodel.table_forcez['z']
+#             table_Reff =    smodel.table_forcez['Reff']
 #
 #             # Will need to match exact R:
-#             # whm = np.where(sprof.table_forcez['R'] == (R / sprof.Reff * table_Reff))[0]
+#             # whm = np.where(smodel.table_forcez['R'] == (R / smodel.Reff * table_Reff))[0]
 #             tol = 1.e-3
-#             whm = np.where(np.abs(sprof.table_forcez['R']-(R / sprof.Reff * table_Reff))<=tol)[0]
+#             whm = np.where(np.abs(smodel.table_forcez['R']-(R / smodel.Reff * table_Reff))<=tol)[0]
 #             if len(whm) == 0:
 #                 raise ValueError("No matching 'R' in table")
-#             table_gz = sprof.table_forcez['gz_R_{}'.format(whm[0])]
+#             table_gz = smodel.table_forcez['gz_R_{}'.format(whm[0])]
 #
 #             forcez_interp = scp_interp.interp1d(table_z, table_gz,
 #                             fill_value='extrapolate',  kind='cubic')
 #
 #         # #
-#         # if (sprof.n == 4.) & (np.abs(R-5.)<1.e-3) & (np.abs(z-5.)<1.e-3):
+#         # if (smodel.n == 4.) & (np.abs(R-5.)<1.e-3) & (np.abs(z-5.)<1.e-3):
 #         #     print("DEBUG TEST")
 #         #     forcez_interp = None
 #
 #
-#     sprof.logrhom_interp = logrhom_interp
-#     sprof.forcez_interp = forcez_interp
+#     smodel.logrhom_interp = logrhom_interp
+#     smodel.forcez_interp = forcez_interp
 #
-#     return sprof, rho_g
+#     return smodel, rho_g
 #
-# def sigmaz_sq(R, z, sprof=None, halo=None):
+# def sigmaz_sq(R, z, smodel=None, halo=None):
 #     """
 #     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
 #
@@ -3300,12 +3300,12 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #             Height above midplane [kpc]
 #
 #
-#         sprof: Deprojected Sersic model instance or array of intances
+#         smodel: Deprojected Sersic model instance or array of intances
 #
-#         sprof.table: table of (standard) precomputed values, optional
+#         smodel.table: table of (standard) precomputed values, optional
 #             Use pre-computed table to create an interpolation function
 #             that is used for this calculation.
-#         sprof.table_forcez: table of precomputed gz, optional
+#         smodel.table_forcez: table of precomputed gz, optional
 #
 #         halo: Halo instance, optional
 #             Optionally include force from a halo component.
@@ -3318,33 +3318,33 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #     """
 #
 #     try:
-#         tmp = sprof[0]
-#         sprof_list_in = sprof
+#         tmp = smodel[0]
+#         smodel_list_in = smodel
 #     except:
-#         sprof_list_in = [sprof]
+#         smodel_list_in = [smodel]
 #
 #
 #     rho_g = np.sqrt(R**2 + z**2) * 0.
-#     sprof_list = []
+#     smodel_list = []
 #
-#     for sprof in sprof_list_in:
-#         sprof, rho_g_i = _preprocess_sprof_sigz_calc(sprof, R, z)
+#     for smodel in smodel_list_in:
+#         smodel, rho_g_i = _preprocess_smodel_sigz_calc(smodel, R, z)
 #         rho_g += rho_g_i
-#         sprof_list.append(sprof)
+#         smodel_list.append(smodel)
 #
 #     # int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
-#     #                                     args=(R, sprof_list, halo))
+#     #                                     args=(R, smodel_list, halo))
 #     # # WRONG: ///// No negatives, because delPotl = -gz, so already in there
 #     # return - 1./rho_g * int_sigsq_z
 #
 #
 #     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, z, np.inf,
-#                                         args=(R, sprof_list, halo))
+#                                         args=(R, smodel_list, halo))
 #
 #     return -1./rho_g * int_sigsq_z
 #
 #
-# def rho_sigmaz_sq(R, z, sprof=None, halo=None):
+# def rho_sigmaz_sq(R, z, smodel=None, halo=None):
 #     """
 #     Evalutation of vertical velocity dispersion of a deprojected Sersic density profile at (R,z).
 #
@@ -3360,12 +3360,12 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #             Height above midplane [kpc]
 #
 #
-#         sprof: Deprojected Sersic model instance or array of intances
+#         smodel: Deprojected Sersic model instance or array of intances
 #
-#         sprof.table: table of (standard) precomputed values, optional
+#         smodel.table: table of (standard) precomputed values, optional
 #             Use pre-computed table to create an interpolation function
 #             that is used for this calculation.
-#         sprof.table_forcez: table of precomputed gz, optional
+#         smodel.table_forcez: table of precomputed gz, optional
 #
 #         halo: Halo instance, optional
 #             Optionally include force from a halo component.
@@ -3378,28 +3378,28 @@ def BBBBBBBBBBBBBBBBBBBBBBBBBBB():
 #     """
 #
 #     try:
-#         tmp = sprof[0]
-#         sprof_list_in = sprof
+#         tmp = smodel[0]
+#         smodel_list_in = smodel
 #     except:
-#         sprof_list_in = [sprof]
+#         smodel_list_in = [smodel]
 #
 #
 #     rho_g = np.sqrt(R**2 + z**2) * 0.
-#     sprof_list = []
+#     smodel_list = []
 #
-#     for sprof in sprof_list_in:
-#         sprof, rho_g_i = _preprocess_sprof_sigz_calc(sprof, R, z)
+#     for smodel in smodel_list_in:
+#         smodel, rho_g_i = _preprocess_smodel_sigz_calc(smodel, R, z)
 #         rho_g += rho_g_i
-#         sprof_list.append(sprof)
+#         smodel_list.append(smodel)
 #
 #     # int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, 0, z,
-#     #                                     args=(R, sprof_list, halo))
+#     #                                     args=(R, smodel_list, halo))
 #     # # WRONG: ///// No negatives, because delPotl = -gz, so already in there
 #     # return - int_sigsq_z
 #
 #
 #     int_sigsq_z, _ = scp_integrate.quad(sigsq_z_integrand, z, np.inf,
-#                                         args=(R, sprof_list, halo))
+#                                         args=(R, smodel_list, halo))
 #
 #     return - int_sigsq_z
 
