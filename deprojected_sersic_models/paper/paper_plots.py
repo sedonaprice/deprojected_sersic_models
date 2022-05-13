@@ -21,6 +21,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator, FixedLocator, FixedFormatter
 import matplotlib.cm as cm
 from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patches as mpatches
 
 from deprojected_sersic_models import core, io, table_generation
 from deprojected_sersic_models.utils import calcs as util_calcs
@@ -32,16 +33,20 @@ __all__ = [ 'make_all_paper_plots', 'list_table1_values' ]
 
 # ---------------------
 # Plot settings
-fontsize_leg = 9.
+
+mpl.rcParams['text.usetex'] = True
+
+fontsize_leg_sm = 10.
+fontsize_leg = 11.
 fontsize_labels = 14.
 fontsize_labels_sm = 12.
-fontsize_ann = 9.
+fontsize_ann = 11.
 fontsize_title= 14.
 fontsize_title_lg = 16.
-fontsize_ticks = 11.
-fontsize_ticks_sm = 9.
+fontsize_ticks = 12.
+fontsize_ticks_sm = 11.
 
-fontsize_ann_lg = 11.
+fontsize_ann_lg = 13.
 fontsize_ann_latex_sm = 12.
 fontsize_ann_latex = 13.
 
@@ -49,6 +54,7 @@ cmap_mass = cm.OrRd
 cmap_q = cm.magma_r
 cmap_n = cm.viridis_r
 cmapg = cm.Greys
+
 
 cmap_bt = LinearSegmentedColormap.from_list('cmap_bt',
             [(0, 0, 0), (0.9568627450980393, 0.4745098039215686, 0.4745098039215686)],
@@ -289,8 +295,6 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 
     """
 
-    mpl.rcParams['text.usetex'] = True
-
     if (output_path is None) & (fileout is None):
         raise ValueError("Must set 'output_path' if 'fileout' is not set !")
     if table_path is None:
@@ -350,9 +354,9 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
         types.append('3D')
         ylabels.append(r'$M_{\mathrm{sph}}(<r=R)/M_{\mathrm{tot}}$')
         if q < 1.:
-            titles.append(r'Fractional 3D enclosed mass, sphere, $q_0={:0.1f}$'.format(q))
+            titles.append(r'$q_0={:0.1f}$'.format(q))
         else:
-            titles.append(r'Fractional 3D enclosed mass, sphere, $q_0={:0.0f}$'.format(q))
+            titles.append(r'$q_0={:0.0f}$'.format(q))
         vline_loc.append([0.,  np.log10(2.2/1.676)])
         vline_lss.append(['--', '-.'])
         if i == 0:
@@ -368,12 +372,12 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 4.0
+    scale = 3.5
     n_cols = len(types)
-    fac = 1.15
+    fac = 1.155
     f.set_size_inches(fac*scale*n_cols,scale)
 
-    pad_outer = 0.2
+    pad_outer = 0.25
     gs = gridspec.GridSpec(1, n_cols, wspace=pad_outer)
     axes = []
     for i in range(n_cols):
@@ -404,9 +408,9 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
                                 if (q == 1.):
                                     delt = 0.015
                                 elif (q == 0.4):
-                                    delt = -0.06 - 0.03 * (len(spec_pairs)-mm-1)
+                                    delt = -0.07 - 0.04 * (len(spec_pairs)-mm-1)
                                 elif (q == 0.2):
-                                    delt = -0.047 - 0.043 * (len(spec_pairs)-mm-1)
+                                    delt = -0.057 - 0.05 * (len(spec_pairs)-mm-1)
                                 xypos = (xlim[1]-fracx*(xlim[1]-xlim[0]), menc_arr[wh[0]]+delt)
                                 ax.annotate(r'{:0.1f}'.format(menc_arr[wh[0]]*100)+'\%',
                                     xy=xypos, ha='right', color=color_arr[j], fontsize=fontsize_ann)
@@ -475,8 +479,6 @@ def plot_compare_mencl(fileout=None, output_path=None, table_path=None, q_arr=[1
 
     plt.savefig(fileout, bbox_inches='tight', dpi=600)
     plt.close()
-
-    mpl.rcParams['text.usetex'] = True
 
     return None
 
@@ -628,7 +630,8 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
     xlims = [xlim_plotq, xlim_plotn]
     ylims = [ylim_plotq, ylim_plotn]
     xlabels = [xlabel_plotq, xlabel_plotn]
-    ylabels = [r'$r_{1/2,\, \mathrm{mass,\,3D}}/R_{\mathrm{e}}$', None]
+    ylabels = [r'$r_{1/2,\, \mathrm{mass,\,3D}}/R_{\mathrm{e}}$',
+               r'$r_{1/2,\, \mathrm{mass,\,3D}}/R_{\mathrm{e}}$']
     titles = [None, None]
 
     marker = 'o'
@@ -642,11 +645,11 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
     scale = 3.75
     n_cols = len(xlims)
     n_rows = 1
-    fac = 1.02
+    fac = 1.33
     f.set_size_inches(fac*scale*n_cols,scale*n_rows)
 
-    wspace = 0.05
-    hspace = wspace
+    wspace = 0.6
+    hspace = 0.
     gs = gridspec.GridSpec(n_rows, n_cols, wspace=wspace, hspace=hspace)
     axes = []
     for i in range(n_rows):
@@ -727,7 +730,7 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
             ax.yaxis.set_major_locator(MultipleLocator(0.1))
 
 
-        frameon = True
+        frameon = False #True
         framealpha = 1.
         edgecolor = 'none'
         borderpad = 0.5
@@ -735,11 +738,11 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
         labelspacing=0.15
         handletextpad=0.25
         if plot_type == 'plotq':
-            loc = 'upper right'
-            bbox_to_anchor = (1., 1.)
+            loc = 'upper left'
+            bbox_to_anchor = (0.99, 1.02)
         elif plot_type == 'plotn':
             loc = 'upper left'
-            bbox_to_anchor = (0., 1.)
+            bbox_to_anchor = (0., 1.02)
 
         legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
             handletextpad=handletextpad, loc=loc, bbox_to_anchor=bbox_to_anchor,
@@ -896,7 +899,7 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 3.5
+    scale = 3.35
     n_cols = len(q_arr)
     n_rows = len(n_arr)
     fac = 0.98
@@ -941,7 +944,7 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
                     menc_arr = ks_dict[types1[mm]]
                     Rarr_plot = np.log10(ks_dict['R_arr']/ks_dict['Reff'])
                     ax1.plot(Rarr_plot, menc_arr/ks_dict['mass_plot'], ls=ls_arr1[mm], color=color_arr1[mm],
-                                lw=lw_arr1[mm], label=labels1[mm])
+                                lw=lw_arr1[mm], label=labels1[mm], zorder=10.)
 
                 for mm, typ in enumerate(types2):
                     menc_arr = ks_dict[types2[mm]]
@@ -976,7 +979,7 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
             ######################
             # ANNOTATE:
             #######
-            posannx = 0.765
+            posannx = 0.71
             posanny = 0.95
             dely = 0.
             bbox_props = dict(boxstyle="square", fc="ghostwhite", ec="dimgrey", lw=1)
@@ -988,7 +991,7 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
                         bbox=bbox_props)
             # Annotate ax2:
             if k == 0:
-                posannx = 0.765
+                posannx = 0.71
                 posanny = 0.75
             ax2.annotate(ann_str, xy=(posannx, posanny),
                         xycoords='axes fraction', va='top', ha='left', fontsize=fontsize_ann_lg,
@@ -1064,13 +1067,15 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
                 framealpha = 1.
                 edgecolor = 'none'
                 borderpad = 0.25
-                fontsize_leg_tmp = fontsize_leg
+                fontsize_leg_tmp = fontsize_leg_sm
                 labelspacing=0.15
                 handletextpad=0.25
+                loc1 = (0.025, 0.25)
 
                 legend11 = ax1.legend(handles_arr1, labels_arr1,
                     labelspacing=labelspacing, borderpad=borderpad,
                     handletextpad=handletextpad,
+                    handlelength=1.15,
                     loc='upper left',
                     frameon=frameon, numpoints=1,
                     scatterpoints=1,
@@ -1080,7 +1085,7 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
                 legend12 = ax1.legend(handles_arr12, labels_arr12,
                     labelspacing=labelspacing, borderpad=borderpad,
                     handletextpad=handletextpad,
-                    loc=(0.025, 0.15),
+                    loc=loc1,
                     frameon=False, numpoints=1,
                     scatterpoints=1,
                     framealpha=framealpha,
@@ -1170,8 +1175,6 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
         if output_path[-1] != '/':  output_path += '/'
         fileout = output_path+'virial_coeff_sersic_potential.pdf'
 
-    mpl.rcParams['text.usetex'] = True
-
     ####################
     q_arr = np.array(q_arr)
     color_arr, ls_arr, labels = ([] for _ in range(3))
@@ -1220,19 +1223,20 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
     xlim = [0., 8.25]
     ylims = [[1.75, 5.5], [0.85, 1.15]]
     titles = [r'Total virial coefficient', r'Enclosed 3D virial coefficient' ]
-    ann_arr = [ r'$\displaystyle k_{\mathrm{tot}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{tot}} G }{v_c(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$',
-                r'$\displaystyle k_{\mathrm{3D}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{sph}}(<r=R_{\mathrm{e}}) G }{v_c(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$' ]
+    ann_arr = [ r'$\displaystyle k_{\mathrm{tot}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{tot}} G }{v_{\mathrm{circ}}(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$',
+                r'$\displaystyle k_{\mathrm{3D}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{sph}}(<r=R_{\mathrm{e}}) G }{v_{\mathrm{circ}}(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$' ]
     ann_arr_pos = ['upperright', 'lowerright']
     lw = 1.3
 
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 4.0
+    scale = 3.85
     n_cols = len(types)
-    f.set_size_inches(1.15*scale*n_cols,scale)
+    fac = 1.175
+    f.set_size_inches(fac*scale*n_cols,scale)
 
-    pad_outer = 0.2
+    pad_outer = 0.25
     gs = gridspec.GridSpec(1, n_cols, wspace=pad_outer)
     axes = []
     for i in range(n_cols):
@@ -1248,9 +1252,9 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
                 raise ValueError
 
             if q > 1:
-                zorder = -5.
+                zorder = 5.
             else:
-                zorder = None
+                zorder = 10.
             ax.plot(n_arr, k_arr, ls=ls_arr[j], color=color_arr[j], lw=lw,
                     label=labels[j], zorder=zorder)
 
@@ -1279,6 +1283,12 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
             xy = (1.-xydelt, 1.-xydelt)
             va='top'
             ha='right'
+        if (i==1):
+            patch = mpatches.FancyBboxPatch((3.5,0.869), 4., 0.025,
+                             boxstyle="square,pad=0.", fc="white",
+                             ec="dimgrey", lw=0.)
+            ax.add_patch(patch)
+
         ax.annotate(ann_arr[i], xy=xy,
                 va=va, ha=ha, fontsize=fontsize_ann,
                 xycoords='axes fraction')
@@ -1291,13 +1301,18 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
             ax.yaxis.set_major_locator(MultipleLocator(0.1))
 
         if i == 1:
-            frameon = False
+            frameon = True #False
+            framealpha = 1.
+            edgecolor = 'none'
             borderpad = 0.25
             fontsize_leg_tmp = fontsize_leg
             labelspacing=0.15
             handletextpad=0.25
+            ncol_leg = 2 # 1
             legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
+                ncol=ncol_leg,
                 handletextpad=handletextpad, loc='upper right', frameon=frameon,
+                framealpha=framealpha, edgecolor=edgecolor,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp)
 
     if fileout is not None:
@@ -1305,8 +1320,6 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
         plt.close()
     else:
         plt.show()
-
-    mpl.rcParams['text.usetex'] = False
 
     return None
 
@@ -1326,7 +1339,7 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
              logradius=False,
              ylim_lmenc=[8., 12.],
              ylim_lmenc_lograd=[6.,12.5],
-             ylim_vcirc=[0., 360.]):
+             ylim_vcirc=[0., 340.]):
     """
     Plot example enclosed mass and circular velocity profiles for
     different mass components, over a variety of B/T ratios.
@@ -1418,7 +1431,8 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
     ls_arr = ['--', '-.', (0, (3, 1, 1, 1, 1, 1)), ':', '-',
                 (0, (10, 4)), (0, (10, 2, 1, 2, 1, 2, 1, 2))]
     lw_arr = [1.25, 1.25, 1.35, 1.35, 1.5, 1., 1.]
-    labels = ['Disk', 'Bulge', 'Baryons (D+B)', 'Halo', 'Total',
+    labels = ['Disk', 'Bulge', r'Baryons',
+                'Halo', 'Total',
                 r'$M_{\mathrm{enc,DM}}/M_{\mathrm{enc,tot}}$',
                 r'$v_{\mathrm{circ,DM}}^2/v_{\mathrm{circ,tot}}^2$']
     color_arr = ['blue', 'red', 'green', 'purple', 'black', color_fdm, color_vsq]
@@ -1470,7 +1484,7 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 2.75
+    scale = 2.35
     n_cols = len(bt_arr)
     n_rows = len(types)
     fac = 1.02
@@ -1548,9 +1562,9 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 vline_lss = ['-', '--', '-.', (0, (3, 1, 1, 1, 1, 1)), ':']
                 vline_cols = ['darkgrey', 'blue', 'red', 'green', 'grey']
                 vline_labels = [r'$R_{\mathrm{e,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,bulge}}$',
-                                r'$r_{\mathrm{1/2,3D,baryons}}$',
+                                r'$r_{\mathrm{1/2,3D,Disk}}$',
+                                r'$r_{\mathrm{1/2,3D,Bulge}}$',
+                                r'$r_{\mathrm{1/2,3D,Baryons}}$',
                                 r'$r_{\mathrm{vir}}$']
                 vline_alphas = [1., 0.5, 0.5, 0.5, 1.]
 
@@ -1559,9 +1573,9 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 vline_lss = ['-', '--', '-.', (0, (3, 1, 1, 1, 1, 1))]
                 vline_cols = ['darkgrey', 'blue', 'red', 'green']
                 vline_labels = [r'$R_{\mathrm{e,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,bulge}}$',
-                                r'$r_{\mathrm{1/2,3D,baryons}}$']
+                                r'$r_{\mathrm{1/2,3D,Disk}}$',
+                                r'$r_{\mathrm{1/2,3D,Bulge}}$',
+                                r'$r_{\mathrm{1/2,3D,Baryons}}$']
                 vline_alphas = [1., 0.5, 0.5, 0.5]
 
             #########
@@ -1727,15 +1741,17 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 if logradius:
                     loc2 = 'upper left'
                 else:
-                    loc2 = 'lower right'
-                    bbox2_to_anchor = (1., 0.)
+                    loc2 = 'upper right'
+                    bbox2_to_anchor = (1.,1.)
 
                 if (k == 0):
                     legend1 = ax.legend(handles_arr, labels_arr,
                         labelspacing=labelspacing, borderpad=borderpad,
                         handletextpad=handletextpad, loc='lower right',
+                        bbox_to_anchor=(1.0,-0.02),
+                        handlelength=1.8,
                         numpoints=1, scatterpoints=1,
-                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        frameon=False, framealpha=framealpha, edgecolor=edgecolor,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend1)
                 elif ((i == n_rows -1) & (j == 0)):
@@ -1744,16 +1760,19 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                         bbox_to_anchor=bbox2_to_anchor,
                         handletextpad=handletextpad, loc=loc2,
                         numpoints=1, scatterpoints=1,
-                        handlelength = 3.35, frameon=False,
+                        handlelength=3.35,
+                        frameon=frameon,
                         framealpha=framealpha, edgecolor=edgecolor,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
                 elif ((i == 0) & (j == 1)):
                     legend3 = ax.legend(handles_arr3, labels_arr3,
-                        labelspacing=labelspacing, borderpad=borderpad,
+                        labelspacing=0, borderpad=borderpad,
                         handletextpad=handletextpad, loc= loc3,
+                        bbox_to_anchor=(1.03,-0.02),
+                        handlelength=1.4,
                         numpoints=1, scatterpoints=1,
-                        frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        frameon=False, framealpha=framealpha, edgecolor=edgecolor,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend3)
 
@@ -1763,7 +1782,7 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
     else:
         plt.show()
 
-
+    return None
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -1883,7 +1902,7 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
         if del_fDM:
             ylims.append([-0.15, 0.05])
         else:
-            ylims.append([0.85, 1.05])
+            ylims.append([0.84, 1.035])
 
     ######################################
     # Setup plot:
@@ -2028,7 +2047,7 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
 
             # Annotate:
             if k  == 0:
-                padx = pady = 0.05
+                padx = pady = 0.03
                 xypos = (padx, 1.-pady)
                 va = 'top'
                 ha = 'left'
@@ -2038,17 +2057,20 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
                         color='darkblue', fontsize=fontsize_ann)
 
-                pady = 0.04375
+                pady = 0.03
                 xdelt = 0.35
                 ann_str_cnst = r'$R_{\mathrm{e,bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
                 ann_str_cnst += '\n'
                 ann_str_cnst += r'$n_{\mathrm{bulge}}='+r'{:0.1f}$'.format(n_bulge)
-                ann_str_cnst += '\n'
-                ann_str_cnst += r'$q_{0,\mathrm{bulge}}='+r'{:0.1f}$'.format(1./invq_bulge)
                 xypos = (padx + xdelt, 1.-pady)
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
                         color='firebrick', fontsize=fontsize_ann)
 
+                xdelt = 0.7
+                xypos = (padx + xdelt, 1.-pady)
+                ann_str_cnst = r'$q_{0,\mathrm{bulge}}='+r'{:0.1f}$'.format(1./invq_bulge)
+                ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
+                        color='firebrick', fontsize=fontsize_ann)
             else:
                 padx = pady = 0.05
                 xypos = (padx, 1.-pady)
@@ -2130,8 +2152,10 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
                 legend1 = ax.legend(handles_arr, labels_arr,
                     labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
                     loc='lower right',
+                    bbox_to_anchor=(1.01,-0.02),
                     numpoints=1, scatterpoints=1,
-                    frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                    handlelength=1.65,
+                    frameon=False, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp)
                 ax.add_artist(legend1)
                 if len(handles_arr2) > 0:
@@ -2151,6 +2175,7 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
     else:
         plt.show()
 
+    return None
 
 # ----------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------
@@ -2466,28 +2491,18 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
                         ax.plot(bt_arr, bt_arr*np.NaN, ls=ls, color=color, lw=lw, label=lbl)
 
                 # Annotate:
-                if del_fDM:
-                    padx = 0.025
-                    pady = 0.045
-                    xypos = (padx, 1-pady-0.125)
-                    va = 'top'
-                    ha = 'left'
-                else:
-                    padx = 0.025
-                    pady = 0.045
-                    xypos = (padx, 1-pady-0.125)
-                    va = 'top'
-                    ha = 'left'
+                padx = 0.025
+                pady = 0.07
+                xypos = (padx, 1-pady-0.125)
+                va = 'top'
+                ha = 'left'
 
                 ann_str_cnst = r'$n_{\mathrm{disk}}='+r'{:0.1f}$'.format(n_disk)
                 ax.annotate(ann_str_cnst, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
                         color='darkblue', fontsize=fontsize_ann)
 
-                yoff = 0.175
-                if del_fDM:
-                    xypos = (padx, 1-pady-yoff)
-                else:
-                    xypos = (padx, 1-pady-yoff)
+                yoff = 0.185
+                xypos = (padx, 1-pady-yoff)
 
 
                 ann_str_cnst = r'$R_{\mathrm{e,bulge}}='+r'{:0.1f}'.format(Reff_bulge)+r'\,\mathrm{kpc}$'
@@ -2547,7 +2562,11 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
             else:
                 ax.set_xticklabels([])
             if ylabels[k] is not None:
-                ax.set_ylabel(ylabels[k], fontsize=fontsize_labels)
+                if (k == 1):
+                    labelpad = 0.
+                else:
+                    labelpad=None
+                ax.set_ylabel(ylabels[k], fontsize=fontsize_labels, labelpad=labelpad)
             else:
                 ax.set_yticklabels([])
 
@@ -2664,8 +2683,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
         if del_fDM:     fileout += '_del_fDM'
         fileout += '.pdf'
 
-    mpl.rcParams['text.usetex'] = True
-
     if lmstar_arr is None:
         lm_step = 0.25
         lmstar_arr = np.arange(9.0, 11.+lm_step, lm_step)
@@ -2710,10 +2727,14 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ylims = [[0.,1.], ylim_comp, [0.5,1.1], [-0.05,0.2]]
     types = ['fdm_vsq', 'fDM_comp',
              'rhalf3D_bary_to_Reff_disk', 'fDM_comp_rhalf3D_bary']
-    ann_arr = [ r'$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}}) = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$',
+    # ann_arr = [ r'$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}}) = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$',
+    #             r'$\displaystyle f_{\mathrm{DM}}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(<r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(<r=R_{\mathrm{e,disk}})}$',
+    #             None, None]
+    ann_arr_n = [2, 1, 0, 0]
+    ann_arr = [ [r'$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}})$', r'$\displaystyle = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$'],
                 r'$\displaystyle f_{\mathrm{DM}}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(<r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(<r=R_{\mathrm{e,disk}})}$',
                 None, None]
-    ann_arr_pos = ['upperleft','lowerright', None, None]
+    ann_arr_pos = [['upperleft', 'upperleft'],'lowerright', None, None]
 
     if include_toy_curves:
         keys_toy = ['Reff_disk', 'invq_disk', 'fgas', 'bt', 'lMhalo', 'halo_conc']
@@ -2755,7 +2776,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 2.75
+    scale = 2.5
     n_cols = 2
     if include_toy_curves:
         n_rows = 3
@@ -2766,7 +2787,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     else:
         n_rows = 1
         fac = 1.15
-    facy = 1.34
+    facy = 1.305
     pad = 0
     f.set_size_inches(fac*scale*(n_cols+(n_cols-1)*pad),facy*scale*(n_rows+(n_rows-1)*pad))
 
@@ -2790,7 +2811,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             for j in range(len(keys_toy)):
                 axes_toy.append(plt.subplot(gs0[i,j]))
 
-        wspace = 0.225
+        wspace = 0.3
         hspace = 0.175
         gs = gridspec.GridSpecFromSubplotSpec(n_rows-1, n_cols,subplot_spec=gs_outer[1,0],
                 wspace=wspace, hspace=hspace )
@@ -3019,7 +3040,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 val_dict['fdm_menc_rhalf3D_bary'][ll] = fdm_menc_rhalf3D_bary
                 val_dict['fDM_comp_rhalf3D_bary'][ll] = (fdm_vsq-fdm_menc_rhalf3D_bary)
 
-            ##
+            ####
             dict_stack.append(val_dict)
 
 
@@ -3224,7 +3245,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 val_dict['fdm_menc_rhalf3D_bary'][ll] = fdm_menc_rhalf3D_bary
                 val_dict['fDM_comp_rhalf3D_bary'][ll] = (fdm_vsq-fdm_menc_rhalf3D_bary)
 
-            ##
+            ####
             dict_toy[name] = val_dict
 
     if save_dict_stack:
@@ -3275,11 +3296,11 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 else:
                     ax.set_xticklabels([])
                 if ylabel is not None:
-                    ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=2)
+                    ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=1) #2)
                 else:
                     ax.set_yticklabels([])
 
-                ax.tick_params(labelsize=fontsize_ticks_sm-2)
+                ax.tick_params(labelsize=fontsize_ticks_sm-3)
 
     ######################
     # FOR JUST THE fDM PLOTS!
@@ -3322,23 +3343,46 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
             elif keyy == 'rhalf3D_bary_to_Reff_disk':
                 ax.axhline(y=1., ls=(0, (5,3)), color='darkgrey', zorder=-20.)
 
-            if ann_arr[k] is not None:
+            if ann_arr_n[k] > 0:
                 xydelt = 0.04
-                if ann_arr_pos[k] == 'lowerright':
-                    xy = (1.-xydelt, xydelt)
-                    va='bottom'
-                    ha='right'
-                elif ann_arr_pos[k] == 'upperright':
-                    xy = (1.-xydelt, 1.-xydelt)
-                    va='top'
-                    ha='right'
-                elif ann_arr_pos[k] == 'upperleft':
-                    xy = (xydelt, 1.-xydelt)
-                    va='top'
-                    ha='left'
-                ax.annotate(ann_arr[k], xy=xy,
-                        va=va, ha=ha, fontsize=fontsize_ann-0.5,
-                        xycoords='axes fraction')
+                if (ann_arr_n[k] == 1):
+                    if ann_arr_pos[k] == 'lowerright':
+                        xy = (1.-xydelt, xydelt)
+                        va='bottom'
+                        ha='right'
+                    elif ann_arr_pos[k] == 'upperright':
+                        xy = (1.-xydelt, 1.-xydelt)
+                        va='top'
+                        ha='right'
+                    elif ann_arr_pos[k] == 'upperleft':
+                        xy = (xydelt, 1.-xydelt)
+                        va='top'
+                        ha='left'
+                    ax.annotate(ann_arr[k], xy=xy,
+                            va=va, ha=ha, fontsize=fontsize_ann-0.5,
+                            xycoords='axes fraction')
+                else:
+                    for mm in range(ann_arr_n[k]):
+                        if ann_arr_pos[k][mm] == 'lowerright':
+                            xy = (1.-xydelt, xydelt)
+                            va='bottom'
+                            ha='right'
+                        elif ann_arr_pos[k][mm] == 'upperright':
+                            xy = (1.-xydelt, 1.-xydelt)
+                            va='top'
+                            ha='right'
+                        elif ann_arr_pos[k][mm] == 'upperleft':
+                            if (mm > 0):
+                                xdelt = xydelt * 2.
+                                ydelt = xydelt + 0.065
+                            else:
+                                xdelt = ydelt = xydelt
+                            xy = (xdelt, 1.-ydelt)
+                            va='top'
+                            ha='left'
+                        ax.annotate(ann_arr[k][mm], xy=xy,
+                                va=va, ha=ha, fontsize=fontsize_ann-0.5,
+                                xycoords='axes fraction')
 
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
@@ -3400,13 +3444,16 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 leg_title = r'$\log_{10}(M_{\star}/M_{\odot})=$'
                 fontsize_leg_title = fontsize_leg
                 legend1 = ax.legend(handles_arr, labels_arr,
-                    labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
+                    labelspacing=labelspacing, borderpad=borderpad,
+                    handletextpad=handletextpad,
                     loc=loc,
                     numpoints=1, scatterpoints=1,
                     frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
                     fontsize=fontsize_leg_tmp,
                     title=leg_title, title_fontsize=fontsize_leg_title)
                 ax.add_artist(legend1)
+
+
                 if len(handles_arr2) > 0:
                     legend2 = ax.legend(handles_arr2, labels_arr2,
                         labelspacing=labelspacing, borderpad=borderpad, handletextpad=handletextpad,
@@ -3421,8 +3468,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
         plt.close()
     else:
         plt.show()
-
-    mpl.rcParams['text.usetex'] = False
 
     return None
 
@@ -3512,7 +3557,7 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
     xlim = [0., 5.]
     ylims = [[0., 10.], [0., 2.]]
     titles = [None, None]
-    ann_arr = [ r'$\alpha(R) = -\frac{\mathrm{d}\ln \rho_g}{\mathrm{d}\ln{}R}$', None]
+    ann_arr = [ r'$\displaystyle \alpha(R) = -\frac{\mathrm{d}\ln \rho_g}{\mathrm{d}\ln{}R}$', None]
     ann_arr_pos = ['lowerright', 'lowerright']
     lw = 1.3
     ls_arr = ['-']
@@ -3529,7 +3574,7 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
                               'ls': '--',
                               'lw': 1.25,
                               'color': 'orange',
-                              'label': r'Dalcanton & Stilp 2010, Eq. 17, exp.'}
+                              'label': r'Dalcanton \& Stilp 2010, Eq. 17, exp.'}
 
         #####
         # Kretschmer+21, Figure 4 alpha_rho (medians from data from M. Kretschmer)
@@ -3546,7 +3591,7 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 4.
+    scale = 3.85
     n_cols = len(types)
     f.set_size_inches(1.15*scale*n_cols,scale)
 
@@ -3645,7 +3690,7 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
             va='top'
             ha='right'
         ax.annotate(ann_arr[i], xy=xy,
-                va=va, ha=ha, fontsize=fontsize_ann_latex,
+                va=va, ha=ha, fontsize=fontsize_ann_latex_sm,
                 xycoords='axes fraction')
 
         if (ylim[1]-ylim[0]) > 9:
@@ -3662,7 +3707,7 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
             ax.yaxis.set_major_locator(MultipleLocator(0.1))
 
         if i == 0:
-            frameon = True
+            frameon = False
             framealpha = 1.
             borderpad = 0.75
             fontsize_leg_tmp = fontsize_leg
@@ -3679,6 +3724,11 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                 fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
                 framealpha=framealpha)
+
+            patch = mpatches.FancyBboxPatch((0.8,5.95), 0.4, 3.55,
+                             boxstyle="square,pad=0.", fc="white", lw=0.)
+            ax.add_patch(patch)
+
         if show_literature & (i==1):
             frameon = False
             framealpha = 1.
@@ -3697,6 +3747,10 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
                 numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                 fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
                 framealpha=framealpha)
+
+            patch = mpatches.FancyBboxPatch((0.8,1.625), 4.0, 0.275,
+                             boxstyle="square,pad=0.", fc="white", lw=0., zorder=5.)
+            ax.add_patch(patch)
 
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
@@ -3771,7 +3825,7 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
     xlabel = r'$R/R_{\mathrm{e}}$'
     ylabel = r'$v(R)\ \mathrm{[km\,s^{-1}]}$'
     xlim = [0., 5.]
-    ylim = [0.,320.]
+    ylim = [0.,340.]
 
     # Load files:
     delR = 0.001
@@ -3822,7 +3876,7 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 3.25
+    scale = 2.9
     n_cols = len(n_arr)
     n_rows = len(q_arr)
     f.set_size_inches(1.05*scale*n_cols,scale*n_rows)
@@ -3920,7 +3974,7 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
                 va='top'
                 ha='left'
             ax.annotate(ann_arr[j], xy=xy,
-                    va=va, ha=ha, fontsize=fontsize_ann_latex_sm,
+                    va=va, ha=ha, fontsize=fontsize_ann_latex,
                     xycoords='axes fraction')
 
             if (ylim[1]-ylim[0]) > 300:
@@ -3951,15 +4005,17 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
 
             if (mm <= 1):
                 frameon = False
-                borderpad = 0.5
+                borderpad = 0.1
                 fontsize_leg_tmp = fontsize_leg
                 labelspacing=0.15
                 handletextpad= 0.5
                 fancybox = False
                 edgecolor='None'
                 loc='upper right'
+                bbox_to_anchor = (1.,1.)
                 legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
                     handletextpad=handletextpad, loc=loc, frameon=frameon,
+                    bbox_to_anchor=bbox_to_anchor,
                     numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
                     fancybox=fancybox,edgecolor=edgecolor)
 
@@ -4294,11 +4350,11 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
 
         ########################################
         # Annotate Sersic indices:
-        ann_str = r'$n_D = {:0.0f}$'.format(nDisk)
+        ann_str = r'$n_D = '+r'{:0.0f}$'.format(nDisk)
         ann_str2 = r'$n_B = '+r'{:0.0f}$'.format(nBulge)
         xdelt = 0.2
-        ypos = 0.21
-        ydelt = 0.05
+        ypos = 0.2275
+        ydelt = 0.055
         xy = (1.-xdelt, ypos+ydelt)
         xy2 = (1.-xdelt, ypos)
         ax.annotate(ann_str, xy=xy,
@@ -4309,9 +4365,9 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
                 xycoords='axes fraction', color=cmap_bt(0.9+btextra))
         ########################################
 
-        frameon = True
+        frameon = False
         framealpha = 1.
-        borderpad = 0.75
+        borderpad = 0.2
         fontsize_leg_tmp = fontsize_leg
         labelspacing= 0.2
         handletextpad= 0.5
@@ -4351,10 +4407,14 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
             framealpha=framealpha)
 
+        patch = mpatches.FancyBboxPatch((0.1,6.45), 1.1, 3.55,
+                         boxstyle="square,pad=0.", fc="white", lw=0.)
+        ax.add_patch(patch)
+
         loc2 = 'lower right'
         bbox_to_anchor2 = (1., -0.025)
         handlelength = 5.
-        frameon = False
+        borderpad = 0.5
         legend2 = ax.legend(handles_arr2, labels_arr2,
             labelspacing=labelspacing, borderpad=borderpad,
             handletextpad=handletextpad, frameon=frameon, handlelength=handlelength,
@@ -4365,11 +4425,11 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
 
         loc3 = 'upper right'
         bbox_to_anchor3 = (1., 1.)
-        frameon = False
         legend3 = ax.legend(handles_arr3, labels_arr3,
             labelspacing=labelspacing, borderpad=borderpad,
             handletextpad=handletextpad, frameon=frameon,
             loc=loc3, bbox_to_anchor=bbox_to_anchor3,
+            handlelength=2.2,
             numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
             fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
             framealpha=framealpha)
@@ -4521,7 +4581,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             framealpha=framealpha)
 
         loc2 = 'lower right'
-        bbox_to_anchor2 = (1., -0.025) #(1., 0.)
+        bbox_to_anchor2 = (1., -0.025)
         handlelength = 5.
         frameon = False
         legend2 = ax.legend(handles_arr2, labels_arr2,
