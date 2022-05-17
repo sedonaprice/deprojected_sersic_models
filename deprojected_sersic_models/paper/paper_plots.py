@@ -3955,8 +3955,6 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
 
             xydelt = 0.04
             arpos = ann_arr_pos[j]
-            if (mm <= 1):
-                arpos = 'upperleft'
             if arpos == 'lowerright':
                 xy = (1.-xydelt, xydelt)
                 va='bottom'
@@ -4011,8 +4009,8 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
                 handletextpad= 0.5
                 fancybox = False
                 edgecolor='None'
-                loc='upper right'
-                bbox_to_anchor = (1.,1.)
+                loc='upper left'
+                bbox_to_anchor = (0.,1.)
                 legend = ax.legend(labelspacing=labelspacing, borderpad=borderpad,
                     handletextpad=handletextpad, loc=loc, frameon=frameon,
                     bbox_to_anchor=bbox_to_anchor,
