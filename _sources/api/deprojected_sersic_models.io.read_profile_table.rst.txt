@@ -1,0 +1,6 @@
+read_profile_table
+==================
+
+.. currentmodule:: deprojected_sersic_models.io
+
+.. autofunction:: read_profile_table

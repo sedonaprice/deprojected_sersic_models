@@ -1,0 +1,6 @@
+list_table1_values
+==================
+
+.. currentmodule:: deprojected_sersic_models.paper.paper_plots
+
+.. autofunction:: list_table1_values

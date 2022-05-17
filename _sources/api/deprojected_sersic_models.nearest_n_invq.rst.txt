@@ -1,0 +1,6 @@
+nearest_n_invq
+==============
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autofunction:: nearest_n_invq

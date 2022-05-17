@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>deprojected_sersic_models.core &mdash; deprojected_sersic_models 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> deprojected_sersic_models
+            <img src="../../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">deprojected_sersic_models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../downloads.html">Downloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">deprojected_sersic_models</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>deprojected_sersic_models.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for deprojected_sersic_models.core</h1><div class="highlight"><pre>
+<span></span><span class="c1">##################################################################################</span>
+<span class="c1"># deprojected_sersic_models/core.py                                              #</span>
+<span class="c1">#                                                                                #</span>
+<span class="c1"># Copyright 2018-2022 Sedona Price &lt;sedona.price@gmail.com&gt; / MPE IR/Submm Group #</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
+<span class="c1">##################################################################################</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">apy_con</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">from</span> <span class="nn">deprojected_sersic_models.utils</span> <span class="kn">import</span> <span class="n">calcs</span> <span class="k">as</span> <span class="n">util_calcs</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;DeprojSersicModel&#39;</span> <span class="p">]</span>
+
+<span class="c1"># CONSTANTS</span>
+<span class="n">G</span> <span class="o">=</span> <span class="n">apy_con</span><span class="o">.</span><span class="n">G</span>
+<span class="n">Msun</span> <span class="o">=</span> <span class="n">apy_con</span><span class="o">.</span><span class="n">M_sun</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">apy_con</span><span class="o">.</span><span class="n">pc</span>
+
+<span class="c1"># LOGGER SETTINGS</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;DeprojectedSersicModels&#39;</span><span class="p">)</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+
+<span class="k">class</span> <span class="nc">_SersicDistBase</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class that specifies a Sersic distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        q: float</span>
+<span class="sd">            Intrinsic axis ratio of Sersic profile</span>
+<span class="sd">        i: float</span>
+<span class="sd">            Inclination of system [deg]</span>
+
+<span class="sd">        Upsilon: float, optional</span>
+<span class="sd">            Mass-to-light ratio. Default: 1. (i.e., constant ratio)</span>
+
+<span class="sd">        invq: float, derived</span>
+<span class="sd">            Flattening of Sersic profile; invq=1/q. (Derived)</span>
+<span class="sd">        Ie: float, derived</span>
+<span class="sd">            Normalization of Sersic intensity profile at kap = Reff. (Derived)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span>    <span class="o">=</span> <span class="n">total_mass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span>          <span class="o">=</span> <span class="n">Reff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>             <span class="o">=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_q</span>             <span class="o">=</span> <span class="n">q</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span>             <span class="o">=</span> <span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Upsilon</span>       <span class="o">=</span> <span class="n">Upsilon</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_derived</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set derived quantities from the basic Sersic profile quantities &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_invq</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_qobs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_bn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_Ie</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_set_invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set invq from intrinsic axis ratio q &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_invq</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span>
+
+    <span class="k">def</span> <span class="nf">_set_qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to calculate the observed axis ratio for an inclined system.</span>
+<span class="sd">        Uses intrinsic axis ratio `q` and inclination `i`.</span>
+
+<span class="sd">        Stores value as `self._qobs = sqrt(q^2 + (1-q^2)*cos(i))``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_qobs</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">qobs_func</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to set bn(n) for a Sersic profile.</span>
+
+<span class="sd">        Stores value as `self._bn`</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The constant :math:`b_n` satisfies :math:`\Gamma(2n) = 2\gamma (2n, b_n)`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bn</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">bn_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evalutation of Ie, normalization of the Sersic intensity profile at kap = Reff,</span>
+<span class="sd">        using the total mass (to infinity) and assuming a constant M/L ratio Upsilon.</span>
+
+<span class="sd">        Uses the closed-form solution for the total luminosity of the</span>
+<span class="sd">        2D projected Sersic intensity profile I(kap).</span>
+
+<span class="sd">        Stores value as `self._Ie = I(kap=Reff)`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Ie</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">get_Ie</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span>
+
+    <span class="nd">@total_mass</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Total mass must be positive!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span>
+
+    <span class="nd">@Reff</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reff must be positive!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>
+
+    <span class="nd">@n</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sersic index n must be positive!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span>
+
+    <span class="nd">@q</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Intrinsic axis ratio q must be positive!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_q</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i</span>
+
+    <span class="nd">@i</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Upsilon</span>
+
+    <span class="nd">@Upsilon</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mass-to-light ratio Upsilon must be positive!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Upsilon</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Reset derived values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invq</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qobs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bn</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Ie</span>
+
+
+<div class="viewcode-block" id="DeprojSersicModel"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel">[docs]</a><span class="k">class</span> <span class="nc">DeprojSersicModel</span><span class="p">(</span><span class="n">_SersicDistBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        total_mass: float</span>
+<span class="sd">            Total mass of the component [Msun]</span>
+<span class="sd">        Reff: float</span>
+<span class="sd">            Effective radius of Sersic profile [kpc]</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        q: float</span>
+<span class="sd">            Intrinsic axis ratio of Sersic profile (c/a)</span>
+<span class="sd">        i: float</span>
+<span class="sd">            Inclination of system [deg]</span>
+
+<span class="sd">        Upsilon: float, optional</span>
+<span class="sd">            Mass-to-light ratio. Default: 1. (i.e., constant ratio)</span>
+
+<span class="sd">        invq: float, derived</span>
+<span class="sd">            Flattening of Sersic profile; invq=1/q. (Derived)</span>
+<span class="sd">        Ie: float, derived</span>
+<span class="sd">            Normalization of Sersic intensity profile at kap = Reff. (Derived)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DeprojSersicModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                               <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="n">Upsilon</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass">[docs]</a>    <span class="k">def</span> <span class="nf">enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enclosed 3D mass within a sphere of radius r=R,</span>
+<span class="sd">        assuming a constant M/L ratio Upsilon.</span>
+
+<span class="sd">        See Eq. 8 of Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine total enclosed 2D projected mass [kpc]</span>
+
+<span class="sd">            cumulative: bool, optional</span>
+<span class="sd">                Shortcut option to only calculate the next annulus,</span>
+<span class="sd">                then add to the previous Menc(r-rdelt). Default: False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Menc3D_sphere: float or array_like</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate fractional enclosed mass, to avoid numerical problems:</span>
+        <span class="n">Ie</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">get_Ie</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">menc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">cumulative</span><span class="p">:</span>
+                        <span class="c1"># Only calculate annulus, use previous Menc as shortcut:</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">menc_ann</span> <span class="o">=</span>  <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                            <span class="n">Rinner</span><span class="o">=</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                            <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">menc_ann</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                            <span class="n">Rinner</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Direct calculation for every radius</span>
+                        <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                        <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                        <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+                <span class="c1"># Perform some garbage collection, in the case of very small q</span>
+                <span class="c1">#     and smaller n. Sometimes integrated to greater than 1,</span>
+                <span class="c1">#     and then fell off to small numbers.....</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span> <span class="o">&lt;=</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">):</span>
+                    <span class="c1"># Use a tolerance of 1.e-9:</span>
+                    <span class="n">whgtone</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">menc</span><span class="o">-</span><span class="mf">1.</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.e-9</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">whgtone</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">menc</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">menc</span><span class="p">[</span><span class="n">whgtone</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span> <span class="o">=</span> <span class="mf">1.</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">menc</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">menc</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                            <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+        <span class="c1"># Return enclosed mass: fractional menc * total mass</span>
+        <span class="k">return</span> <span class="n">menc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span></div>
+
+<div class="viewcode-block" id="DeprojSersicModel.v_circ"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.v_circ">[docs]</a>    <span class="k">def</span> <span class="nf">v_circ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Circular velocity in the midplane of the deprojected Sersic mass distribution.</span>
+
+<span class="sd">        See Eq. 5 of Price et al. 2022 (also Eq. 10 of Noordermeer 2008)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Midplane radius at which to evaluate the circular velocity [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            vcirc: float or array_like</span>
+<span class="sd">                Circular velocity in the midplane at r [km/s]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cnst</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">G</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="n">Msun</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mf">1000.</span><span class="o">*</span><span class="n">pc</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">vcsq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="n">vcsq</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnst</span><span class="o">*</span><span class="n">util_calcs</span><span class="o">.</span><span class="n">vel_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                                           <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">vcsq</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vcsq</span> <span class="o">=</span> <span class="n">cnst</span><span class="o">*</span><span class="n">util_calcs</span><span class="o">.</span><span class="n">vel_integral</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                                    <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">R</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">vcsq</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">vcsq</span> <span class="o">=</span> <span class="n">cnst</span><span class="o">*</span><span class="n">util_calcs</span><span class="o">.</span><span class="n">vel_integral</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                                <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">R</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">vcsq</span> <span class="o">=</span> <span class="mf">0.</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vcsq</span><span class="p">)</span><span class="o">/</span><span class="mf">1.e5</span></div>
+
+
+
+<div class="viewcode-block" id="DeprojSersicModel.density"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.density">[docs]</a>    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Density profile at :math:`m=R` of the deprojected Sersic mass distribution.</span>
+
+<span class="sd">        See Eq. 2 of Price et al. 2022 (also Eq. 9 of Noordermeer 2008)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Distance at which to evaluate the circular velocity [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            rho_arR: float or array_like</span>
+<span class="sd">                Density profile at m [Msun / kpc^3]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">rho_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="n">rho_arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">rho_m</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                                  <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">,</span>
+                                                  <span class="n">replace_asymptote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rho_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">rho_m</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                           <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">,</span>
+                                           <span class="n">replace_asymptote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">rho_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">rho_m</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                                       <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">,</span>
+                                       <span class="n">replace_asymptote</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rho_arr</span></div>
+
+
+<div class="viewcode-block" id="DeprojSersicModel.drho_dR"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.drho_dR">[docs]</a>    <span class="k">def</span> <span class="nf">drho_dR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derivative of the density profile, :math:`d\\rho/dR`,</span>
+<span class="sd">        at distance :math:`m=R` of the deprojected Sersic mass distribution.</span>
+
+<span class="sd">        See Eq. 17 of Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Midplane radius at which to evaluate the log density profile slope [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            drho_dR_arR: float or array_like</span>
+<span class="sd">                Derivative of density profile at m=R</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">drho_dR_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="n">drho_dR_arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">drhom_dm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                    <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">drho_dR_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">drhom_dm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">drho_dR_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">drhom_dm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                            <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">drho_dR_arr</span></div>
+
+
+<div class="viewcode-block" id="DeprojSersicModel.dlnrho_dlnR"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.dlnrho_dlnR">[docs]</a>    <span class="k">def</span> <span class="nf">dlnrho_dlnR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,</span>
+<span class="sd">        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.</span>
+
+<span class="sd">        See Eq. 17 of Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Midplane radius at which to evaluate the log density profile slope [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            dlnrho_dlnR_arR: float or array_like</span>
+<span class="sd">                Derivative of log density profile at r=m</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dlnrho_dlnR_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="n">dlnrho_dlnR_arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">dlnrhom_dlnm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                    <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dlnrho_dlnR_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">dlnrhom_dlnm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                                <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">dlnrho_dlnR_arr</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">dlnrhom_dlnm_multimethod</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                            <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">dlnrho_dlnR_arr</span></div>
+
+<div class="viewcode-block" id="DeprojSersicModel.surface_density"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.surface_density">[docs]</a>    <span class="k">def</span> <span class="nf">surface_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Surface density distribution for a Sersic profile, assuming a M/L ratio Upsilon.</span>
+
+<span class="sd">        See Price et al. 2002, Eq 3; Noordermeer 2008, Eq 11; Graham &amp; Driver 2005; etc.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine surface density distribution [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            sigma_arR: float or array_like</span>
+<span class="sd">                Surface density of Sersic profile at R</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span> <span class="o">*</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">Ikap</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeprojSersicModel.projected_enclosed_mass"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.projected_enclosed_mass">[docs]</a>    <span class="k">def</span> <span class="nf">projected_enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Projected 2D mass enclosed within an ellipse</span>
+<span class="sd">        (or elliptical shell), assuming a constant M/L ratio Upsilon.</span>
+
+<span class="sd">        See Graham &amp; Driver 2005.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine total enclosed 2D projected mass [kpc]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Menc2D_ellipse: float or array_like</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass2D_direct</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span><span class="p">,</span>
+                            <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass_ellipsoid"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass_ellipsoid">[docs]</a>    <span class="k">def</span> <span class="nf">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enclosed 3D mass within an ellpsoid of</span>
+<span class="sd">        major axis radius r and intrinsic axis ratio q</span>
+<span class="sd">        (e.g. the same as the Sersic profile isodensity contours),</span>
+<span class="sd">        assuming a constant M/L ratio Upsilon.</span>
+
+<span class="sd">        See Eq. 6, Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine total enclosed 2D projected mass [kpc]</span>
+
+<span class="sd">            cumulative: bool, optional</span>
+<span class="sd">                Shortcut option to only calculate the next annulus,</span>
+<span class="sd">                then add to the previous Menc(r-rdelt). Default: False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            Menc3D_ellip: float or array_like</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate fractional enclosed mass, to avoid numerical problems:</span>
+        <span class="n">Ie</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">get_Ie</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">menc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">R</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">cumulative</span><span class="p">:</span>
+                        <span class="c1"># Only calculate annulus, use previous Menc as shortcut:</span>
+                        <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">menc_ann</span> <span class="o">=</span>  <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                            <span class="n">Rinner</span><span class="o">=</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                            <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">menc_ann</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                            <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Direct calculation for every radius</span>
+                        <span class="n">menc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                        <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                        <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">menc</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                                <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                                <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">menc</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                            <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span>
+                            <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span><span class="p">)</span>
+
+        <span class="c1"># Return enclosed mass: fractional menc * total mass</span>
+        <span class="k">return</span> <span class="n">menc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span></div>
+
+
+<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_tot"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_tot">[docs]</a>    <span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The &quot;total&quot; virial coefficient ktot, which satisfies</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            M_{\mathrm{tot}} = k_{\mathrm{tot}}(R) \\frac{v_{\mathrm{circ}}(R)^2 r}{ G },</span>
+
+<span class="sd">        to convert between the circular velocity at any given radius and the total system mass.</span>
+
+<span class="sd">        See Eq. 10, Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine total enclosed 2D projected mass [kpc]</span>
+
+<span class="sd">            vc: float or array_like, optional</span>
+<span class="sd">                Pre-calculated evaluation of vcirc(R)</span>
+<span class="sd">                (saves time to avoid recalculating vcirc(R))  [km/s]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            ktot: float or array_like</span>
+<span class="sd">                ktot = Mtot * G / (vcirc(R)^2 * r)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">vc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_circ</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">virial_coeff_tot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="n">vc</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_3D"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_3D">[docs]</a>    <span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The &quot;3D&quot; virial coefficient k3D, which satisfies</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            M_{\mathrm{3D,sphere}}(R) = k_{\mathrm{3D}}(R) \\frac{v_{\mathrm{circ}}(R)^2 R}{ G },</span>
+
+<span class="sd">        to convert between the circular velocity at any given radius</span>
+<span class="sd">        and the mass enclosed within a sphere of radius R.</span>
+
+<span class="sd">        See Eq. 9, Price et al. 2022</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Major axis radius within which to determine total enclosed 2D projected mass [kpc]</span>
+
+<span class="sd">            m3D: float or array_like, optional</span>
+<span class="sd">                Pre-calculated evaluation of Menc3D_sphere(R)</span>
+<span class="sd">                (saves time to avoid recalculating Menc3D_sphere(R)) [Msun]</span>
+<span class="sd">            vc: float or array_like, optional</span>
+<span class="sd">                Pre-calculated evaluation of vcirc(R)</span>
+<span class="sd">                (saves time to avoid recalculating vcirc(R))  [km/s]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            k3D: float or array_like</span>
+<span class="sd">                k3D = Menc3D_sphere(R) * G / (vcirc(R)^2 * R)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">m3D</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m3D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enclosed_mass</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">vc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_circ</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">virial_coeff_3D</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="n">m3D</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="n">vc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeprojSersicModel.profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.profile_table">[docs]</a>    <span class="k">def</span> <span class="nf">profile_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a set of profiles as a dictionary, calculated over the specified radii.</span>
+<span class="sd">        Also includes constants for the specified Sersic profile parameters,</span>
+<span class="sd">        and information about values at Reff or the 3D half mass radius.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">            R: float or array_like</span>
+<span class="sd">                Radius array, in kpc</span>
+
+<span class="sd">            cumulative: bool, optional</span>
+<span class="sd">                Shortcut option to only calculate the next annulus,</span>
+<span class="sd">                then add to the previous Menc(r-rdelt).</span>
+<span class="sd">                Default: Uses cumulative if n &gt;= 2.</span>
+<span class="sd">            add_reff_table_values: bool, optional</span>
+<span class="sd">                Add select values at Reff to the table. Requires Reff to be in `R`</span>
+<span class="sd">                Default: True</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            table: dict</span>
+<span class="sd">                Dictionary containing the various profiles &amp; values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Set default cumulative behavior:</span>
+        <span class="k">if</span> <span class="n">cumulative</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mf">2.</span><span class="p">:</span>
+                <span class="n">cumulative</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cumulative</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Calculate profiles:</span>
+        <span class="n">vcirc</span> <span class="o">=</span>         <span class="bp">self</span><span class="o">.</span><span class="n">v_circ</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">menc3D_sph</span> <span class="o">=</span>    <span class="bp">self</span><span class="o">.</span><span class="n">enclosed_mass</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="n">cumulative</span><span class="p">)</span>
+        <span class="n">menc3D_ellip</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="n">cumulative</span><span class="p">)</span>
+        <span class="n">rho</span> <span class="o">=</span>           <span class="bp">self</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">dlnrho_dlnR</span> <span class="o">=</span>   <span class="bp">self</span><span class="o">.</span><span class="n">dlnrho_dlnR</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Setup table:</span>
+        <span class="n">table</span>    <span class="o">=</span> <span class="p">{</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>                   <span class="n">R</span><span class="p">,</span>
+                     <span class="s1">&#39;vcirc&#39;</span><span class="p">:</span>               <span class="n">vcirc</span><span class="p">,</span>
+                     <span class="s1">&#39;menc3D_sph&#39;</span><span class="p">:</span>          <span class="n">menc3D_sph</span><span class="p">,</span>
+                     <span class="s1">&#39;menc3D_ellipsoid&#39;</span><span class="p">:</span>    <span class="n">menc3D_ellip</span><span class="p">,</span>
+                     <span class="s1">&#39;rho&#39;</span><span class="p">:</span>                 <span class="n">rho</span><span class="p">,</span>
+                     <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">:</span>         <span class="n">dlnrho_dlnR</span><span class="p">,</span>
+                     <span class="s1">&#39;total_mass&#39;</span><span class="p">:</span>          <span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span><span class="p">,</span>
+                     <span class="s1">&#39;Reff&#39;</span><span class="p">:</span>                <span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span>
+                     <span class="s1">&#39;invq&#39;</span><span class="p">:</span>                <span class="bp">self</span><span class="o">.</span><span class="n">invq</span><span class="p">,</span>
+                     <span class="s1">&#39;q&#39;</span><span class="p">:</span>                   <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span>
+                     <span class="s1">&#39;n&#39;</span><span class="p">:</span>                   <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="p">}</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="k">if</span> <span class="n">add_reff_table_values</span><span class="p">:</span>
+            <span class="c1"># Calculate selected values at Reff:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">wh_reff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must include &#39;Reff&#39; in &#39;R&#39; if using &#39;add_reff_table_values=True&#39;!&quot;</span><span class="p">)</span>
+
+            <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph_Reff&#39;</span><span class="p">]</span> <span class="o">=</span>          <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph&#39;</span><span class="p">][</span><span class="n">wh_reff</span><span class="p">]</span>
+            <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_ellipsoid_Reff&#39;</span><span class="p">]</span> <span class="o">=</span>    <span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_ellipsoid&#39;</span><span class="p">][</span><span class="n">wh_reff</span><span class="p">]</span>
+            <span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">]</span> <span class="o">=</span>               <span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc&#39;</span><span class="p">][</span><span class="n">wh_reff</span><span class="p">]</span>
+
+            <span class="n">table</span><span class="p">[</span><span class="s1">&#39;ktot_Reff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">virial_coeff_tot</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">],</span>
+                            <span class="n">total_mass</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">],</span> <span class="n">vc</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">])</span>
+
+            <span class="n">table</span><span class="p">[</span><span class="s1">&#39;k3D_sph_Reff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">virial_coeff_3D</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">],</span>
+                            <span class="n">m3D</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph_Reff&#39;</span><span class="p">],</span> <span class="n">vc</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">])</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># 3D Spherical half total_mass radius, for reference:</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;rhalf3D_sph&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">find_rhalf3D_sphere</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">],</span> <span class="n">menc3D_sph</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;menc3D_sph&#39;</span><span class="p">],</span>
+                                           <span class="n">total_mass</span><span class="o">=</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">])</span>
+
+        <span class="c1"># ---------------------</span>
+        <span class="c1"># Check that table calculated correctly:</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">check_for_inf</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Problem in table calculation: n=</span><span class="si">{:0.1f}</span><span class="s2">, invq=</span><span class="si">{:0.2f}</span><span class="s2">: status=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">invq</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
+
+
+        <span class="k">return</span> <span class="n">table</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 17 May 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+plot_surface_density
+====================
+
+.. currentmodule:: deprojected_sersic_models.plot
+
+.. autofunction:: plot_surface_density

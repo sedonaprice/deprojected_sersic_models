@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sersic_profile_mass_VC &mdash; sersic_profile_mass_VC 1.0 documentation</title>
+  <title>deprojected_sersic_models &mdash; deprojected_sersic_models 1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -32,7 +32,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> sersic_profile_mass_VC
+            <a href="#" class="icon icon-home"> deprojected_sersic_models
             <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
@@ -47,20 +47,20 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">sersic_profile_mass_VC</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">deprojected_sersic_models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="downloads.html">Downloads</a></li>
-<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
 </ul>
 
         </div>
@@ -69,7 +69,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">sersic_profile_mass_VC</a>
+          <a href="#">deprojected_sersic_models</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -77,7 +77,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li><code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></li>
+      <li><code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -111,9 +111,9 @@
     text-align: unset;
 }
 </style>
-<section id="sersic-profile-mass-vc">
-<h1><code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code><a class="headerlink" href="#sersic-profile-mass-vc" title="Permalink to this headline"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code> package contains code to calculate various profiles
+<section id="deprojected-sersic-models">
+<h1><code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code><a class="headerlink" href="#deprojected-sersic-models" title="Permalink to this headline"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code> package contains code to calculate various profiles
 for deprojected, flattened (and also elongated) Sérsic mass distributions.
 These calculations follow and extend the derivation of rotation curves for flattened Sérsic profiles
 presented by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract">Noordermeer, 2008, MNRAS, 385, 1359</a>.
@@ -128,10 +128,10 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">sersic_profile_mass_VC</span> <span class="k">as</span> <span class="nn">spm</span>
+<span class="kn">import</span> <span class="nn">deprojected_sersic_models</span> <span class="k">as</span> <span class="nn">deproj_sersic</span>
 
 <span class="c1"># Environment variable containing path to location of pre-computed tables</span>
-<span class="n">table_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;SERSIC_PROFILE_MASS_VC_DATADIR&#39;</span><span class="p">)</span>
+<span class="n">table_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DEPROJECTED_SERSIC_MODELS_DATADIR&#39;</span><span class="p">)</span>
 
 <span class="c1"># Sérsic profile properties</span>
 <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">1.e11</span>
@@ -145,8 +145,8 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 <span class="c1"># Calculate &amp; plot interpolated circular velocity profiles at r for each invq</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mf">3.5</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">invq</span> <span class="ow">in</span> <span class="n">invq_arr</span><span class="p">:</span>
-    <span class="n">vc</span> <span class="o">=</span> <span class="n">spm</span><span class="o">.</span><span class="n">interpolate_sersic_profile_VC</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
-                                       <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">table_dir</span><span class="p">)</span>
+    <span class="n">vc</span> <span class="o">=</span> <span class="n">deproj_sersic</span><span class="o">.</span><span class="n">interpolate_sersic_profile_VC</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                                                     <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">table_dir</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$q_0$=</span><span class="si">{:0.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">invq</span><span class="p">))</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Radius [kpc]&#39;</span><span class="p">)</span>
@@ -167,16 +167,16 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="downloads.html">Downloads</a></li>
-<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
 </ul>
 </div>
 </section>
@@ -201,7 +201,7 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 22 Apr 2022.
+      <span class="lastupdated">Last updated on 17 May 2022.
       </span></p>
   </div>
 

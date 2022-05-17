@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Downloads &mdash; sersic_profile_mass_VC 1.0 documentation</title>
+  <title>Downloads &mdash; deprojected_sersic_models 1.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Acknowledging sersic_profile_mass_VC" href="acknowledgement.html" />
+    <link rel="next" title="Acknowledging deprojected_sersic_models" href="acknowledgement.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -31,7 +31,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> sersic_profile_mass_VC
+            <a href="index.html" class="icon icon-home"> deprojected_sersic_models
             <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
@@ -46,7 +46,7 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">sersic_profile_mass_VC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">deprojected_sersic_models</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
@@ -56,14 +56,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#software">Software</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">sersic_profile_mass_VC</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sersic_profile_mass_VC_plot_example.html">Built-in plotting functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
 </ul>
 
         </div>
@@ -72,7 +72,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">sersic_profile_mass_VC</a>
+          <a href="index.html">deprojected_sersic_models</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -119,12 +119,12 @@
 <section id="profile-tables">
 <h2>Profile tables<a class="headerlink" href="#profile-tables" title="Permalink to this headline"></a></h2>
 <p>The pre-computed profile tables are available for download here:
-<a class="reference external" href="https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.tar.gz">tar.gz</a> |
-<a class="reference external" href="https://sedonaprice.github.io/sersic_profile_mass_VC/_static/tables/sersic_profile_mass_VC_tables.zip">zip</a></p>
+<a class="reference external" href="https://sedonaprice.github.io/deprojected_sersic_models/_static/tables/deprojected_sersic_models_tables.tar.gz">tar.gz</a> |
+<a class="reference external" href="https://sedonaprice.github.io/deprojected_sersic_models/_static/tables/deprojected_sersic_models_tables.zip">zip</a></p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>If using the pre-downloaded tables, or your own pre-computed tables,
-we recommend setting the environment variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">SERSIC_PROFILE_MASS_VC_DATADIR</span></code>.</p>
+we recommend setting the environment variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code>.</p>
 <p>This default table path is used if the <code class="xref py py-obj docutils literal notranslate"><span class="pre">path</span></code> keyword argument is not specified when
 using the interpolation functions or <code class="xref py py-obj docutils literal notranslate"><span class="pre">read_profile_table()</span></code>.</p>
 </div>
@@ -132,10 +132,10 @@ using the interpolation functions or <code class="xref py py-obj docutils litera
 <section id="software">
 <h2>Software<a class="headerlink" href="#software" title="Permalink to this headline"></a></h2>
 <p>The <strong>v1.0 release</strong> is available for download as:
-<a class="reference external" href="https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.tar.gz">tar.gz</a> |
-<a class="reference external" href="https://github.com/sedonaprice/sersic_profile_mass_VC/archive/refs/tags/v1.0.zip">zip</a></p>
+<a class="reference external" href="https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.0.tar.gz">tar.gz</a> |
+<a class="reference external" href="https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.0.zip">zip</a></p>
 <p>Alternatively, the releases can be directly downloaded from the <strong>repository</strong>
-(or the repository cloned) at <a class="reference external" href="https://github.com/sedonaprice/sersic_profile_mass_VC">https://github.com/sedonaprice/sersic_profile_mass_VC</a>.</p>
+(or the repository cloned) at <a class="reference external" href="https://github.com/sedonaprice/deprojected_sersic_models">https://github.com/sedonaprice/deprojected_sersic_models</a>.</p>
 <p>See the <a class="reference internal" href="installation.html#install"><span class="std std-ref">instructions</span></a> for details on installing the software.</p>
 </section>
 </section>
@@ -145,14 +145,14 @@ using the interpolation functions or <code class="xref py py-obj docutils litera
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="acknowledgement.html" class="btn btn-neutral float-right" title="Acknowledging sersic_profile_mass_VC" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="acknowledgement.html" class="btn btn-neutral float-right" title="Acknowledging deprojected_sersic_models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 22 Apr 2022.
+      <span class="lastupdated">Last updated on 17 May 2022.
       </span></p>
   </div>
 

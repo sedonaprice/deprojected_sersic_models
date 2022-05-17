@@ -1,0 +1,6 @@
+plot_projected_enclosed_mass
+============================
+
+.. currentmodule:: deprojected_sersic_models.plot
+
+.. autofunction:: plot_projected_enclosed_mass

@@ -1,0 +1,6 @@
+plot_dlnrho_dlnR
+================
+
+.. currentmodule:: deprojected_sersic_models.plot
+
+.. autofunction:: plot_dlnrho_dlnR

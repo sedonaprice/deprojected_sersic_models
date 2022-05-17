@@ -1,0 +1,6 @@
+interpolate_entire_table
+========================
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autofunction:: interpolate_entire_table

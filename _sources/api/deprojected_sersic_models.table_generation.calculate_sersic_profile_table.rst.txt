@@ -1,0 +1,6 @@
+calculate_sersic_profile_table
+==============================
+
+.. currentmodule:: deprojected_sersic_models.table_generation
+
+.. autofunction:: calculate_sersic_profile_table

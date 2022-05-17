@@ -1,0 +1,6 @@
+vcirc_spherical_symmetry
+========================
+
+.. currentmodule:: deprojected_sersic_models.utils
+
+.. autofunction:: vcirc_spherical_symmetry

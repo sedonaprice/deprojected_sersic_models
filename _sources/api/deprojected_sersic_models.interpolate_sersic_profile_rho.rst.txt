@@ -1,0 +1,6 @@
+interpolate_sersic_profile_rho
+==============================
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autofunction:: interpolate_sersic_profile_rho

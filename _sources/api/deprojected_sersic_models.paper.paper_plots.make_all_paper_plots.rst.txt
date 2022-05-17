@@ -1,0 +1,6 @@
+make_all_paper_plots
+====================
+
+.. currentmodule:: deprojected_sersic_models.paper.paper_plots
+
+.. autofunction:: make_all_paper_plots

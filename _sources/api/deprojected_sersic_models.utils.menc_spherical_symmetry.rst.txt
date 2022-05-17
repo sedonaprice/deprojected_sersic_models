@@ -1,0 +1,6 @@
+menc_spherical_symmetry
+=======================
+
+.. currentmodule:: deprojected_sersic_models.utils
+
+.. autofunction:: menc_spherical_symmetry

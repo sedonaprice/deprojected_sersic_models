@@ -1,0 +1,6 @@
+find_rhalf3D_sphere
+===================
+
+.. currentmodule:: deprojected_sersic_models.utils
+
+.. autofunction:: find_rhalf3D_sphere

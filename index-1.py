@@ -1,10 +1,10 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import sersic_profile_mass_VC as spm
+import deprojected_sersic_models as deproj_sersic
 
 # Environment variable containing path to location of pre-computed tables
-table_dir = os.getenv('SERSIC_PROFILE_MASS_VC_DATADIR')
+table_dir = os.getenv('DEPROJECTED_SERSIC_MODELS_DATADIR')
 
 # Sérsic profile properties
 total_mass = 1.e11
@@ -18,8 +18,8 @@ invq_arr = [1., 2.5, 3.33, 5., 10.]
 # Calculate & plot interpolated circular velocity profiles at r for each invq
 plt.figure(figsize=(4,3.5))
 for invq in invq_arr:
-    vc = spm.interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
-                                       n=n, invq=invq, path=table_dir)
+    vc = deproj_sersic.interpolate_sersic_profile_VC(R=R, total_mass=total_mass, Reff=Reff,
+                                                     n=n, invq=invq, path=table_dir)
     plt.plot(R, vc, '-', label=r'$q_0$={:0.2f}'.format(1./invq))
 
 plt.xlabel('Radius [kpc]')

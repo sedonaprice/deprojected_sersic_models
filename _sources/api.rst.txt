@@ -1,26 +1,26 @@
 API
 ===
 
-.. automodapi:: sersic_profile_mass_VC
+.. automodapi:: deprojected_sersic_models
    :no-inheritance-diagram:
    :no-inherited-members:
 
-.. automodapi:: sersic_profile_mass_VC.table_generation
+.. automodapi:: deprojected_sersic_models.table_generation
    :no-inheritance-diagram:
    :inherited-members:
 
-.. automodapi:: sersic_profile_mass_VC.io
+.. automodapi:: deprojected_sersic_models.io
   :no-inheritance-diagram:
   :no-inherited-members:
 
-.. automodapi:: sersic_profile_mass_VC.utils
+.. automodapi:: deprojected_sersic_models.utils
    :no-inheritance-diagram:
    :no-inherited-members:
 
-.. automodapi:: sersic_profile_mass_VC.plot
+.. automodapi:: deprojected_sersic_models.plot
    :no-inheritance-diagram:
    :no-inherited-members:
 
-.. automodapi:: sersic_profile_mass_VC.paper.paper_plots
+.. automodapi:: deprojected_sersic_models.paper.paper_plots
   :no-inheritance-diagram:
   :no-inherited-members:

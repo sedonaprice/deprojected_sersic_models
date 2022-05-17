@@ -1,0 +1,19 @@
+InterpFunc
+==========
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autoclass:: InterpFunc
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~InterpFunc.__call__
+      ~InterpFunc.evaluate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: evaluate

@@ -1,0 +1,6 @@
+plot_profiles
+=============
+
+.. currentmodule:: deprojected_sersic_models.plot
+
+.. autofunction:: plot_profiles

@@ -1,0 +1,6 @@
+check_for_inf
+=============
+
+.. currentmodule:: deprojected_sersic_models.utils
+
+.. autofunction:: check_for_inf

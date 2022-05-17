@@ -1,0 +1,6 @@
+interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest
+============================================================
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autofunction:: interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest

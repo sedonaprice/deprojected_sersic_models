@@ -1,0 +1,6 @@
+interpolate_sersic_profile_VC
+=============================
+
+.. currentmodule:: deprojected_sersic_models
+
+.. autofunction:: interpolate_sersic_profile_VC

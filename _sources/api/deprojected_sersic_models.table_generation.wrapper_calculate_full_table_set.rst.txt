@@ -1,0 +1,6 @@
+wrapper_calculate_full_table_set
+================================
+
+.. currentmodule:: deprojected_sersic_models.table_generation
+
+.. autofunction:: wrapper_calculate_full_table_set

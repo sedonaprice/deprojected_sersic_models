@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>deprojected_sersic_models.io &mdash; deprojected_sersic_models 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> deprojected_sersic_models
+            <img src="../../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">deprojected_sersic_models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../downloads.html">Downloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">deprojected_sersic_models</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>deprojected_sersic_models.io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for deprojected_sersic_models.io</h1><div class="highlight"><pre>
+<span></span><span class="c1">##################################################################################</span>
+<span class="c1"># deprojected_sersic_models/io.py                                                #</span>
+<span class="c1">#                                                                                #</span>
+<span class="c1"># Copyright 2018-2022 Sedona Price &lt;sedona.price@gmail.com&gt; / MPE IR/Submm Group #</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
+<span class="c1">##################################################################################</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;save_profile_table&#39;</span><span class="p">,</span> <span class="s1">&#39;read_profile_table&#39;</span> <span class="p">]</span>
+
+<span class="n">_dir_deprojected_sersic_models</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DEPROJECTED_SERSIC_MODELS_DATADIR&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">_sersic_profile_filename_base</span> <span class="o">=</span> <span class="s1">&#39;deproj_sersic_model&#39;</span>
+
+<span class="k">def</span> <span class="nf">_default_table_fname</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">+</span><span class="n">filename_base</span><span class="o">+</span><span class="s1">&#39;_n</span><span class="si">{:0.1f}</span><span class="s1">_invq</span><span class="si">{:0.2f}</span><span class="s1">.fits&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">)</span>
+
+<div class="viewcode-block" id="save_profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.io.save_profile_table.html#deprojected_sersic_models.io.save_profile_table">[docs]</a><span class="k">def</span> <span class="nf">save_profile_table</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+                       <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save the table of Sersic profile values in a binary FITS table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        table: dict</span>
+<span class="sd">            The dictionary of the table for a particular n, invq</span>
+
+<span class="sd">        path: str, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `deproj_sersic_model`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location. (FITS format)</span>
+<span class="sd">        overwrite: bool, optional</span>
+<span class="sd">            Option to overwrite the FITS file, if a previous version exists.</span>
+<span class="sd">            Default: False (will throw an error if the file already exists).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Saves a binary FITS table containing Sersic profile values.</span>
+
+<span class="sd">    The table includes:</span>
+
+<span class="sd">        `R`:                array of radii [kpc]</span>
+
+<span class="sd">        `invq`:             inverse intrinsic axis ratio</span>
+
+<span class="sd">        `q`:                intrinsic axis ratio</span>
+
+<span class="sd">        `n`:                Sersic index</span>
+
+<span class="sd">        `Reff`:             Effective radius of Sersic profile (the projected 2D half-light radius)</span>
+
+<span class="sd">        `total_mass`:       Total mass used for calculation</span>
+
+<span class="sd">        `menc3D_sph`:       Mass enclosed within a sphere of radius R</span>
+
+<span class="sd">        `vcirc`:            Circular velocity profile at R</span>
+
+<span class="sd">        `rho`:              Density at m=R</span>
+
+<span class="sd">        `dlnrho_dlnR`:        Derivative of ln(rho) w.r.t. ln(R) at m=R.</span>
+
+<span class="sd">        `menc3D_sph_Reff`:    Mass enclosed within a sphere of radius r=Reff</span>
+
+<span class="sd">        `vcirc_Reff`:         Circular velocity profile at R=Reff</span>
+
+<span class="sd">        `ktot_Reff`:          Total virial coefficient at Reff</span>
+
+<span class="sd">        `k3D_sph_Reff`:       Virial coefficient to convert between menc3D and vcirc at Reff</span>
+
+<span class="sd">        `rhalf3D_sph`:        3D half mass radius (defined within spherical apertures)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">table</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;table&#39;!&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_dir_deprojected_sersic_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">_dir_deprojected_sersic_models</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;path&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">_default_table_fname</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="p">,</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Setup FITS recarray:</span>
+    <span class="n">fmt_arr</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">D&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]))</span>
+    <span class="n">fmt_flt</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
+
+
+    <span class="n">key_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="s1">&#39;invq&#39;</span><span class="p">,</span> <span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;total_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;Reff&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;menc3D_sph&#39;</span><span class="p">,</span> <span class="s1">&#39;menc3D_ellipsoid&#39;</span><span class="p">,</span> <span class="s1">&#39;rho&#39;</span><span class="p">,</span> <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">,</span> <span class="s1">&#39;vcirc&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;menc3D_sph_Reff&#39;</span><span class="p">,</span> <span class="s1">&#39;menc3D_ellipsoid_Reff&#39;</span><span class="p">,</span> <span class="s1">&#39;vcirc_Reff&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ktot_Reff&#39;</span><span class="p">,</span> <span class="s1">&#39;k3D_sph_Reff&#39;</span><span class="p">,</span> <span class="s1">&#39;rhalf3D_sph&#39;</span><span class="p">]</span>
+    <span class="n">fmt_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">fmt_arr</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span>
+                <span class="n">fmt_arr</span><span class="p">,</span> <span class="n">fmt_arr</span><span class="p">,</span> <span class="n">fmt_arr</span><span class="p">,</span> <span class="n">fmt_arr</span><span class="p">,</span> <span class="n">fmt_arr</span><span class="p">,</span>
+                <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">,</span> <span class="n">fmt_flt</span><span class="p">]</span>
+
+    <span class="n">col_stack</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">key_list</span><span class="p">,</span> <span class="n">fmt_list</span><span class="p">):</span>
+        <span class="n">col_stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="n">key</span><span class="p">]])))</span>
+
+    <span class="n">hdu</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">BinTableHDU</span><span class="o">.</span><span class="n">from_columns</span><span class="p">(</span><span class="n">col_stack</span><span class="p">)</span>
+    <span class="n">hdu</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="read_profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.io.read_profile_table.html#deprojected_sersic_models.io.read_profile_table">[docs]</a><span class="k">def</span> <span class="nf">read_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read the table of Sersic profile values from the binary FITS table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n: float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq: float</span>
+<span class="sd">            Inverse intrinsic axis ratio</span>
+
+<span class="sd">        path: str or None, optional</span>
+<span class="sd">            Path to directory containing the saved Sersic profile tables.</span>
+<span class="sd">            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `deproj_sersic_model`</span>
+<span class="sd">        filename: str, optional</span>
+<span class="sd">            Option to override the default filename convention and</span>
+<span class="sd">            instead directly specify the file location.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        table: AstroPy table</span>
+<span class="sd">            Slice of AstroPy table containing the Sersic profile curves and values</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_dir_deprojected_sersic_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">_dir_deprojected_sersic_models</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;path&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;n&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">invq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;invq&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure output path ends in trailing slash:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">):</span> <span class="n">path</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">_default_table_fname</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename_base</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">)</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 17 May 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+virial_coeff_3D
+===============
+
+.. currentmodule:: deprojected_sersic_models.utils
+
+.. autofunction:: virial_coeff_3D

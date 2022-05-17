@@ -1,0 +1,6 @@
+save_profile_table
+==================
+
+.. currentmodule:: deprojected_sersic_models.io
+
+.. autofunction:: save_profile_table

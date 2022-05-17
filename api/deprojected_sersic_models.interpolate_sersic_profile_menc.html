@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>interpolate_sersic_profile_menc &mdash; deprojected_sersic_models 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="interpolate_sersic_profile_menc_nearest" href="deprojected_sersic_models.interpolate_sersic_profile_menc_nearest.html" />
+    <link rel="prev" title="interpolate_sersic_profile_logrho_function" href="deprojected_sersic_models.interpolate_sersic_profile_logrho_function.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> deprojected_sersic_models
+            <img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">deprojected_sersic_models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../downloads.html">Downloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-deprojected_sersic_models">deprojected_sersic_models Package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#functions">Functions</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_entire_table.html">interpolate_entire_table</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_entire_table_nearest.html">interpolate_entire_table_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_VC.html">interpolate_sersic_profile_VC</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_VC_nearest.html">interpolate_sersic_profile_VC_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_dlnrho_dlnR.html">interpolate_sersic_profile_dlnrho_dlnR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_dlnrho_dlnR_function.html">interpolate_sersic_profile_dlnrho_dlnR_function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_dlnrho_dlnR_nearest.html">interpolate_sersic_profile_dlnrho_dlnR_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest.html">interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_logrho_function.html">interpolate_sersic_profile_logrho_function</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">interpolate_sersic_profile_menc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_menc_nearest.html">interpolate_sersic_profile_menc_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_rho.html">interpolate_sersic_profile_rho</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.interpolate_sersic_profile_rho_nearest.html">interpolate_sersic_profile_rho_nearest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprojected_sersic_models.nearest_n_invq.html">nearest_n_invq</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-deprojected_sersic_models.table_generation">deprojected_sersic_models.table_generation Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-deprojected_sersic_models.io">deprojected_sersic_models.io Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-deprojected_sersic_models.utils">deprojected_sersic_models.utils Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-deprojected_sersic_models.plot">deprojected_sersic_models.plot Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-deprojected_sersic_models.paper.paper_plots">deprojected_sersic_models.paper.paper_plots Module</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">deprojected_sersic_models</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API</a> &raquo;</li>
+      <li>interpolate_sersic_profile_menc</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/deprojected_sersic_models.interpolate_sersic_profile_menc.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="interpolate-sersic-profile-menc">
+<h1>interpolate_sersic_profile_menc<a class="headerlink" href="#interpolate-sersic-profile-menc" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="deprojected_sersic_models.interpolate_sersic_profile_menc">
+<span class="sig-prename descclassname"><span class="pre">deprojected_sersic_models.</span></span><span class="sig-name descname"><span class="pre">interpolate_sersic_profile_menc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_mass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Reff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deproj_sersic_model'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interp_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/deprojected_sersic_models/utils/interp_profiles.html#interpolate_sersic_profile_menc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#deprojected_sersic_models.interpolate_sersic_profile_menc" title="Permalink to this definition"></a></dt>
+<dd><p>Interpolate Menc3D_sphere(R) at arbitrary radii R, for arbitrary Mtot and Reff.</p>
+<p>Uses the saved table of Menc3D_sphere(R) values for a given Sersic index n and invq,
+and performs scaling and interpolation to map the profile onto the new Mtot and Reff.
+(by mapping the radius using R’ = (R/Reff * table_Reff) )</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius at which to interpolate profile [kpc]</p></li>
+<li><p><strong>total_mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total mass of the component [Msun]</p></li>
+<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Effective radius of Sersic profile [kpc]</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sersic index</p></li>
+<li><p><strong>invq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory containing the saved Sersic profile tables.
+If not set, system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code> must be set.
+Default: system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code>, if specified.</p></li>
+<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, when combined with default naming convention:
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits</span></code>
+Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">deproj_sersic_model</span></code></p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Option to override the default filename convention and
+instead directly specify the file location.</p></li>
+<li><p><strong>interp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Default profile interpolation within the table Rarr region.
+(Extrapolation is always linear). Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic</span></code></p></li>
+<li><p><strong>table</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em>, </em><em>optional</em>) – Option to pass the Sersic profile table, if already loaded.</p></li>
+<li><p><strong>sphere</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag to calculate enclosed mass in sphere (True) vs spheroid/ellipsoid (False).
+Default: True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>menc_interp</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="deprojected_sersic_models.interpolate_sersic_profile_logrho_function.html" class="btn btn-neutral float-left" title="interpolate_sersic_profile_logrho_function" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="deprojected_sersic_models.interpolate_sersic_profile_menc_nearest.html" class="btn btn-neutral float-right" title="interpolate_sersic_profile_menc_nearest" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 17 May 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

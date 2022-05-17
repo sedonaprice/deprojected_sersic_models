@@ -1,0 +1,6 @@
+wrapper_calculate_sersic_profile_tables
+=======================================
+
+.. currentmodule:: deprojected_sersic_models.table_generation
+
+.. autofunction:: wrapper_calculate_sersic_profile_tables

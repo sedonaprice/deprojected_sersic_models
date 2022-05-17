@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>deprojected_sersic_models.table_generation &mdash; deprojected_sersic_models 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> deprojected_sersic_models
+            <img src="../../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">deprojected_sersic_models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../downloads.html">Downloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">deprojected_sersic_models</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>deprojected_sersic_models.table_generation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for deprojected_sersic_models.table_generation</h1><div class="highlight"><pre>
+<span></span><span class="c1">##################################################################################</span>
+<span class="c1"># deprojected_sersic_models/table_generation.py                                  #</span>
+<span class="c1">#                                                                                #</span>
+<span class="c1"># Copyright 2018-2022 Sedona Price &lt;sedona.price@gmail.com&gt; / MPE IR/Submm Group #</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
+<span class="c1">##################################################################################</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">deprojected_sersic_models</span> <span class="kn">import</span> <span class="n">io</span>
+<span class="kn">from</span> <span class="nn">deprojected_sersic_models</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">deprojected_sersic_models.io</span> <span class="kn">import</span> <span class="n">_sersic_profile_filename_base</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;calculate_sersic_profile_table&#39;</span><span class="p">,</span> <span class="s1">&#39;wrapper_calculate_sersic_profile_tables&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;wrapper_calculate_full_table_set&#39;</span> <span class="p">]</span>
+
+<span class="c1"># LOGGER SETTINGS</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;DeprojectedSersicModels&#39;</span><span class="p">)</span>
+
+<span class="n">_dir_deprojected_sersic_models</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DEPROJECTED_SERSIC_MODELS_DATADIR&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="calculate_sersic_profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.calculate_sersic_profile_table.html#deprojected_sersic_models.table_generation.calculate_sersic_profile_table">[docs]</a><span class="k">def</span> <span class="nf">calculate_sersic_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">total_mass</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="n">logR_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="n">logR_max</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+        <span class="n">include_R0</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
+        <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Sersic profile table for a specific Sersic index n and</span>
+<span class="sd">    inverse axis ratio invq.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n : float</span>
+<span class="sd">            Sersic index</span>
+<span class="sd">        invq : float</span>
+<span class="sd">            Inverse intrinsic axis ratio</span>
+<span class="sd">        output_path: str</span>
+<span class="sd">            Path to directory where the Sersic profile table will be saved</span>
+<span class="sd">            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.</span>
+
+<span class="sd">        total_mass: float, optional</span>
+<span class="sd">            Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun</span>
+<span class="sd">        Reff: float, optional</span>
+<span class="sd">            Effective radius [kpc]. Default: Reff = 1 kpc</span>
+<span class="sd">        logR_min: float, optional</span>
+<span class="sd">            Log of minimum radius to calculate, relative to Reff.</span>
+<span class="sd">            Default: logR_min = -2. (or R_min = 10^(-2.) * Reff)</span>
+<span class="sd">        logR_max: float, optional</span>
+<span class="sd">            Log of maximum radius to calculate, relative to Reff.</span>
+<span class="sd">            Default: logR_max = +2. (or R_max = 10^(+2.) * Reff)</span>
+<span class="sd">        nSteps: int, optional</span>
+<span class="sd">            Number of radii steps to calculate. Default: 101</span>
+<span class="sd">        include_R0: bool, optional</span>
+<span class="sd">            Include R=0 in table or not. Default: True</span>
+<span class="sd">        i: float, optional</span>
+<span class="sd">            Inclination of model (to determin q_obs relative to the</span>
+<span class="sd">            intrinsic axis ratio q.) Default: i = 90 deg</span>
+<span class="sd">        cumulative: bool, optional</span>
+<span class="sd">            Shortcut option to only calculate the next annulus,</span>
+<span class="sd">            then add to the previous Menc(R-Rdelt).</span>
+<span class="sd">            Default: Uses cumulative if n &gt;= 2.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, when combined with default naming convention:</span>
+<span class="sd">            `&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `deproj_sersic_model`</span>
+<span class="sd">        fileout: str, optional</span>
+<span class="sd">            Option to override the default filename convention</span>
+<span class="sd">            and instead directly specify the file location.</span>
+<span class="sd">        overwrite: bool, optional</span>
+<span class="sd">            Option to overwrite the FITS file, if a previous version exists.</span>
+<span class="sd">            Default: False (will throw an error if the file already exists).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fileout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_dir_deprojected_sersic_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">_dir_deprojected_sersic_models</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;output_path&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ensure output path ends in trailing slash:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">output_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">):</span> <span class="n">output_path</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Define q:</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">invq</span>
+
+    <span class="c1"># Catch a few special cases:</span>
+    <span class="c1"># Rounded to 2 decimal places values of invq, and the corresponding exact q:</span>
+    <span class="n">special_invq</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.33</span><span class="p">,</span> <span class="mf">1.67</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.11</span><span class="p">,</span> <span class="mf">0.67</span><span class="p">])</span>
+    <span class="n">special_q</span> <span class="o">=</span>     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span>  <span class="mf">0.6</span><span class="p">,</span>  <span class="mf">0.7</span><span class="p">,</span>  <span class="mf">0.9</span><span class="p">,</span>  <span class="mf">1.5</span><span class="p">])</span>
+    <span class="n">wh_match</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">special_invq</span><span class="o">-</span><span class="n">invq</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1.e-9</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wh_match</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">special_q</span><span class="p">[</span><span class="n">wh_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Calculate profiles:</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="n">logR_min</span><span class="p">,</span> <span class="n">logR_max</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">nSteps</span><span class="p">)</span><span class="o">*</span><span class="n">Reff</span>
+    <span class="k">if</span> <span class="n">include_R0</span><span class="p">:</span>
+        <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Rarr</span><span class="p">)</span>
+
+    <span class="n">sersicprof</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">DeprojSersicModel</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">sersicprof</span><span class="o">.</span><span class="n">profile_table</span><span class="p">(</span><span class="n">Rarr</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="n">cumulative</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># ---------------------</span>
+    <span class="c1"># Save table:</span>
+    <span class="n">io</span><span class="o">.</span><span class="n">save_profile_table</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span> <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">filename</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="wrapper_calculate_sersic_profile_tables"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables.html#deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables">[docs]</a><span class="k">def</span> <span class="nf">wrapper_calculate_sersic_profile_tables</span><span class="p">(</span><span class="n">n_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invq_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">total_mass</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+        <span class="n">logR_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="n">logR_max</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
+        <span class="n">include_R0</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
+        <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">f_log</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper function to calculate Sersic profile tables over a range of n and invq values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        n_arr: array_like</span>
+<span class="sd">            Array of Sersic indices</span>
+<span class="sd">        invq_arr: array_like</span>
+<span class="sd">            Array of inverse intrinsic axis ratio</span>
+<span class="sd">        output_path: str</span>
+<span class="sd">            Path to directory where the Sersic profile table will be saved</span>
+<span class="sd">            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.</span>
+
+<span class="sd">        total_mass: float, optional</span>
+<span class="sd">            Total mass of the Sersic profile [Msun]. Default: total_mass = 5.e10 Msun</span>
+<span class="sd">        Reff: float, optional</span>
+<span class="sd">            Effective radius [kpc]. Default: Reff = 1 kpc</span>
+<span class="sd">        logR_min: float, optional</span>
+<span class="sd">            Log of minimum radius to calculate, relative to Reff.</span>
+<span class="sd">            Default: logR_min = -2. (or R_min = 10^(-2.) * Reff)</span>
+<span class="sd">        logR_max: float, optional</span>
+<span class="sd">            Log of maximum radius to calculate, relative to Reff.</span>
+<span class="sd">            Default: logR_max = +2. (or R_max = 10^(+2.) * Reff)</span>
+<span class="sd">        nSteps: int, optional</span>
+<span class="sd">            Number of radii steps to calculate. Default: 101</span>
+<span class="sd">        include_R0: bool, optional</span>
+<span class="sd">            Include R=0 in table or not. Default: True</span>
+<span class="sd">        i: float, optional</span>
+<span class="sd">            Inclination of model (to determin q_obs relative to the</span>
+<span class="sd">            intrinsic axis ratio q.) Default: i = 90 deg</span>
+<span class="sd">        cumulative: bool, optional</span>
+<span class="sd">            Shortcut option to only calculate the next annulus,</span>
+<span class="sd">            then add to the previous Menc(r-rdelt).</span>
+<span class="sd">            Default: Uses cumulative if n &gt;= 2.</span>
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, for the default naming convention:</span>
+<span class="sd">            `&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `deproj_sersic_model`</span>
+<span class="sd">        overwrite: bool, optional</span>
+<span class="sd">            Option to overwrite the FITS file, if a previous version exists.</span>
+<span class="sd">            Default: False (will throw an error if the file already exists).</span>
+<span class="sd">        f_log: str, optional</span>
+<span class="sd">            Filename of log file, to save information output while calculation is in progress.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_dir_deprojected_sersic_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">_dir_deprojected_sersic_models</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;output_path&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+    <span class="c1"># Ensure output path ends in trailing slash:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">output_path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;/&#39;</span><span class="p">):</span> <span class="n">output_path</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="k">if</span> <span class="n">f_log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Clean up existing log file:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">f_log</span><span class="p">)):</span>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f_log</span><span class="p">)</span>
+
+        <span class="n">loggerfile</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">f_log</span><span class="p">)</span>
+        <span class="n">loggerfile</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">loggerfile</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">n_arr</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot; Calculating n=</span><span class="si">{:0.1f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">invq</span> <span class="ow">in</span> <span class="n">invq_arr</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;      Calculating invq=</span><span class="si">{:0.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">invq</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">overwrite</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">_default_table_fname</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">filename_base</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">))):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;       Calculation already completed.&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">calculate_sersic_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span>
+                    <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
+                    <span class="n">logR_min</span> <span class="o">=</span> <span class="n">logR_min</span><span class="p">,</span> <span class="n">logR_max</span> <span class="o">=</span> <span class="n">logR_max</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="n">nSteps</span><span class="p">,</span>
+                    <span class="n">include_R0</span><span class="o">=</span><span class="n">include_R0</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="n">cumulative</span><span class="p">,</span>
+                    <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="wrapper_calculate_full_table_set"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set.html#deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set">[docs]</a><span class="k">def</span> <span class="nf">wrapper_calculate_full_table_set</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">f_log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">indChunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nChunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">invqstart</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper function to calculate the full set of Sersic profile tables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        output_path: str</span>
+<span class="sd">            Path to directory where the Sersic profile table will be saved.</span>
+<span class="sd">            If not set, system variable `DEPROJECTED_SERSIC_MODELS_DATADIR` must be set.</span>
+<span class="sd">            Default: system variable `DEPROJECTED_SERSIC_MODELS_DATADIR`, if specified.</span>
+
+<span class="sd">        filename_base: str, optional</span>
+<span class="sd">            Base filename to use, for the default naming convention:</span>
+<span class="sd">            `&lt;filename_base&gt;_nX.X_invqX.XX.fits`.</span>
+<span class="sd">            Default: `deproj_sersic_model`</span>
+<span class="sd">        overwrite: bool, optional</span>
+<span class="sd">            Option to overwrite the FITS file, if a previous version exists.</span>
+<span class="sd">            Default: False (will throw an error if the file already exists).</span>
+<span class="sd">        f_log: str, optional</span>
+<span class="sd">            Filename of log file, to save information output while</span>
+<span class="sd">            calculation is in progress. Default: None</span>
+<span class="sd">        indChunk: int, optional</span>
+<span class="sd">            Index of chunk to run. Default: None (only one chunk)</span>
+<span class="sd">        nChunk: int, optional</span>
+<span class="sd">            Total number of chunks. Default: None (only one chunk)</span>
+<span class="sd">        invqstart: int, optional</span>
+<span class="sd">            Where to start with invq array. Default: None (start at beginning)</span>
+<span class="sd">        cumulative: bool, optional</span>
+<span class="sd">            Shortcut option to only calculate the next annulus,</span>
+<span class="sd">            then add to the previous Menc(r-rdelt).</span>
+<span class="sd">            Default: Uses cumulative if n &gt;= 2.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_dir_deprojected_sersic_models</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">_dir_deprojected_sersic_models</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must set &#39;output_path&#39; if &#39;filename&#39; is not set !&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Default settings:</span>
+    <span class="n">Reff</span> <span class="o">=</span>          <span class="mf">1.</span>      <span class="c1"># kpc</span>
+    <span class="n">total_mass</span> <span class="o">=</span>    <span class="mf">5.e10</span>   <span class="c1"># Msun</span>
+    <span class="n">logR_min</span> <span class="o">=</span>      <span class="o">-</span><span class="mf">2.</span>     <span class="c1"># log10(R[kpc])</span>
+    <span class="n">logR_max</span> <span class="o">=</span>      <span class="mf">2.</span>      <span class="c1"># log10(R[kpc])</span>
+    <span class="n">nSteps</span> <span class="o">=</span>        <span class="mi">101</span>     <span class="c1">#</span>
+    <span class="n">i</span> <span class="o">=</span>             <span class="mf">90.</span>     <span class="c1"># degrees</span>
+
+    <span class="c1"># Sersic indices</span>
+    <span class="n">n_arr</span> <span class="o">=</span>         <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">8.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+    <span class="c1"># Flattening ratio invq</span>
+    <span class="n">invq_arr</span> <span class="o">=</span>      <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">7.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span>
+                            <span class="mf">1.11</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.43</span><span class="p">,</span> <span class="mf">1.67</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.33</span><span class="p">,</span>
+                            <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.67</span><span class="p">])</span>
+    <span class="c1"># invq corresponds to:</span>
+    <span class="c1">#                q = [1., 0.5, 0.333, 0.25, 0.2, 0.167, 0.142, 0.125, 0.1, 0.05, 0.01,</span>
+    <span class="c1">#                      0.9, 0.8, 0.7, 0.6, 0.4, 0.3,</span>
+    <span class="c1">#                      2., 1.5]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">indChunk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">nChunk</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">stepChunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n_arr</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">*</span><span class="n">nChunk</span><span class="p">)))</span>
+        <span class="n">n_arr</span> <span class="o">=</span> <span class="n">n_arr</span><span class="p">[</span><span class="n">indChunk</span><span class="o">*</span><span class="n">stepChunk</span><span class="p">:(</span><span class="n">indChunk</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">stepChunk</span><span class="p">]</span>
+
+        <span class="n">f_log</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">+</span><span class="s1">&#39;sersic_table_calc_</span><span class="si">{}</span><span class="s1">.log&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indChunk</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">invqstart</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f_log</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">+</span><span class="s1">&#39;sersic_table_calc_</span><span class="si">{}</span><span class="s1">_invqstart_</span><span class="si">{:0.2f}</span><span class="s1">.log&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indChunk</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                                                                    <span class="n">invqstart</span><span class="p">)</span>
+            <span class="n">whinvq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">invq_arr</span> <span class="o">==</span> <span class="n">invqstart</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">whinvq</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">invq_arr</span> <span class="o">=</span> <span class="n">invq_arr</span><span class="p">[</span><span class="n">whinvq</span><span class="p">[</span><span class="mi">0</span><span class="p">]:]</span>
+
+    <span class="n">wrapper_calculate_sersic_profile_tables</span><span class="p">(</span><span class="n">n_arr</span><span class="o">=</span><span class="n">n_arr</span><span class="p">,</span> <span class="n">invq_arr</span><span class="o">=</span><span class="n">invq_arr</span><span class="p">,</span>
+            <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span>
+            <span class="n">filename_base</span><span class="o">=</span><span class="n">filename_base</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">logR_min</span><span class="o">=</span><span class="n">logR_min</span><span class="p">,</span> <span class="n">logR_max</span><span class="o">=</span><span class="n">logR_max</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="n">nSteps</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+            <span class="n">f_log</span><span class="o">=</span><span class="n">f_log</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="n">cumulative</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># From the command line, call the wrapper to make full *default table set.</span>
+    <span class="c1">#   Input args: output_path</span>
+    <span class="c1">#   Optional input:  f_log</span>
+
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">f_log</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">indChunk</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">nChunk</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">invqstart</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">f_log</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">indChunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">nChunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">f_log</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">indChunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">nChunk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">invqstart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">invqstart</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">f_log_tmp</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">+</span><span class="s1">&#39;sersic_table_calc_</span><span class="si">{}</span><span class="s1">.log&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indChunk</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting chunk: indChunk=</span><span class="si">{}</span><span class="s2">, nChunk=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indChunk</span><span class="p">,</span> <span class="n">nChunk</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Logfile: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_log_tmp</span><span class="p">))</span>
+
+    <span class="n">wrapper_calculate_full_table_set</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">f_log</span><span class="o">=</span><span class="n">f_log</span><span class="p">,</span>
+                <span class="n">indChunk</span><span class="o">=</span><span class="n">indChunk</span><span class="p">,</span> <span class="n">nChunk</span><span class="o">=</span><span class="n">nChunk</span><span class="p">,</span> <span class="n">invqstart</span><span class="o">=</span><span class="n">invqstart</span><span class="p">)</span> <span class="c1">#, cumulative=cumulative)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 17 May 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

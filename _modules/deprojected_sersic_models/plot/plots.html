@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>deprojected_sersic_models.plot.plots &mdash; deprojected_sersic_models 1.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/sersicprof-red-thick-64.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> deprojected_sersic_models
+            <img src="../../../_static/logo_white.svg" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">deprojected_sersic_models</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../downloads.html">Downloads</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../acknowledgement.html">Acknowledging <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../deprojected_sersic_models_table_interp_example.html">Pre-calculated tables &amp; interpolation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deprojected_sersic_models_profile_example.html">Calculating deprojected Sérsic profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deprojected_sersic_models_plot_example.html">Built-in plotting functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">deprojected_sersic_models</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>deprojected_sersic_models.plot.plots</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for deprojected_sersic_models.plot.plots</h1><div class="highlight"><pre>
+<span></span><span class="c1">##################################################################################</span>
+<span class="c1"># deprojected_sersic_models/plot/plots.py                                        #</span>
+<span class="c1">#                                                                                #</span>
+<span class="c1"># Copyright 2018-2022 Sedona Price &lt;sedona.price@gmail.com&gt; / MPE IR/Submm Group #</span>
+<span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
+<span class="c1">##################################################################################</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Row</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">deprojected_sersic_models</span> <span class="kn">import</span> <span class="n">core</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;plot_profiles&#39;</span><span class="p">,</span> <span class="s1">&#39;plot_enclosed_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;plot_vcirc&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;plot_density&#39;</span><span class="p">,</span> <span class="s1">&#39;plot_dlnrho_dlnR&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;plot_surface_density&#39;</span><span class="p">,</span> <span class="s1">&#39;plot_projected_enclosed_mass&#39;</span><span class="p">]</span>
+
+<span class="c1"># ---------------------</span>
+<span class="c1"># Plot settings</span>
+
+<span class="n">_aliases_profiles_table</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">:</span> <span class="s1">&#39;menc3D_sph&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;v_circ&#39;</span><span class="p">:</span> <span class="s1">&#39;vcirc&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="s1">&#39;rho&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">:</span> <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">,</span>
+                          <span class="s1">&#39;surface_density&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="s1">&#39;projected_enclosed_mass&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+
+<span class="n">_labels_profiles</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Enclosed mass [$M_{\odot}$]&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;v_circ&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Circular velocity [km/s]&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Mass density [$M_{\odot}/\mathrm</span><span class="si">{kpc}</span><span class="s1">^3$]&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Log density slope&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;surface_density&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Projected mass surface density [$M_{\odot}/\mathrm</span><span class="si">{kpc}</span><span class="s1">^2$]&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;projected_enclosed_mass&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;Projected enclosed mass [$M_{\odot}$]&#39;</span><span class="p">}</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="plot_profiles"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles.html#deprojected_sersic_models.plot.plot_profiles">[docs]</a><span class="k">def</span> <span class="nf">plot_profiles</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+                  <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">prof_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show all six parameter profiles for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: array_like or bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: True</span>
+<span class="sd">        ylog: array_like or bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: Specified per panel</span>
+<span class="sd">        prof_names: array_like, optional</span>
+<span class="sd">            Specify which profilies to plot.</span>
+<span class="sd">            Default: None (all six standard profiiles)</span>
+<span class="sd">        plot_kwargs: array_like or dict, optional</span>
+<span class="sd">            Option to pass plotting keyword arguments.</span>
+<span class="sd">            Should include either dict or list of dicts, to match number of input profiles.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        fig_kwargs: dict, optional</span>
+<span class="sd">            Option to pass other arguments to figure.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prof_names_defaults</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;v_circ&#39;</span><span class="p">,</span> <span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;density&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_density&#39;</span><span class="p">,</span> <span class="s1">&#39;projected_enclosed_mass&#39;</span><span class="p">]</span>
+    <span class="n">ylogs_defaults</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">pn</span><span class="p">,</span> <span class="n">yl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prof_names_defaults</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]):</span>
+        <span class="n">ylogs_defaults</span><span class="p">[</span><span class="n">pn</span><span class="p">]</span> <span class="o">=</span> <span class="n">yl</span>
+
+    <span class="k">if</span> <span class="n">prof_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+         <span class="n">prof_names</span> <span class="o">=</span> <span class="n">prof_names_defaults</span>
+    <span class="n">nProfs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prof_names</span><span class="p">)</span>
+
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">nrows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">nProfs</span><span class="o">/</span><span class="p">(</span><span class="mf">1.</span><span class="o">*</span><span class="n">ncols</span><span class="p">)))</span>
+    <span class="n">fac</span> <span class="o">=</span> <span class="mf">4.</span>
+    <span class="n">figsize_default</span> <span class="o">=</span> <span class="p">(</span><span class="n">fac</span><span class="o">*</span><span class="n">ncols</span><span class="p">,</span><span class="mf">8.</span><span class="o">/</span><span class="mf">9.</span><span class="o">*</span><span class="n">fac</span><span class="o">*</span><span class="n">nrows</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fig_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="n">fig_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="n">figsize_default</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="n">figsize_default</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+            <span class="n">axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">nrows</span><span class="p">,</span><span class="n">ncols</span><span class="p">,</span><span class="n">i</span><span class="o">*</span><span class="n">ncols</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Coerce rlog, ylog into array:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlog</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="n">rlogs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rlog</span><span class="p">]</span><span class="o">*</span><span class="n">nProfs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rlog</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nProfs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If specifying &#39;ylog&#39; per profile, must use </span><span class="si">{}</span><span class="s2">-element array&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nProfs</span><span class="p">))</span>
+        <span class="n">rlogs</span> <span class="o">=</span> <span class="n">rlog</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ylog</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))):</span>
+        <span class="k">if</span> <span class="n">ylog</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ylogs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pn</span> <span class="ow">in</span> <span class="n">prof_names</span><span class="p">:</span>
+                <span class="n">ylogs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ylogs_defaults</span><span class="p">[</span><span class="n">pn</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ylogs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ylog</span><span class="p">]</span><span class="o">*</span><span class="n">nProfs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ylog</span><span class="p">)</span> <span class="o">!=</span> <span class="n">nProfs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If specifying &#39;ylog&#39; per profile, must use 6-element array&quot;</span><span class="p">)</span>
+        <span class="n">ylogs</span> <span class="o">=</span> <span class="n">ylog</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">ncols</span> <span class="o">+</span> <span class="n">j</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;=</span> <span class="n">nProfs</span><span class="p">:</span>
+                <span class="n">axes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">axes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="n">prof_names</span><span class="p">[</span><span class="n">k</span><span class="p">],</span>
+                                                    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlogs</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylogs</span><span class="p">[</span><span class="n">k</span><span class="p">],</span>
+                                                    <span class="n">plot_kwargs</span><span class="o">=</span><span class="n">plot_kwargs</span><span class="p">,</span>
+                                                    <span class="n">fig_kwargs</span><span class="o">=</span><span class="n">fig_kwargs</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+    <span class="c1">#############################################################</span>
+    <span class="k">if</span> <span class="n">fileout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Save to file:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fileout</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Show plot</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="plot_profiles_single_type"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles_single_type.html#deprojected_sersic_models.plot.plot_profiles_single_type">[docs]</a><span class="k">def</span> <span class="nf">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base function to plot single parameter profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Disributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+<span class="sd">        prof_name: str</span>
+<span class="sd">            Name of the profile to plot. Default: `enclosed_mass`</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        ylim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify y plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: False</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: False</span>
+<span class="sd">        plot_kwargs: array_like or dict, optional</span>
+<span class="sd">            Option to pass plotting keyword arguments.</span>
+<span class="sd">            Should include either dict or list of dicts, to match number of input profiles.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        fig_kwargs: dict, optional</span>
+<span class="sd">            Option to pass other arguments to figure.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax_in</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Create axis:</span>
+        <span class="n">fac</span> <span class="o">=</span> <span class="mf">4.</span>
+        <span class="n">figsize_default</span> <span class="o">=</span> <span class="p">(</span><span class="n">fac</span><span class="p">,</span><span class="mf">8.</span><span class="o">/</span><span class="mf">9.</span><span class="o">*</span><span class="n">fac</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fig_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="n">fig_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;figsize&#39;</span><span class="p">,</span> <span class="n">figsize_default</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="n">figsize_default</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax_in</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># Check if multiple or single:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="p">(</span><span class="n">Table</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">DeprojSersicModel</span><span class="p">)):</span>
+        <span class="c1"># Single: coerce into list:</span>
+        <span class="n">nProf</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">sprof</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">)</span>
+        <span class="n">sersic_profs</span> <span class="o">=</span> <span class="p">[</span><span class="n">sprof</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Already list-like:</span>
+        <span class="n">nProf</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">)</span>
+
+    <span class="c1"># Also handle plot kwargs:</span>
+    <span class="k">if</span> <span class="n">plot_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plot_kwargs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">plot_kwargs</span> <span class="o">=</span> <span class="p">[</span><span class="n">plot_kwargs</span><span class="p">]</span> <span class="o">*</span> <span class="n">nProf</span>
+
+    <span class="c1">#############################################################</span>
+    <span class="c1"># Loop over instances</span>
+    <span class="n">rs</span><span class="p">,</span> <span class="n">paramprofs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sprof</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sprof</span><span class="p">,</span> <span class="n">core</span><span class="o">.</span><span class="n">DeprojSersicModel</span><span class="p">):</span>
+            <span class="n">paramprof</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sprof</span><span class="p">,</span> <span class="n">prof_name</span><span class="p">)(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">sprof</span><span class="o">.</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">sprof</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">sprof</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">sprof</span><span class="o">.</span><span class="n">q</span>
+            <span class="n">rplot</span> <span class="o">=</span> <span class="n">r</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rplot</span> <span class="o">=</span> <span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span>
+            <span class="n">keyalias</span> <span class="o">=</span> <span class="n">_aliases_profiles_table</span><span class="p">[</span><span class="n">prof_name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">keyalias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">paramprof</span> <span class="o">=</span> <span class="n">sprof</span><span class="p">[</span><span class="n">keyalias</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">paramprof</span> <span class="o">=</span> <span class="n">sprof</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">prof_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">paramprof</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">if</span> <span class="n">paramprof</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">sprof_tmp</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">DeprojSersicModel</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">],</span>
+                            <span class="n">Reff</span><span class="o">=</span><span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">],</span> <span class="n">n</span><span class="o">=</span><span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;q&#39;</span><span class="p">])</span>
+                    <span class="n">paramprof</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sprof_tmp</span><span class="p">,</span> <span class="n">prof_name</span><span class="p">)(</span><span class="n">rplot</span><span class="p">)</span>
+            <span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span> <span class="o">=</span> <span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;total_mass&#39;</span><span class="p">],</span> <span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;Reff&#39;</span><span class="p">],</span> <span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">],</span> <span class="n">sprof</span><span class="p">[</span><span class="s1">&#39;invq&#39;</span><span class="p">]</span>
+
+        <span class="n">rs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rplot</span><span class="p">)</span>
+        <span class="n">paramprofs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">paramprof</span><span class="p">)</span>
+
+        <span class="n">lbl</span> <span class="o">=</span> <span class="s1">&#39;totM=</span><span class="si">{:0.1e}</span><span class="s1">, Reff=</span><span class="si">{:0.1f}</span><span class="s1">, n=</span><span class="si">{:0.1f}</span><span class="s1">, invq=</span><span class="si">{:0.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;label&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plot_kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">plot_kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lbl</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rplot</span><span class="p">,</span> <span class="n">paramprof</span><span class="p">,</span> <span class="o">**</span><span class="n">plot_kwargs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rplot</span><span class="p">,</span> <span class="n">paramprof</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lbl</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add legend:</span>
+    <span class="n">legend_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frameon&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;numpoints&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;scatterpoints&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">fig_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">fig_kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;legend_&#39;</span> <span class="ow">in</span> <span class="n">kw</span><span class="p">:</span>
+                <span class="n">kwsplit</span> <span class="o">=</span> <span class="n">kw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;legend_&#39;</span><span class="p">)</span>
+                <span class="n">legend_kwargs</span><span class="p">[</span><span class="n">kwsplit</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">fig_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kw</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="o">**</span><span class="n">legend_kwargs</span><span class="p">)</span>
+
+    <span class="c1"># Set scale</span>
+    <span class="k">if</span> <span class="n">rlog</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ylog</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Add bounds:</span>
+    <span class="k">if</span> <span class="n">rlim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">rlim</span><span class="p">)</span>
+        <span class="c1"># Add ylim to plot bound, if ylog=True: otherwise can have very squished plots</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ylim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">ylog</span><span class="p">:</span>
+            <span class="n">ylo</span> <span class="o">=</span> <span class="mf">1.e100</span>
+            <span class="n">yhi</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.e100</span>
+            <span class="k">for</span> <span class="n">rplot</span><span class="p">,</span> <span class="n">paramprof</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="n">paramprofs</span><span class="p">):</span>
+                <span class="n">whin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">rplot</span> <span class="o">&gt;=</span> <span class="n">rlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">rplot</span> <span class="o">&lt;=</span> <span class="n">rlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">paramtrim</span> <span class="o">=</span> <span class="n">paramprof</span><span class="p">[</span><span class="n">whin</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">paramtrim</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">ylo</span><span class="p">:</span>
+                    <span class="n">ylo</span> <span class="o">=</span> <span class="n">paramtrim</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">paramtrim</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">yhi</span><span class="p">:</span>
+                    <span class="n">yhi</span> <span class="o">=</span> <span class="n">paramtrim</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">ylim</span> <span class="o">=</span> <span class="p">[</span><span class="n">ylo</span><span class="p">,</span> <span class="n">yhi</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">ylim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+
+    <span class="c1"># Add axes labels:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Radius [kpc]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">_labels_profiles</span><span class="p">[</span><span class="n">prof_name</span><span class="p">])</span>
+
+    <span class="c1">#############################################################</span>
+    <span class="c1"># Return axis, if it was input:</span>
+    <span class="k">if</span> <span class="n">ax_in</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ax</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fileout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Save to file:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fileout</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Show plot</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="plot_enclosed_mass"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_enclosed_mass.html#deprojected_sersic_models.plot.plot_enclosed_mass">[docs]</a><span class="k">def</span> <span class="nf">plot_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show enclosed mass profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: False</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: False</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_vcirc"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_vcirc.html#deprojected_sersic_models.plot.plot_vcirc">[docs]</a><span class="k">def</span> <span class="nf">plot_vcirc</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+               <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show circular velocity profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: False</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: False</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;v_circ&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_density"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_density.html#deprojected_sersic_models.plot.plot_density">[docs]</a><span class="k">def</span> <span class="nf">plot_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show mass density profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: True</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: True</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_dlnrho_dlnR"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_dlnrho_dlnR.html#deprojected_sersic_models.plot.plot_dlnrho_dlnR">[docs]</a><span class="k">def</span> <span class="nf">plot_dlnrho_dlnR</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds. Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: False</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: False</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_surface_density"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_surface_density.html#deprojected_sersic_models.plot.plot_surface_density">[docs]</a><span class="k">def</span> <span class="nf">plot_surface_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show surface density profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds.</span>
+<span class="sd">            Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: True</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: True</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;surface_density&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="plot_projected_enclosed_mass"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_projected_enclosed_mass.html#deprojected_sersic_models.plot.plot_projected_enclosed_mass">[docs]</a><span class="k">def</span> <span class="nf">plot_projected_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+                                 <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                 <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function to show projected (2D) enclosed mass profile(s) for the Sersic mass distribution(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        sersic_profs: array_like or ``DeprojSersicModel`` instance or Sersic profile table dictionary.</span>
+<span class="sd">            Distributions to plot. Can be a list of ``DeprojSersicModel`` instances,</span>
+<span class="sd">            or a list of Sersic profile table dictionaries, or a single instance of either.</span>
+
+<span class="sd">        r: array_like, optional</span>
+<span class="sd">            Radii over which to show profile. Ignored if sersic_profs contains tables,</span>
+<span class="sd">            in favor of the table radii `r`.</span>
+<span class="sd">            Default: np.arange(0., 6., 1.)</span>
+<span class="sd">        rlim: array_like or None, optional</span>
+<span class="sd">            If set, spefcify r plot bounds.</span>
+<span class="sd">            Default: None (default bounds)</span>
+<span class="sd">        rlog: bool, optional</span>
+<span class="sd">            Option to plot log of radius instead of linear. Default: False</span>
+<span class="sd">        ylog: bool, optional</span>
+<span class="sd">            Option to plot log of profile instead of linear. Default: False</span>
+
+<span class="sd">        fileout: str or None, optional</span>
+<span class="sd">            Filename for saving file. If set to `None`, figure is returned to display.</span>
+<span class="sd">            Default: None</span>
+<span class="sd">        ax: matplotlib Axes instance or None, optional</span>
+<span class="sd">            Target plot axis. If not set, assumes only this panel is to be plot and displayed,</span>
+<span class="sd">            and a new axis is created.</span>
+<span class="sd">            Default: None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;projected_enclosed_mass&#39;</span><span class="p">,</span>
+                              <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018-2022, Sedona Price.
+      <span class="lastupdated">Last updated on 17 May 2022.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
