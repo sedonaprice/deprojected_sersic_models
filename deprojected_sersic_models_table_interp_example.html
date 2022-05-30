@@ -17,6 +17,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -369,9 +370,9 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Pre-calculated-tables-&amp;-interpolation">
-<h1>Pre-calculated tables &amp; interpolation<a class="headerlink" href="#Pre-calculated-tables-&-interpolation" title="Permalink to this headline"></a></h1>
+<h1>Pre-calculated tables &amp; interpolation<a class="headerlink" href="#Pre-calculated-tables-&-interpolation" title="Permalink to this heading"></a></h1>
 <section id="Profile-tables">
-<h2>Profile tables<a class="headerlink" href="#Profile-tables" title="Permalink to this headline"></a></h2>
+<h2>Profile tables<a class="headerlink" href="#Profile-tables" title="Permalink to this heading"></a></h2>
 <p>For convenience (and to save computation time!), profiles over a range of radii have been computed for the following set of Sérsic indices <code class="docutils literal notranslate"><span class="pre">n</span></code> and flattening (or “stretching,” if prolate) <code class="docutils literal notranslate"><span class="pre">invq</span></code>:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>n_arr =     np.arange(0.5, 8.1, 0.1)
 invq_arr =  np.array([1., 2., 3., 4., 5., 6., 7., 8., 10., 20., 100.,
@@ -542,11 +543,11 @@ table = deproj_sersic.io.read_profile_table(n=1.0, invq=5.0, path=table_dir)
 <p>The pre-computed table distribution are sampled from logarithmically in <span class="math notranslate nohighlight">\(R\)</span>, ranging from 0.01 to 100 kpc, but also includes the profile values at <span class="math notranslate nohighlight">\(R=0\)</span>.</p>
 </section>
 <section id="Interpolation-functions">
-<h2>Interpolation functions<a class="headerlink" href="#Interpolation-functions" title="Permalink to this headline"></a></h2>
+<h2>Interpolation functions<a class="headerlink" href="#Interpolation-functions" title="Permalink to this heading"></a></h2>
 <p>Interpolation functions are provided in <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code> to aid in such scaling / interpolation calculations.</p>
 <p>These functions can be used with or without pre-loaded tables.</p>
 <section id="Interpolating-using-loaded/computed-tables">
-<h3>Interpolating using loaded/computed tables<a class="headerlink" href="#Interpolating-using-loaded/computed-tables" title="Permalink to this headline"></a></h3>
+<h3>Interpolating using loaded/computed tables<a class="headerlink" href="#Interpolating-using-loaded/computed-tables" title="Permalink to this heading"></a></h3>
 <p>The loaded table can be passed to these functions as shown below.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -602,7 +603,7 @@ deproj_sersic.plot.plot_profiles([table, table_gather],
 </div>
 </section>
 <section id="Interpolating-without-loaded-tables">
-<h3>Interpolating without loaded tables<a class="headerlink" href="#Interpolating-without-loaded-tables" title="Permalink to this headline"></a></h3>
+<h3>Interpolating without loaded tables<a class="headerlink" href="#Interpolating-without-loaded-tables" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code> interpolation functions can also be used directly, without separately loading the pre-computed tables.</p>
 <p>The following example shows the syntax for this case.</p>
 <div class="nbinput nblast docutils container">
@@ -664,7 +665,7 @@ deproj_sersic.plot.plot_profiles(tables,
 </div>
 </section>
 <section id="“Nearest”-interpolation">
-<h3>“Nearest” interpolation<a class="headerlink" href="#“Nearest”-interpolation" title="Permalink to this headline"></a></h3>
+<h3>“Nearest” interpolation<a class="headerlink" href="#“Nearest”-interpolation" title="Permalink to this heading"></a></h3>
 <p>Finally, the “nearest” versions of the interpolation functions can also be used to find the closest value of <code class="docutils literal notranslate"><span class="pre">n</span></code> and <code class="docutils literal notranslate"><span class="pre">invq</span></code> that have been pre-computed, and use those tables for interpolation.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -689,7 +690,7 @@ dlnrho_dlnrho_dlnRdlnr = deproj_sersic.interpolate_sersic_profile_dlnrho_dlnR_ne
 </div>
 </section>
 <section id="Interpolate-all-table-profiles">
-<h3>Interpolate all table profiles<a class="headerlink" href="#Interpolate-all-table-profiles" title="Permalink to this headline"></a></h3>
+<h3>Interpolate all table profiles<a class="headerlink" href="#Interpolate-all-table-profiles" title="Permalink to this heading"></a></h3>
 <p>There are cases where it is convenient to interpolate the entire set of profiles for a table. The function <code class="docutils literal notranslate"><span class="pre">interpolate_entire_table</span></code> enables this calculation (see also <code class="docutils literal notranslate"><span class="pre">interpolate_entire_table_nearest</span></code>).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -749,7 +750,7 @@ table_interp2 = deproj_sersic.interpolate_entire_table(R=R, total_mass=total_mas
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 17 May 2022.
+      <span class="lastupdated">Last updated on 30 May 2022.
       </span></p>
   </div>
 

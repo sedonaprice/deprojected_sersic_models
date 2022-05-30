@@ -17,6 +17,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -112,19 +113,19 @@
 }
 </style>
 <section id="deprojected-sersic-models">
-<h1><code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code><a class="headerlink" href="#deprojected-sersic-models" title="Permalink to this headline"></a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code><a class="headerlink" href="#deprojected-sersic-models" title="Permalink to this heading"></a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">deprojected_sersic_models</span></code> package contains code to calculate various profiles
 for deprojected, flattened (and also elongated) Sérsic mass distributions.
 These calculations follow and extend the derivation of rotation curves for flattened Sérsic profiles
 presented by <a class="reference external" href="https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract">Noordermeer, 2008, MNRAS, 385, 1359</a>.
 Full details about the calculations in this
-package and in the precomputed tables are given in <a class="reference external" href="LINK_ADS">Price et al., in prep, 2022</a>.</p>
+package and in the precomputed tables are given in <a class="reference external" href="LINK_ADS">Price et al., submitted, 2022</a>.</p>
 <p>As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.</p>
 <p>Tables for a wide range of Sérsic index <span class="math notranslate nohighlight">\(n\)</span> and intrinsic axis ratio <span class="math notranslate nohighlight">\(q_0\)</span>
 are available for <a class="reference internal" href="downloads.html#downloads"><span class="std std-ref">download</span></a>.</p>
 <section id="quickstart">
-<span id="quick-start"></span><h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline"></a></h2>
+<span id="quick-start"></span><h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -181,7 +182,7 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 </div>
 </section>
 <section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h2>
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -201,7 +202,7 @@ are available for <a class="reference internal" href="downloads.html#downloads">
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 17 May 2022.
+      <span class="lastupdated">Last updated on 30 May 2022.
       </span></p>
   </div>
 
