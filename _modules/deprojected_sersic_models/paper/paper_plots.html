@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>deprojected_sersic_models.paper.paper_plots &mdash; deprojected_sersic_models 1.0 documentation</title>
+  <title>deprojected_sersic_models.paper.paper_plots &mdash; deprojected_sersic_models 1.1 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
@@ -33,7 +33,7 @@
             <img src="../../../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                1.0
+                1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -305,6 +305,7 @@
 
     <span class="c1"># Figure 3</span>
     <span class="n">plot_composite_menc_vcirc_profile_invert</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span>
+                <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
                 <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
 
     <span class="c1"># Figure 4</span>
@@ -312,27 +313,35 @@
                 <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">])</span>
 
     <span class="c1"># Figure 5</span>
+    <span class="c1"># Use toy scaling relations / empirical approximations:</span>
+    <span class="c1"># z = 2, lmstar=10.5, which gives:</span>
+    <span class="c1"># Mstar =  3.2e10 (3.1623e10)</span>
+    <span class="c1"># Mbar = 6.6e10 (6.64947e10) / lMbar = 10.82,</span>
+    <span class="c1"># Mhalo = 8.9e11 (8.8618527e11) / lMhalo = 11.9475,</span>
+    <span class="c1"># halo_conc = 4.2 (4.1931)</span>
+    <span class="c1"># Reff_disk = 3.4  (3.400257)</span>
+    <span class="c1"># qdisk = 0.25 or invq = 4</span>
     <span class="n">plot_example_galaxy_mencl_vcirc</span><span class="p">(</span><span class="n">bt_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
                 <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span>
-                <span class="n">Mbaryon</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
-                <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+                <span class="n">Mbaryon</span><span class="o">=</span><span class="mf">6.6e10</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mhalo</span><span class="o">=</span><span class="mf">8.9e11</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.2</span><span class="p">,</span>
+                <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">3.4</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_disk</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
                 <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                 <span class="n">logradius</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rmin</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">rstep</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
 
 
+
     <span class="c1"># Figure 6</span>
-    <span class="n">plot_fdm_calibration</span><span class="p">(</span><span class="n">Mbaryon_arr</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">],</span> <span class="n">Reff_disk_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">5.</span><span class="p">],</span>
+    <span class="n">plot_fdm_calibration</span><span class="p">(</span><span class="n">Mbaryon_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">6.6e10</span><span class="p">],</span> <span class="n">Reff_disk_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">3.4</span><span class="p">],</span>
                 <span class="n">q_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
-                <span class="n">Mhalo_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.e12</span><span class="p">],</span> <span class="n">halo_conc_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">4.</span><span class="p">],</span>
+                <span class="n">Mhalo_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">8.9e11</span><span class="p">],</span> <span class="n">halo_conc_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">4.2</span><span class="p">],</span>
                 <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span> <span class="n">del_fDM</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-
     <span class="c1"># Figure 7</span>
-    <span class="n">plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D</span><span class="p">(</span><span class="n">Mbaryon</span><span class="o">=</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">,</span>
+    <span class="n">plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D</span><span class="p">(</span><span class="n">Mbaryon</span><span class="o">=</span><span class="mf">6.6e10</span><span class="p">,</span>
                 <span class="n">q_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
-                <span class="n">ReB_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                <span class="n">ReB_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
                 <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
-                <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
+                <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mhalo</span><span class="o">=</span><span class="mf">8.9e11</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.2</span><span class="p">,</span>
                 <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span> <span class="n">del_fDM</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Figure 8</span>
@@ -345,8 +354,8 @@
 
     <span class="c1"># Figure 10</span>
     <span class="n">plot_AD_sersic_potential_alpha_vs_R</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span>
-                <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">])</span>
-
+                <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
+                <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.5</span><span class="p">),</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
 
     <span class="c1"># Figure 11</span>
     <span class="n">plot_composite_alpha_bulge_2disk_vs_r</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="n">table_path</span><span class="p">,</span>
@@ -850,7 +859,8 @@
 <span class="c1"># Figure 3</span>
 
 <span class="k">def</span> <span class="nf">plot_composite_menc_vcirc_profile_invert</span><span class="p">(</span><span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
-             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
+            <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the enclosed mass and circular velocity profiles versus radius,</span>
 <span class="sd">    for a number of direct calculations and inverted assumptions</span>
@@ -869,6 +879,10 @@
 <span class="sd">            Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.4, 0.2]</span>
 <span class="sd">        n_arr: array_like, optional</span>
 <span class="sd">            Range of Sersic indices to plot. Default: n_arr = [1., 4.]</span>
+<span class="sd">        total_mass: float, optional</span>
+<span class="sd">            Total mass of the Sersic component [Msun]. Default: 5e10 Msun</span>
+<span class="sd">        Reff: float, optional</span>
+<span class="sd">            Effective radius of the Sersic component [kpc]. Default: 1 kpc</span>
 <span class="sd">        fileout: str, optional</span>
 <span class="sd">            Override the default filename and explicitly choose the output filename</span>
 <span class="sd">            (must include full path).</span>
@@ -895,7 +909,9 @@
         <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">q_arr</span><span class="p">:</span>
             <span class="c1"># read fits tables, construct ks dict.....</span>
             <span class="n">invq</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">q</span>
-            <span class="n">tab</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">table_path</span><span class="p">)</span>
+            <span class="n">tab_orig</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">table_path</span><span class="p">)</span>
+            <span class="n">tab</span> <span class="o">=</span> <span class="n">interp_profiles</span><span class="o">.</span><span class="n">interpolate_entire_table</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="n">tab_orig</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">Reff</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="n">tab_orig</span><span class="p">,</span>
+                    <span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="n">invq</span><span class="p">)</span>
 
             <span class="n">ks_dict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">ks_dict</span><span class="p">[</span><span class="s1">&#39;R_arr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;R&#39;</span><span class="p">]</span>
@@ -1309,7 +1325,7 @@
     <span class="n">ylabels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$k_{\mathrm</span><span class="si">{tot}</span><span class="s1">}(R=R_{\mathrm</span><span class="si">{e}</span><span class="s1">})$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$k_{\mathrm</span><span class="si">{3D}</span><span class="s1">}(R=R_{\mathrm</span><span class="si">{e}</span><span class="s1">})$&#39;</span><span class="p">]</span>
     <span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">8.25</span><span class="p">]</span>
     <span class="n">ylims</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">1.75</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">]]</span>
-    <span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;Total virial coefficient&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Enclosed 3D virial coefficient&#39;</span> <span class="p">]</span>
+    <span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
     <span class="n">ann_arr</span> <span class="o">=</span> <span class="p">[</span> <span class="sa">r</span><span class="s1">&#39;$\displaystyle k_{\mathrm</span><span class="si">{tot}</span><span class="s1">}(R_{\mathrm</span><span class="si">{e}</span><span class="s1">}) = \frac{M_{\mathrm</span><span class="si">{tot}</span><span class="s1">} G }{v_{\mathrm</span><span class="si">{circ}</span><span class="s1">}(R_{\mathrm</span><span class="si">{e}</span><span class="s1">})^2 R_{\mathrm</span><span class="si">{e}</span><span class="s1">}}$&#39;</span><span class="p">,</span>
                 <span class="sa">r</span><span class="s1">&#39;$\displaystyle k_{\mathrm</span><span class="si">{3D}</span><span class="s1">}(R_{\mathrm</span><span class="si">{e}</span><span class="s1">}) = \frac{M_{\mathrm</span><span class="si">{sph}</span><span class="s1">}(&lt;r=R_{\mathrm</span><span class="si">{e}</span><span class="s1">}) G }{v_{\mathrm</span><span class="si">{circ}</span><span class="s1">}(R_{\mathrm</span><span class="si">{e}</span><span class="s1">})^2 R_{\mathrm</span><span class="si">{e}</span><span class="s1">}}$&#39;</span> <span class="p">]</span>
     <span class="n">ann_arr_pos</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;upperright&#39;</span><span class="p">,</span> <span class="s1">&#39;lowerright&#39;</span><span class="p">]</span>
@@ -1417,16 +1433,16 @@
 
 <span class="k">def</span> <span class="nf">plot_example_galaxy_mencl_vcirc</span><span class="p">(</span><span class="n">bt_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
              <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-             <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mbaryon</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span>
-             <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+             <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mbaryon</span><span class="o">=</span><span class="mf">6.6e10</span><span class="p">,</span>
+             <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">3.4</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_disk</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
              <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
-             <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
+             <span class="n">Mhalo</span><span class="o">=</span><span class="mf">8.9e11</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.2</span><span class="p">,</span>
              <span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">rstep</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
              <span class="n">log_rmin</span><span class="o">=-</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">log_rmax</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span> <span class="n">nlogr</span> <span class="o">=</span> <span class="mi">101</span><span class="p">,</span>
              <span class="n">logradius</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
              <span class="n">ylim_lmenc</span><span class="o">=</span><span class="p">[</span><span class="mf">8.</span><span class="p">,</span> <span class="mf">12.</span><span class="p">],</span>
              <span class="n">ylim_lmenc_lograd</span><span class="o">=</span><span class="p">[</span><span class="mf">6.</span><span class="p">,</span><span class="mf">12.5</span><span class="p">],</span>
-             <span class="n">ylim_vcirc</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">340.</span><span class="p">]):</span>
+             <span class="n">ylim_vcirc</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">420.</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot example enclosed mass and circular velocity profiles for</span>
 <span class="sd">    different mass components, over a variety of B/T ratios.</span>
@@ -1446,14 +1462,14 @@
 <span class="sd">        z: float, optional</span>
 <span class="sd">            Redshift (to determine NFW halo properties. Default: z=2.</span>
 <span class="sd">        Mbaryon: float, optional</span>
-<span class="sd">            Total baryon mass [Msun]. Default: 5.e10 Msun.</span>
+<span class="sd">            Total baryon mass [Msun]. Default: 6.6e10 Msun.</span>
 <span class="sd">        Reff_disk: float, optional</span>
 <span class="sd">            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].</span>
-<span class="sd">            Default: 5kpc</span>
+<span class="sd">            Default: 3.4 kpc</span>
 <span class="sd">        n_disk: float, optional</span>
 <span class="sd">            Sersic index of disk component. Default: n_disk = 1.</span>
 <span class="sd">        invq_disk: float, optional</span>
-<span class="sd">            Flattening of disk component. Default: invq_disk = 5.</span>
+<span class="sd">            Flattening of disk component. Default: invq_disk = 4.</span>
 <span class="sd">        Reff_bulge: float, optional</span>
 <span class="sd">            Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].</span>
 <span class="sd">            Default: 1kpc</span>
@@ -1462,9 +1478,9 @@
 <span class="sd">        invq_bulge: float, optional</span>
 <span class="sd">            Flattening of bulge component. Default: invq_bulge = 1. (spherical)</span>
 <span class="sd">        Mhalo: float, optional</span>
-<span class="sd">            NFW halo mass within R200 (=M200) [Msun]. Default: 1.e12 Msun</span>
+<span class="sd">            NFW halo mass within R200 (=M200) [Msun]. Default: 8.9e112 Msun</span>
 <span class="sd">        halo_conc: float, optional</span>
-<span class="sd">            Concentration of NFW halo. Default: 4.</span>
+<span class="sd">            Concentration of NFW halo. Default: 4.2</span>
 
 <span class="sd">        logradius: bool, optional</span>
 <span class="sd">            Option whether to plot log radius or linear. Default: False (plot linear).</span>
@@ -1518,8 +1534,7 @@
     <span class="n">ls_arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span>
                 <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))]</span>
     <span class="n">lw_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.35</span><span class="p">,</span> <span class="mf">1.35</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Disk&#39;</span><span class="p">,</span> <span class="s1">&#39;Bulge&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;Baryons&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;Halo&#39;</span><span class="p">,</span> <span class="s1">&#39;Total&#39;</span><span class="p">,</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Disk&#39;</span><span class="p">,</span> <span class="s1">&#39;Bulge&#39;</span><span class="p">,</span> <span class="s1">&#39;Baryons&#39;</span><span class="p">,</span> <span class="s1">&#39;Halo&#39;</span><span class="p">,</span> <span class="s1">&#39;Total&#39;</span><span class="p">,</span>
                 <span class="sa">r</span><span class="s1">&#39;$M_{\mathrm{enc,DM}}/M_{\mathrm{enc,tot}}$&#39;</span><span class="p">,</span>
                 <span class="sa">r</span><span class="s1">&#39;$v_{\mathrm{circ,DM}}^2/v_{\mathrm{circ,tot}}^2$&#39;</span><span class="p">]</span>
     <span class="n">color_arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;purple&#39;</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">color_fdm</span><span class="p">,</span> <span class="n">color_vsq</span><span class="p">]</span>
@@ -1649,9 +1664,9 @@
                 <span class="n">vline_lss</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="s1">&#39;:&#39;</span><span class="p">]</span>
                 <span class="n">vline_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;darkgrey&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="s1">&#39;grey&#39;</span><span class="p">]</span>
                 <span class="n">vline_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,disk}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Disk}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Bulge}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Baryons}}$&#39;</span><span class="p">,</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,disk}}$&#39;</span><span class="p">,</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,bulge}}$&#39;</span><span class="p">,</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,baryon}}$&#39;</span><span class="p">,</span>
                                 <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm</span><span class="si">{vir}</span><span class="s1">}$&#39;</span><span class="p">]</span>
                 <span class="n">vline_alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
 
@@ -1660,9 +1675,9 @@
                 <span class="n">vline_lss</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="s1">&#39;-.&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span>
                 <span class="n">vline_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;darkgrey&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;green&#39;</span><span class="p">]</span>
                 <span class="n">vline_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,disk}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Disk}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Bulge}}$&#39;</span><span class="p">,</span>
-                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,Baryons}}$&#39;</span><span class="p">]</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,disk}}$&#39;</span><span class="p">,</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,bulge}}$&#39;</span><span class="p">,</span>
+                                <span class="sa">r</span><span class="s1">&#39;$r_{\mathrm{1/2,3D,baryon}}$&#39;</span><span class="p">]</span>
                 <span class="n">vline_alphas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
 
             <span class="c1">#########</span>
@@ -1741,15 +1756,15 @@
                 <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="n">n_cols</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">ylabels2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabels2</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_labels_sm</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_vsq</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">n_rows</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">FixedLocator</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]))</span>
-                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">FixedFormatter</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="s2">&quot;0.50&quot;</span><span class="p">,</span> <span class="s2">&quot;0.75&quot;</span><span class="p">,</span> <span class="s2">&quot;1.00&quot;</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">FixedLocator</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]))</span>
+                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">FixedFormatter</span><span class="p">([</span><span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;0.2&quot;</span><span class="p">,</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span> <span class="s2">&quot;0.6&quot;</span><span class="p">,</span> <span class="s2">&quot;0.8&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]))</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+                        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
                     <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_vsq</span><span class="p">,</span>
                             <span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize_ticks_sm</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">color_vsq</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+                    <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
                     <span class="n">ax2</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
             <span class="c1">########</span>
             <span class="k">if</span> <span class="n">logradius</span><span class="p">:</span>
@@ -1771,12 +1786,15 @@
                 <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s1">&#39;vcirc&#39;</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">10.</span><span class="p">))</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">50.</span><span class="p">))</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">20.</span><span class="p">))</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">100.</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">typ</span> <span class="o">==</span> <span class="s1">&#39;fDM&#39;</span><span class="p">:</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.05</span><span class="p">))</span>
-
+                <span class="k">if</span> <span class="p">(</span><span class="n">j</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">FixedLocator</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]))</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">FixedFormatter</span><span class="p">([</span><span class="s2">&quot;0.0&quot;</span><span class="p">,</span> <span class="s2">&quot;0.2&quot;</span><span class="p">,</span> <span class="s2">&quot;0.4&quot;</span><span class="p">,</span> <span class="s2">&quot;0.6&quot;</span><span class="p">,</span> <span class="s2">&quot;0.8&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
 
             <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">fontsize_ticks</span><span class="p">)</span>
 
@@ -1832,15 +1850,24 @@
                     <span class="n">bbox2_to_anchor</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="n">legend1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr</span><span class="p">,</span> <span class="n">labels_arr</span><span class="p">,</span>
+                    <span class="n">legend1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">handles_arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">labels_arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                        <span class="n">labelspacing</span><span class="o">=</span><span class="n">labelspacing</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
+                        <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span>
+                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.93</span><span class="p">,</span><span class="mf">1.02</span><span class="p">),</span>
+                        <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.55</span><span class="p">,</span>
+                        <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
+                        <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
+                    <span class="n">legend15</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">labels_arr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
                         <span class="n">labelspacing</span><span class="o">=</span><span class="n">labelspacing</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
                         <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">,</span>
-                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="o">-</span><span class="mf">0.02</span><span class="p">),</span>
-                        <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span>
+                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.04</span><span class="p">,</span><span class="o">-</span><span class="mf">0.04</span><span class="p">),</span>
+                        <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.55</span><span class="p">,</span>
                         <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                         <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
                         <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend1</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend15</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="p">((</span><span class="n">i</span> <span class="o">==</span> <span class="n">n_rows</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)):</span>
                     <span class="n">legend2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr2</span><span class="p">,</span> <span class="n">labels_arr2</span><span class="p">,</span>
                         <span class="n">labelspacing</span><span class="o">=</span><span class="n">labelspacing</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
@@ -1853,15 +1880,36 @@
                         <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend2</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="p">((</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">j</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)):</span>
-                    <span class="n">legend3</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr3</span><span class="p">,</span> <span class="n">labels_arr3</span><span class="p">,</span>
+                    <span class="n">legend3</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="n">handles_arr3</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">labels_arr3</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
                         <span class="n">labelspacing</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
-                        <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span> <span class="n">loc3</span><span class="p">,</span>
-                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.03</span><span class="p">,</span><span class="o">-</span><span class="mf">0.02</span><span class="p">),</span>
+                        <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span>
+                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.83</span><span class="p">,</span> <span class="mf">1.02</span><span class="p">),</span>
                         <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
                         <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                         <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
                         <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
+                    <span class="n">legend35</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr3</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">labels_arr3</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                        <span class="n">labelspacing</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
+                        <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span> <span class="n">loc3</span><span class="p">,</span>
+                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.04</span><span class="p">,</span><span class="o">-</span><span class="mf">0.05</span><span class="p">),</span>
+                        <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
+                        <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
+                        <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
+                    <span class="c1"># Hack to get alpha more to match</span>
+                    <span class="k">for</span> <span class="n">lh</span><span class="p">,</span> <span class="n">alph</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">legend3</span><span class="o">.</span><span class="n">legendHandles</span><span class="p">,</span> <span class="p">[</span><span class="n">vline_alphas</span><span class="p">[</span><span class="mi">0</span><span class="p">]]):</span>
+                        <span class="k">if</span> <span class="n">alph</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">:</span>
+                            <span class="n">alph</span> <span class="o">*=</span> <span class="mf">0.65</span>
+                        <span class="n">lh</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="n">alph</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">lh</span><span class="p">,</span> <span class="n">alph</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">legend35</span><span class="o">.</span><span class="n">legendHandles</span><span class="p">,</span> <span class="n">vline_alphas</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+                        <span class="k">if</span> <span class="n">alph</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">:</span>
+                            <span class="n">alph</span> <span class="o">*=</span> <span class="mf">0.65</span>
+                        <span class="n">lh</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="n">alph</span><span class="p">)</span>
+                    <span class="c1"># Change label v alignment</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">legend35</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
+                        <span class="n">t</span><span class="o">.</span><span class="n">set_position</span><span class="p">((</span><span class="mf">0.</span><span class="p">,</span><span class="mf">2.</span><span class="p">))</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend3</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend35</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">fileout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fileout</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
@@ -1987,9 +2035,9 @@
 
         <span class="n">xlims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">del_fDM</span><span class="p">:</span>
-            <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">])</span>
+            <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mf">0.24</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.84</span><span class="p">,</span> <span class="mf">1.035</span><span class="p">])</span>
+            <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.77</span><span class="p">,</span> <span class="mf">1.045</span><span class="p">])</span>
 
     <span class="c1">######################################</span>
     <span class="c1"># Setup plot:</span>
@@ -2088,6 +2136,32 @@
                         <span class="n">vcirc_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vcirc_baryons</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">vcirc_halo</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
                         <span class="n">fdm_vsq</span><span class="p">[</span><span class="n">ll</span><span class="p">]</span> <span class="o">=</span> <span class="n">vcirc_halo</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">vcirc_tot</span><span class="o">**</span><span class="mi">2</span>
 
+                        <span class="k">if</span> <span class="p">(</span><span class="n">mm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">bt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                            <span class="n">menc_baryons</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">total_mass2D_direct</span><span class="p">(</span><span class="n">Reff_disk</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="n">Mbaryon</span><span class="p">,</span>
+                                                <span class="n">Reff</span><span class="o">=</span><span class="n">Reff_disk</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">0.</span><span class="p">)</span>
+                            <span class="n">vcirc_baryons</span> <span class="o">=</span> <span class="n">plot_calcs</span><span class="o">.</span><span class="n">freeman_vcirc</span><span class="p">(</span><span class="n">Reff_disk</span><span class="p">,</span> <span class="n">Mbaryon</span><span class="p">,</span> <span class="n">Reff_disk</span><span class="p">)</span>
+
+                            <span class="n">menc_tot</span> <span class="o">=</span> <span class="n">menc_baryons</span> <span class="o">+</span> <span class="n">menc_halo</span>
+                            <span class="n">vcirc_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vcirc_baryons</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">vcirc_halo</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                            <span class="n">fdm_menc_tmp</span> <span class="o">=</span> <span class="n">menc_halo</span><span class="o">/</span><span class="n">menc_tot</span>
+                            <span class="n">fdm_vsq_tmp</span> <span class="o">=</span> <span class="n">vcirc_halo</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">vcirc_tot</span><span class="o">**</span><span class="mi">2</span>
+
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Freeman: fDMv/fDMm = </span><span class="si">{:0.4f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fdm_vsq_tmp</span><span class="o">/</span><span class="n">fdm_menc_tmp</span><span class="p">))</span>
+
+                            <span class="c1"># # Do another limiting calc:</span>
+                            <span class="c1"># qprime = 0.001</span>
+                            <span class="c1"># sprof = core.DeprojSersicModel(total_mass=Mbaryon,</span>
+                            <span class="c1">#                                Reff=Reff_disk, n=n_disk, q=qprime)</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># menc_baryons = sprof.enclosed_mass(Reff_disk)</span>
+                            <span class="c1"># vcirc_baryons = sprof.v_circ(Reff_disk)</span>
+                            <span class="c1"># menc_tot = menc_baryons + menc_halo</span>
+                            <span class="c1"># vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)</span>
+                            <span class="c1"># fdm_menc_tmp = menc_halo/menc_tot</span>
+                            <span class="c1"># fdm_vsq_tmp = vcirc_halo**2/vcirc_tot**2</span>
+                            <span class="c1">#</span>
+                            <span class="c1"># print(&quot;Oblate q={}: fDMv/fDMm = {:0.4f}&quot;.format(qprime, fdm_vsq_tmp/fdm_menc_tmp))</span>
+
                     <span class="c1">######################</span>
                     <span class="k">if</span> <span class="n">invq_disk</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">zorder</span> <span class="o">=</span> <span class="o">-</span><span class="mf">5.</span>
@@ -2173,9 +2247,9 @@
             <span class="n">xypos</span> <span class="o">=</span> <span class="p">(</span><span class="n">padx</span><span class="p">,</span> <span class="n">pady</span><span class="p">)</span>
             <span class="n">va</span> <span class="o">=</span> <span class="s1">&#39;bottom&#39;</span>
             <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span>
-            <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{bar}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mbaryon</span><span class="p">))</span>
+            <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{bar}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mbaryon</span><span class="p">))</span>
             <span class="n">ann_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{halo}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mhalo</span><span class="p">))</span>
+            <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{halo}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mhalo</span><span class="p">))</span>
             <span class="n">ann_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
             <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm</span><span class="si">{conc}</span><span class="s1">_{\mathrm</span><span class="si">{halo}</span><span class="s1">}&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">halo_conc</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ann_str</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xypos</span><span class="p">,</span> <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;axes fraction&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="n">ha</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="n">va</span><span class="p">,</span>
@@ -2271,7 +2345,7 @@
 <span class="k">def</span> <span class="nf">plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D</span><span class="p">(</span><span class="n">Mbaryon</span><span class="o">=</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">,</span>
             <span class="n">q_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
             <span class="n">ReB_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
-            <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+            <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
             <span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">rstep</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">btstep</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span>
@@ -2301,9 +2375,6 @@
 <span class="sd">            Default: 1.e12 Msun.</span>
 <span class="sd">        halo_conc_arr: flat, optional</span>
 <span class="sd">            Halo concentration. Default: 4.</span>
-<span class="sd">        Reff_disk: array_like, optional</span>
-<span class="sd">            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].</span>
-<span class="sd">            Default: 5. kpc</span>
 <span class="sd">        n_disk: float, optional</span>
 <span class="sd">            Sersic index of disk component. Default: n_disk = 1.</span>
 <span class="sd">        Reff_bulge: float, optional</span>
@@ -2311,6 +2382,10 @@
 <span class="sd">            Default: 1kpc</span>
 <span class="sd">        n_bulge:    Sersic index of bulge component. Default: n_bulge = 4.</span>
 <span class="sd">        invq_bulge: Flattening of bulge componen. Default: invq_bulge = 1. (spherical)</span>
+
+<span class="sd">        ReB_to_ReD_arr: array_like, optional</span>
+<span class="sd">            Ratio of bulge to disk effective radii.</span>
+<span class="sd">            Default: [0.2, 0.5, 1.]</span>
 
 <span class="sd">        fileout: str, optional</span>
 <span class="sd">            Override the default filename and explicitly choose the output filename</span>
@@ -2369,7 +2444,7 @@
             <span class="n">lw_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
             <span class="n">ls_arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
             <span class="n">dashes_arr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dashlen</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">5</span><span class="p">))</span>
-        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,B}}/R_{\mathrm{e,D}}=&#39;</span>
+        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,bulge}}/R_{\mathrm{e,disk}}=&#39;</span>
         <span class="k">if</span> <span class="n">reBtoreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">lblstr</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reBtoreD</span><span class="p">)</span>
         <span class="k">elif</span> <span class="mf">10.</span><span class="o">*</span><span class="n">reBtoreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2389,7 +2464,7 @@
     <span class="n">ylims</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">]]</span>
     <span class="n">ylims</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">del_fDM</span><span class="p">:</span>
-        <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mf">0.11</span><span class="p">,</span><span class="mf">0.35</span><span class="p">])</span>
+        <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">-</span><span class="mf">0.11</span><span class="p">,</span><span class="mf">0.25</span><span class="p">])</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ylims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
@@ -2398,7 +2473,7 @@
     <span class="c1">######################################</span>
     <span class="c1"># Setup plot:</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="mf">4.</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="mf">3.85</span> <span class="c1">#4.</span>
     <span class="n">n_cols</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">n_rows</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">fac</span> <span class="o">=</span> <span class="mf">1.</span>
@@ -2613,9 +2688,9 @@
                     <span class="n">va</span> <span class="o">=</span> <span class="s1">&#39;top&#39;</span>
                     <span class="n">ha</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span>
                 <span class="n">xypos</span> <span class="o">=</span> <span class="p">(</span><span class="n">padx</span><span class="p">,</span> <span class="n">pady</span><span class="p">)</span>
-                <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{bar}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mbaryon</span><span class="p">))</span>
+                <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{bar}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mbaryon</span><span class="p">))</span>
                 <span class="n">ann_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{halo}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mhalo</span><span class="p">))</span>
+                <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\log_</span><span class="si">{10}</span><span class="s1">(M_{\mathrm</span><span class="si">{halo}</span><span class="s1">}/M_{\odot})&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.2f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">Mhalo</span><span class="p">))</span>
                 <span class="n">ann_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
                 <span class="n">ann_str</span> <span class="o">+=</span> <span class="sa">r</span><span class="s1">&#39;$\mathrm</span><span class="si">{conc}</span><span class="s1">_{\mathrm</span><span class="si">{halo}</span><span class="s1">}&#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;=</span><span class="si">{:0.1f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">halo_conc</span><span class="p">)</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ann_str</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xypos</span><span class="p">,</span> <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;axes fraction&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="n">ha</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="n">va</span><span class="p">,</span>
@@ -2697,6 +2772,7 @@
                         <span class="n">loc</span><span class="o">=</span><span class="n">loc2</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">bbox_to_anchor2</span><span class="p">,</span>
                         <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                         <span class="n">frameon</span><span class="o">=</span><span class="n">frameon</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span>
+                        <span class="c1">#handlelength=1.4,</span>
                         <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">)</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">legend2</span><span class="p">)</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2814,9 +2890,6 @@
     <span class="n">ylims</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">],</span> <span class="n">ylim_comp</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">1.1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.2</span><span class="p">]]</span>
     <span class="n">types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fdm_vsq&#39;</span><span class="p">,</span> <span class="s1">&#39;fDM_comp&#39;</span><span class="p">,</span>
              <span class="s1">&#39;rhalf3D_bary_to_Reff_disk&#39;</span><span class="p">,</span> <span class="s1">&#39;fDM_comp_rhalf3D_bary&#39;</span><span class="p">]</span>
-    <span class="c1"># ann_arr = [ r&#39;$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}}) = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$&#39;,</span>
-    <span class="c1">#             r&#39;$\displaystyle f_{\mathrm{DM}}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(&lt;r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(&lt;r=R_{\mathrm{e,disk}})}$&#39;,</span>
-    <span class="c1">#             None, None]</span>
     <span class="n">ann_arr_n</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">ann_arr</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$\displaystyle f_{\mathrm</span><span class="si">{DM}</span><span class="s1">}^v(R_{\mathrm{e,disk}})$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\displaystyle = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$&#39;</span><span class="p">],</span>
                 <span class="sa">r</span><span class="s1">&#39;$\displaystyle f_{\mathrm</span><span class="si">{DM}</span><span class="s1">}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(&lt;r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(&lt;r=R_{\mathrm{e,disk}})}$&#39;</span><span class="p">,</span>
@@ -3383,7 +3456,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
                 <span class="k">if</span> <span class="n">ylabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_labels_sm</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#2)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_labels_sm</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
 
@@ -3566,7 +3639,7 @@
 <span class="c1"># Figure 9</span>
 
 <span class="k">def</span> <span class="nf">plot_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">],</span> <span class="n">show_literature</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">],</span> <span class="n">show_literature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_values</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,</span>
 <span class="sd">    over a range of Sersic index n.</span>
@@ -3585,7 +3658,6 @@
 <span class="sd">            Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]</span>
 <span class="sd">        show_literature: bool, optional</span>
 <span class="sd">            Whether to show inferred alpha values from some simulation literature work:</span>
-<span class="sd">                Wellons et al., 2020, MNRAS, 497, 4051-4065;</span>
 <span class="sd">                Kretschmer et al., 2021, MNRAS, 503, 5238-5253;</span>
 <span class="sd">                Dalcanton &amp; Stilp, 2010, ApJ, 721, 547</span>
 <span class="sd">        fileout: str, optional</span>
@@ -3666,9 +3738,17 @@
         <span class="c1">#####</span>
         <span class="c1"># Kretschmer+21, Figure 4 alpha_rho (medians from data from M. Kretschmer)</span>
         <span class="n">k21_fig4</span> <span class="o">=</span> <span class="n">scaling_rel</span><span class="o">.</span><span class="n">_kretschmer21_fig4_alpharho</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">print_values</span><span class="p">:</span>
+            <span class="n">nser_50</span> <span class="o">=</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;n_sersic&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">nser_16</span> <span class="o">=</span> <span class="n">nser_50</span> <span class="o">-</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;n_sersic_err_l68&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">nser_84</span> <span class="o">=</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;n_sersic_err_u68&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">nser_50</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K21: n_sersic: median=</span><span class="si">{:0.2f}</span><span class="s2">, 16,84</span><span class="si">% r</span><span class="s2">ange=[</span><span class="si">{:0.2f}</span><span class="s2">,</span><span class="si">{:0.2f}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nser_50</span><span class="p">,</span>
+                  <span class="n">nser_16</span><span class="p">,</span> <span class="n">nser_84</span><span class="p">))</span>
         <span class="n">lit_dict</span><span class="p">[</span><span class="s1">&#39;K21_fig4_alpharho&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                              <span class="s1">&#39;RtoRe&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span>
-                              <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;alpha_rho&#39;</span><span class="p">],</span>
+                              <span class="s1">&#39;RtoRe&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                              <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;alpha_rho&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                              <span class="s1">&#39;alpha_err_l68&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;alpha_rho_err_l68&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                              <span class="s1">&#39;alpha_err_u68&#39;</span><span class="p">:</span> <span class="n">k21_fig4</span><span class="p">[</span><span class="s1">&#39;alpha_rho_err_u68&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
                               <span class="s1">&#39;marker&#39;</span><span class="p">:</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span>
                               <span class="s1">&#39;ms&#39;</span><span class="p">:</span> <span class="mf">25.</span><span class="p">,</span>
                               <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span>
@@ -3725,6 +3805,22 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">lbl</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="k">if</span> <span class="s1">&#39;ls&#39;</span> <span class="ow">in</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="s1">&#39;frac_uncertainty&#39;</span> <span class="ow">in</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span>
+                                <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span>
+                                        <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;frac_uncertainty&#39;</span><span class="p">]),</span>
+                                        <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;frac_uncertainty&#39;</span><span class="p">]),</span>
+                                        <span class="n">ls</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;ls&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
+                                        <span class="n">lw</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lw&#39;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+                                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">zorder_lit</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span>
+                            <span class="k">elif</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha_by_sg&#39;</span><span class="p">:</span>
+                                <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span>
+                                        <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">3.36</span><span class="o">*</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;frac_uncertainty&#39;</span><span class="p">]),</span>
+                                        <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">3.36</span><span class="o">*</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;frac_uncertainty&#39;</span><span class="p">]),</span>
+                                        <span class="n">ls</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;ls&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
+                                        <span class="n">lw</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lw&#39;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+                                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">zorder_lit</span><span class="o">-</span><span class="mi">10</span><span class="p">)</span>
+
                         <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span>
                                     <span class="n">ls</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;ls&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
@@ -3737,6 +3833,26 @@
                                     <span class="n">lw</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lw&#39;</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
                                     <span class="n">label</span><span class="o">=</span><span class="n">lbl</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">zorder_lit</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># -------</span>
+                        <span class="c1"># Show uncertainties:</span>
+                        <span class="k">if</span> <span class="s1">&#39;alpha_err_l68&#39;</span> <span class="ow">in</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                                <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span>
+                                    <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span>
+                                            <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha_err_l68&#39;</span><span class="p">],</span>
+                                                    <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha_err_u68&#39;</span><span class="p">]],</span>
+                                            <span class="n">marker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                                            <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightgrey&#39;</span><span class="p">,</span>
+                                            <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">zorder_lit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="k">elif</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha_by_sg&#39;</span><span class="p">:</span>
+                                    <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span>
+                                            <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">3.36</span><span class="o">*</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">]),</span>
+                                            <span class="n">yerr</span> <span class="o">=</span> <span class="p">[</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha_err_l68&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">3.36</span><span class="o">*</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">]),</span>
+                                                    <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha_err_u68&#39;</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="mf">3.36</span><span class="o">*</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">])],</span>
+                                            <span class="n">marker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">capsize</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+                                            <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightgrey&#39;</span><span class="p">,</span>
+                                            <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">zorder_lit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="c1"># -------</span>
+
                         <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;RtoRe&#39;</span><span class="p">],</span> <span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span>
                                     <span class="n">marker</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;marker&#39;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">lit_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
@@ -3853,11 +3969,9 @@
 <span class="c1"># Figure 10</span>
 
 <span class="k">def</span> <span class="nf">plot_AD_sersic_potential_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span>
-            <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
-            <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
-            <span class="n">show_sigmar_toy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">show_sigmar_toy_nosig0</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
+            <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.5</span><span class="p">),</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+            <span class="n">show_sigmar_toy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_sigmar_toy_nosig0</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot pressure support using alpha=-dlnrho_g/dlnr derived for deprojected</span>
 <span class="sd">    Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.</span>
@@ -3879,6 +3993,12 @@
 <span class="sd">            Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.2]</span>
 <span class="sd">        n_arr: array_like, optional</span>
 <span class="sd">            Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4.]</span>
+
+<span class="sd">        total_mass: float, optional</span>
+<span class="sd">            Total mass of the Sersic component (Msun). Default: 10^10.5 Msun.</span>
+<span class="sd">        Reff: float, optional</span>
+<span class="sd">            Effective radius of the Sersic component (kpc). Default: 1 kpc</span>
+
 <span class="sd">        fileout: str, optional</span>
 <span class="sd">            Override the default filename and explicitly choose the output filename</span>
 <span class="sd">            (must include full path).</span>
@@ -3916,9 +4036,7 @@
 
     <span class="c1"># Load files:</span>
     <span class="n">delR</span> <span class="o">=</span> <span class="mf">0.001</span>
-    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">delR</span><span class="p">,</span> <span class="n">delR</span><span class="p">)</span>
-    <span class="n">Reff</span> <span class="o">=</span> <span class="mf">1.</span>
-    <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.5</span><span class="p">)</span>
+    <span class="n">Rarr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">delR</span><span class="p">,</span> <span class="n">delR</span><span class="p">)</span><span class="o">*</span><span class="n">Reff</span>
     <span class="n">xlim</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">]</span>
     <span class="n">ks_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">q_arr</span><span class="p">:</span>
@@ -4229,7 +4347,7 @@
             <span class="n">lw_arr_bt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>
             <span class="n">ls_arr_bt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
             <span class="n">dashes_arr_bt</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dashlen</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">5</span><span class="p">))</span>
-        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,B}}/R_{\mathrm{e,D}}=&#39;</span>
+        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,bulge}}/R_{\mathrm{e,disk}}=&#39;</span>
         <span class="k">if</span> <span class="n">reBtoreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">lblstr</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reBtoreD</span><span class="p">)</span>
         <span class="k">elif</span> <span class="mf">10.</span><span class="o">*</span><span class="n">reBtoreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -4259,7 +4377,7 @@
             <span class="n">ls_arr_D2t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
             <span class="n">dashes_arr_D2t</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">dashlen</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">5</span><span class="p">))</span>
 
-        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,D_2}}/R_{\mathrm{e,D}}=&#39;</span>
+        <span class="n">lblstr</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R_{\mathrm{e,disk_2}}/R_{\mathrm{e,disk}}=&#39;</span>
         <span class="k">if</span> <span class="n">reD2toreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">lblstr</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reD2toreD</span><span class="p">)</span>
         <span class="k">elif</span> <span class="mf">10.</span><span class="o">*</span><span class="n">reD2toreD</span> <span class="o">%</span> <span class="mf">1.</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -4322,7 +4440,7 @@
             <span class="n">ks_dict</span><span class="p">[</span><span class="s1">&#39;D2t=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">D2t</span><span class="p">)][</span><span class="s1">&#39;reD2toreD=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">reD2toreD</span><span class="p">)][</span><span class="s1">&#39;label_reratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels_reratio_D2t</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
 
     <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$R/R_{\mathrm{e,disk}}$&#39;</span>
-    <span class="n">ylabels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$\alpha_{\mathrm{tot,\ D+B}}(R)$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\alpha_{\mathrm{tot,\ D+D_2}}(R)$&#39;</span><span class="p">]</span>
+    <span class="n">ylabels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;$\alpha_{\mathrm{tot,\ disk+bulge}}(R)$&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;$\alpha_{\mathrm{tot,\ disk+disk_2}}(R)$&#39;</span><span class="p">]</span>
     <span class="n">ylims</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">]]</span>
     <span class="n">titles</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
     <span class="n">lw</span> <span class="o">=</span> <span class="mf">1.3</span>
@@ -4435,18 +4553,18 @@
 
         <span class="c1">########################################</span>
         <span class="c1"># Annotate Sersic indices:</span>
-        <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$n_D = &#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nDisk</span><span class="p">)</span>
-        <span class="n">ann_str2</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$n_B = &#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nBulge</span><span class="p">)</span>
-        <span class="n">xdelt</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="n">ann_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$n_{\mathrm</span><span class="si">{disk}</span><span class="s1">} = &#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nDisk</span><span class="p">)</span>
+        <span class="n">ann_str2</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$n_{\mathrm</span><span class="si">{bulge}</span><span class="s1">} = &#39;</span><span class="o">+</span><span class="sa">r</span><span class="s1">&#39;</span><span class="si">{:0.0f}</span><span class="s1">$&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nBulge</span><span class="p">)</span>
+        <span class="n">xdelt</span> <span class="o">=</span> <span class="mf">0.075</span>
         <span class="n">ypos</span> <span class="o">=</span> <span class="mf">0.2275</span>
         <span class="n">ydelt</span> <span class="o">=</span> <span class="mf">0.055</span>
         <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">xdelt</span><span class="p">,</span> <span class="n">ypos</span><span class="o">+</span><span class="n">ydelt</span><span class="p">)</span>
         <span class="n">xy2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">-</span><span class="n">xdelt</span><span class="p">,</span> <span class="n">ypos</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ann_str</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span>
-                <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_ann</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_ann</span><span class="p">,</span>
                 <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;axes fraction&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap_bt</span><span class="p">(</span><span class="mf">0.</span><span class="o">+</span><span class="n">btextra</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">ann_str2</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="n">xy2</span><span class="p">,</span>
-                <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_ann</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_ann</span><span class="p">,</span>
                 <span class="n">xycoords</span><span class="o">=</span><span class="s1">&#39;axes fraction&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cmap_bt</span><span class="p">(</span><span class="mf">0.9</span><span class="o">+</span><span class="n">btextra</span><span class="p">))</span>
         <span class="c1">########################################</span>
 
@@ -4498,7 +4616,7 @@
 
         <span class="n">loc2</span> <span class="o">=</span> <span class="s1">&#39;lower right&#39;</span>
         <span class="n">bbox_to_anchor2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.025</span><span class="p">)</span>
-        <span class="n">handlelength</span> <span class="o">=</span> <span class="mf">5.</span>
+        <span class="n">handlelength</span> <span class="o">=</span> <span class="mf">4.1</span>
         <span class="n">borderpad</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">legend2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles_arr2</span><span class="p">,</span> <span class="n">labels_arr2</span><span class="p">,</span>
             <span class="n">labelspacing</span><span class="o">=</span><span class="n">labelspacing</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
@@ -4514,7 +4632,7 @@
             <span class="n">labelspacing</span><span class="o">=</span><span class="n">labelspacing</span><span class="p">,</span> <span class="n">borderpad</span><span class="o">=</span><span class="n">borderpad</span><span class="p">,</span>
             <span class="n">handletextpad</span><span class="o">=</span><span class="n">handletextpad</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="n">frameon</span><span class="p">,</span>
             <span class="n">loc</span><span class="o">=</span><span class="n">loc3</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">bbox_to_anchor3</span><span class="p">,</span>
-            <span class="n">handlelength</span><span class="o">=</span><span class="mf">2.2</span><span class="p">,</span>
+            <span class="n">handlelength</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span>
             <span class="n">numpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scatterpoints</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize_leg_tmp</span><span class="p">,</span>
             <span class="n">fancybox</span><span class="o">=</span><span class="n">fancybox</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolor</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">facecolor</span><span class="p">,</span>
             <span class="n">framealpha</span><span class="o">=</span><span class="n">framealpha</span><span class="p">)</span>
@@ -4701,8 +4819,6 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-
-
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="c1"># From the command line, call the wrapper to make all plots.</span>
     <span class="c1"># Input args: output_path, table_path</span>
@@ -4719,7 +4835,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 30 May 2022.
+      <span class="lastupdated">Last updated on 13 Jul 2022.
       </span></p>
   </div>
 

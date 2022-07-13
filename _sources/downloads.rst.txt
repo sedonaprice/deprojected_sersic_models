@@ -25,9 +25,9 @@ Software
 ========
 
 
-The **v1.0 release** is available for download as:
-`tar.gz <https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.0.tar.gz>`_ |
-`zip <https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.0.zip>`_
+The **v1.1 release** is available for download as:
+`tar.gz <https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.1.tar.gz>`_ |
+`zip <https://github.com/sedonaprice/deprojected_sersic_models/archive/refs/tags/v1.1.zip>`_
 
 
 Alternatively, the releases can be directly downloaded from the **repository**
