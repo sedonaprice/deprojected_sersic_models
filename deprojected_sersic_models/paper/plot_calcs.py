@@ -8,7 +8,6 @@
 import os
 import numpy as np
 import scipy.special as scp_spec
-import scipy.optimize as scp_opt
 import astropy.units as u
 import astropy.cosmology as apy_cosmo
 import astropy.constants as apy_con

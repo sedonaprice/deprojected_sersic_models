@@ -5,7 +5,7 @@
 Acknowledging ``deprojected_sersic_models``
 ===========================================
 If you use this package or the precomputed profile tables in a publication,
-please cite Price et al., 2022, submitted (`ADS`_ | `arXiv`_).
+please cite Price et al., 2022, accepted for publication in A&A (`ADS`_ | `arXiv`_).
 
 .. _ADS: LINK_TO_ADS
 .. _arXiv: LINK_TO_ARXIV

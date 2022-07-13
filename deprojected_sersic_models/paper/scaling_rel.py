@@ -7,6 +7,7 @@
 
 import numpy as np
 import scipy.special as scp_spec
+import scipy.optimize as scp_opt
 import scipy.interpolate as scp_interp
 import scipy.integrate as scp_integrate
 import scipy.signal as scp_signal
@@ -324,6 +325,21 @@ def _halo_conc_relation(z=None, lmhalo=None, cosmo=_default_cosmo):
     return np.power(10.,log10conc)
 
 
+def _get_Mstar_from_Mbar_z(z, Mbar):
+    # Run optimizer:
+    a = Mbar * 0.25
+    b = Mbar
+    Mstar = scp_opt.brentq(_minfunc_Mstar_from_Mbar_z, a, b, args=(Mbar, z))
+
+    return Mstar
+
+
+def _minfunc_Mstar_from_Mbar_z(Mstar, Mbartarget, z):
+    lmstar = np.log10(Mstar)
+    fgas = _fgas_scaling_relation_MS(z=z, lmstar=lmstar)
+    Mbaryon = Mstar/(1.-fgas)
+    return Mbaryon - Mbartarget
+
 
 def _tomczak14_SMF_total_coeffs():
     """
@@ -604,13 +620,25 @@ def _k21_calc_medians_fig4_alpharho(path=None):
     k21 = ascii.read(fname)
 
     RtoRe = np.unique(k21['r/r_e'])
-    alpha_rho = RtoRe*0. + -99.
+
+    valdict = {'RtoRe': RtoRe}
+    keys = ['alpha_rho', 'n_sersic']
+    ends = ['', '_err_l68', '_err_u68']
+    for key in keys:
+        for e in ends:
+            valdict[key+e] = RtoRe*0. + -99.
+
     for j, rr in enumerate(RtoRe):
         whm = np.where(k21['r/r_e']==rr)[0]
-        alpha_rho[j] = np.median(k21['alpha_rho'][whm])
+        for key in keys:
+            arr50 = np.median(k21[key][whm])
+            arr16 = np.percentile(k21[key][whm], 15.865, axis=0)
+            arr84 = np.percentile(k21[key][whm], 84.135, axis=0)
+            valdict[key][j] = arr50
+            valdict[key+'_err_l68'][j] = arr50 - arr16
+            valdict[key+'_err_u68'][j] = arr84 - arr50
 
-    cat_out = Table({"RtoRe": RtoRe,
-                     "alpha_rho": alpha_rho})
+    cat_out = Table(valdict)
 
     fname_out = path+'kretschmer21_fig4_alpharho.csv'
     cat_out.write(fname_out)

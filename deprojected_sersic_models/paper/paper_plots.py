@@ -218,6 +218,7 @@ def make_all_paper_plots(output_path=None, table_path=None):
 
     # Figure 3
     plot_composite_menc_vcirc_profile_invert(output_path=output_path, table_path=table_path,
+                total_mass = 5.e10, Reff = 1.,
                 q_arr=[1., 0.4, 0.2], n_arr=[1., 4.])
 
     # Figure 4
@@ -225,27 +226,35 @@ def make_all_paper_plots(output_path=None, table_path=None):
                 q_arr=[0.2, 0.4, 0.6, 0.8, 1., 1.5, 2.])
 
     # Figure 5
+    # Use toy scaling relations / empirical approximations:
+    # z = 2, lmstar=10.5, which gives:
+    # Mstar =  3.2e10 (3.1623e10)
+    # Mbar = 6.6e10 (6.64947e10) / lMbar = 10.82,
+    # Mhalo = 8.9e11 (8.8618527e11) / lMhalo = 11.9475,
+    # halo_conc = 4.2 (4.1931)
+    # Reff_disk = 3.4  (3.400257)
+    # qdisk = 0.25 or invq = 4
     plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.0],
                 output_path=output_path, table_path=table_path,
-                Mbaryon=5.e10, z=2., Mhalo=1.e12, halo_conc=4.,
-                Reff_disk=5., n_disk=1., invq_disk=5.,
+                Mbaryon=6.6e10, z=2., Mhalo=8.9e11, halo_conc=4.2,
+                Reff_disk=3.4, n_disk=1., invq_disk=4.,
                 Reff_bulge=1., n_bulge=4., invq_bulge=1.,
                 logradius=False, rmin=0., rmax=15., rstep=0.01)
 
 
+
     # Figure 6
-    plot_fdm_calibration(Mbaryon_arr=[10**10.5], Reff_disk_arr=[5.],
+    plot_fdm_calibration(Mbaryon_arr=[6.6e10], Reff_disk_arr=[3.4],
                 q_disk_arr = [0.01, 0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1., 1.5, 2.],
-                Mhalo_arr=[1.e12], halo_conc_arr=[4.],
+                Mhalo_arr=[8.9e11], halo_conc_arr=[4.2],
                 output_path=output_path, table_path=table_path, del_fDM=False)
 
-
     # Figure 7
-    plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
+    plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=6.6e10,
                 q_disk_arr = [0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1., 1.5, 2.],
-                ReB_to_ReD_arr=[0.2, 0.5, 1.], Reff_disk=5., n_disk=1.,
+                ReB_to_ReD_arr=[0.2, 0.5, 1.], n_disk=1.,
                 n_bulge=4., invq_bulge=1., Reff_bulge=1.,
-                z=2., Mhalo=1.e12, halo_conc=4.,
+                z=2., Mhalo=8.9e11, halo_conc=4.2,
                 output_path=output_path, table_path=table_path, del_fDM=True)
 
     # Figure 8
@@ -258,8 +267,8 @@ def make_all_paper_plots(output_path=None, table_path=None):
 
     # Figure 10
     plot_AD_sersic_potential_alpha_vs_R(output_path=output_path, table_path=table_path,
-                sigma0_arr = [30., 60., 90.], q_arr=[1., 0.2], n_arr=[0.5, 1., 2., 4.])
-
+                sigma0_arr = [30., 60., 90.], q_arr=[1., 0.2], n_arr=[0.5, 1., 2., 4.],
+                total_mass = np.power(10.,10.5), Reff=1.)
 
     # Figure 11
     plot_composite_alpha_bulge_2disk_vs_r(output_path=output_path, table_path=table_path,
@@ -763,7 +772,8 @@ def plot_rhalf_3D_sersic_potential(output_path=None, table_path=None, fileout=No
 # Figure 3
 
 def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.],
-             output_path=None, table_path=None, fileout=None):
+            total_mass = 5.e10, Reff = 1.,
+            output_path=None, table_path=None, fileout=None):
     """
     Plot the enclosed mass and circular velocity profiles versus radius,
     for a number of direct calculations and inverted assumptions
@@ -782,6 +792,10 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
             Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.4, 0.2]
         n_arr: array_like, optional
             Range of Sersic indices to plot. Default: n_arr = [1., 4.]
+        total_mass: float, optional
+            Total mass of the Sersic component [Msun]. Default: 5e10 Msun
+        Reff: float, optional
+            Effective radius of the Sersic component [kpc]. Default: 1 kpc
         fileout: str, optional
             Override the default filename and explicitly choose the output filename
             (must include full path).
@@ -808,7 +822,9 @@ def plot_composite_menc_vcirc_profile_invert(q_arr=[1., 0.4, 0.2], n_arr=[1., 4.
         for q in q_arr:
             # read fits tables, construct ks dict.....
             invq = 1./q
-            tab = io.read_profile_table(n=n, invq=invq, path=table_path)
+            tab_orig = io.read_profile_table(n=n, invq=invq, path=table_path)
+            tab = interp_profiles.interpolate_entire_table(R=tab_orig['R']*Reff, table=tab_orig,
+                    total_mass=total_mass, Reff=Reff, n=n, invq=invq)
 
             ks_dict = {}
             ks_dict['R_arr'] = tab['R']
@@ -1222,7 +1238,7 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
     ylabels = [r'$k_{\mathrm{tot}}(R=R_{\mathrm{e}})$', r'$k_{\mathrm{3D}}(R=R_{\mathrm{e}})$']
     xlim = [0., 8.25]
     ylims = [[1.75, 5.5], [0.85, 1.15]]
-    titles = [r'Total virial coefficient', r'Enclosed 3D virial coefficient' ]
+    titles = [None, None]
     ann_arr = [ r'$\displaystyle k_{\mathrm{tot}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{tot}} G }{v_{\mathrm{circ}}(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$',
                 r'$\displaystyle k_{\mathrm{3D}}(R_{\mathrm{e}}) = \frac{M_{\mathrm{sph}}(<r=R_{\mathrm{e}}) G }{v_{\mathrm{circ}}(R_{\mathrm{e}})^2 R_{\mathrm{e}}}$' ]
     ann_arr_pos = ['upperright', 'lowerright']
@@ -1330,16 +1346,16 @@ def plot_virial_coeff(fileout=None, output_path=None, table_path=None,
 
 def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
              output_path=None, table_path=None, fileout=None,
-             z=2., Mbaryon=5.e10,
-             Reff_disk=5., n_disk=1., invq_disk=5.,
+             z=2., Mbaryon=6.6e10,
+             Reff_disk=3.4, n_disk=1., invq_disk=4.,
              Reff_bulge=1., n_bulge=4., invq_bulge=1.,
-             Mhalo=1.e12, halo_conc=4.,
+             Mhalo=8.9e11, halo_conc=4.2,
              rmin = 0., rmax=15., rstep=0.01,
              log_rmin=-0.6, log_rmax=2.2, nlogr = 101,
              logradius=False,
              ylim_lmenc=[8., 12.],
              ylim_lmenc_lograd=[6.,12.5],
-             ylim_vcirc=[0., 340.]):
+             ylim_vcirc=[0., 420.]):
     """
     Plot example enclosed mass and circular velocity profiles for
     different mass components, over a variety of B/T ratios.
@@ -1359,14 +1375,14 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
         z: float, optional
             Redshift (to determine NFW halo properties. Default: z=2.
         Mbaryon: float, optional
-            Total baryon mass [Msun]. Default: 5.e10 Msun.
+            Total baryon mass [Msun]. Default: 6.6e10 Msun.
         Reff_disk: float, optional
             Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].
-            Default: 5kpc
+            Default: 3.4 kpc
         n_disk: float, optional
             Sersic index of disk component. Default: n_disk = 1.
         invq_disk: float, optional
-            Flattening of disk component. Default: invq_disk = 5.
+            Flattening of disk component. Default: invq_disk = 4.
         Reff_bulge: float, optional
             Sersic projected 2D half-light (assumed half-mass) radius of bulge component [kpc].
             Default: 1kpc
@@ -1375,9 +1391,9 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
         invq_bulge: float, optional
             Flattening of bulge component. Default: invq_bulge = 1. (spherical)
         Mhalo: float, optional
-            NFW halo mass within R200 (=M200) [Msun]. Default: 1.e12 Msun
+            NFW halo mass within R200 (=M200) [Msun]. Default: 8.9e112 Msun
         halo_conc: float, optional
-            Concentration of NFW halo. Default: 4.
+            Concentration of NFW halo. Default: 4.2
 
         logradius: bool, optional
             Option whether to plot log radius or linear. Default: False (plot linear).
@@ -1431,8 +1447,7 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
     ls_arr = ['--', '-.', (0, (3, 1, 1, 1, 1, 1)), ':', '-',
                 (0, (10, 4)), (0, (10, 2, 1, 2, 1, 2, 1, 2))]
     lw_arr = [1.25, 1.25, 1.35, 1.35, 1.5, 1., 1.]
-    labels = ['Disk', 'Bulge', r'Baryons',
-                'Halo', 'Total',
+    labels = ['Disk', 'Bulge', 'Baryons', 'Halo', 'Total',
                 r'$M_{\mathrm{enc,DM}}/M_{\mathrm{enc,tot}}$',
                 r'$v_{\mathrm{circ,DM}}^2/v_{\mathrm{circ,tot}}^2$']
     color_arr = ['blue', 'red', 'green', 'purple', 'black', color_fdm, color_vsq]
@@ -1562,9 +1577,9 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 vline_lss = ['-', '--', '-.', (0, (3, 1, 1, 1, 1, 1)), ':']
                 vline_cols = ['darkgrey', 'blue', 'red', 'green', 'grey']
                 vline_labels = [r'$R_{\mathrm{e,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,Disk}}$',
-                                r'$r_{\mathrm{1/2,3D,Bulge}}$',
-                                r'$r_{\mathrm{1/2,3D,Baryons}}$',
+                                r'$r_{\mathrm{1/2,3D,disk}}$',
+                                r'$r_{\mathrm{1/2,3D,bulge}}$',
+                                r'$r_{\mathrm{1/2,3D,baryon}}$',
                                 r'$r_{\mathrm{vir}}$']
                 vline_alphas = [1., 0.5, 0.5, 0.5, 1.]
 
@@ -1573,9 +1588,9 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 vline_lss = ['-', '--', '-.', (0, (3, 1, 1, 1, 1, 1))]
                 vline_cols = ['darkgrey', 'blue', 'red', 'green']
                 vline_labels = [r'$R_{\mathrm{e,disk}}$',
-                                r'$r_{\mathrm{1/2,3D,Disk}}$',
-                                r'$r_{\mathrm{1/2,3D,Bulge}}$',
-                                r'$r_{\mathrm{1/2,3D,Baryons}}$']
+                                r'$r_{\mathrm{1/2,3D,disk}}$',
+                                r'$r_{\mathrm{1/2,3D,bulge}}$',
+                                r'$r_{\mathrm{1/2,3D,baryon}}$']
                 vline_alphas = [1., 0.5, 0.5, 0.5]
 
             #########
@@ -1654,15 +1669,15 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 if (j == n_cols-1):
                     if ylabels2[k] is not None:
                         ax2.set_ylabel(ylabels2[k], fontsize=fontsize_labels_sm, color=color_vsq)
-                    if (i < n_rows-2):
-                        ax2.yaxis.set_major_locator(FixedLocator([0., 0.25, 0.5, 0.75, 1.]))
-                        ax2.yaxis.set_major_formatter(FixedFormatter(["", "0.25", "0.50", "0.75", "1.00"]))
+                    if (i > 0):
+                        ax2.yaxis.set_major_locator(FixedLocator([0., 0.2, 0.4, 0.6, 0.8, 1.]))
+                        ax2.yaxis.set_major_formatter(FixedFormatter(["0.0", "0.2", "0.4", "0.6", "0.8", ""]))
                     else:
-                        ax2.yaxis.set_major_locator(MultipleLocator(0.25))
+                        ax2.yaxis.set_major_locator(MultipleLocator(0.2))
                     ax2.tick_params(axis='y', direction='in', color=color_vsq,
                             labelsize=fontsize_ticks_sm, colors=color_vsq)
                 else:
-                    ax2.yaxis.set_major_locator(MultipleLocator(0.25))
+                    ax2.yaxis.set_major_locator(MultipleLocator(0.2))
                     ax2.set_yticklabels([])
             ########
             if logradius:
@@ -1684,12 +1699,15 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                 ax.yaxis.set_minor_locator(MultipleLocator(0.2))
                 ax.yaxis.set_major_locator(MultipleLocator(1.))
             elif typ == 'vcirc':
-                ax.yaxis.set_minor_locator(MultipleLocator(10.))
-                ax.yaxis.set_major_locator(MultipleLocator(50.))
+                ax.yaxis.set_minor_locator(MultipleLocator(20.))
+                ax.yaxis.set_major_locator(MultipleLocator(100.))
             elif typ == 'fDM':
-                ax.yaxis.set_major_locator(MultipleLocator(0.25))
                 ax.yaxis.set_minor_locator(MultipleLocator(0.05))
-
+                if (j==0):
+                    ax.yaxis.set_major_locator(FixedLocator([0., 0.2, 0.4, 0.6, 0.8, 1.]))
+                    ax.yaxis.set_major_formatter(FixedFormatter(["0.0", "0.2", "0.4", "0.6", "0.8", ""]))
+                else:
+                    ax.yaxis.set_major_locator(MultipleLocator(0.2))
 
             ax.tick_params(labelsize=fontsize_ticks)
 
@@ -1745,15 +1763,24 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                     bbox2_to_anchor = (1.,1.)
 
                 if (k == 0):
-                    legend1 = ax.legend(handles_arr, labels_arr,
+                    legend1 = ax.legend([handles_arr[-1]], [labels_arr[-1]],
+                        labelspacing=labelspacing, borderpad=borderpad,
+                        handletextpad=handletextpad, loc='upper right',
+                        bbox_to_anchor=(0.93,1.02),
+                        handlelength=1.55,
+                        numpoints=1, scatterpoints=1,
+                        frameon=False, framealpha=framealpha, edgecolor=edgecolor,
+                        fontsize=fontsize_leg_tmp)
+                    legend15 = ax.legend(handles_arr[:-1], labels_arr[:-1],
                         labelspacing=labelspacing, borderpad=borderpad,
                         handletextpad=handletextpad, loc='lower right',
-                        bbox_to_anchor=(1.0,-0.02),
-                        handlelength=1.8,
+                        bbox_to_anchor=(1.04,-0.04),
+                        handlelength=1.55,
                         numpoints=1, scatterpoints=1,
                         frameon=False, framealpha=framealpha, edgecolor=edgecolor,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend1)
+                    ax.add_artist(legend15)
                 elif ((i == n_rows -1) & (j == 0)):
                     legend2 = ax.legend(handles_arr2, labels_arr2,
                         labelspacing=labelspacing, borderpad=borderpad,
@@ -1766,15 +1793,36 @@ def plot_example_galaxy_mencl_vcirc(bt_arr=[0., 0.25, 0.5, 0.75, 1.],
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
                 elif ((i == 0) & (j == 1)):
-                    legend3 = ax.legend(handles_arr3, labels_arr3,
+                    legend3 = ax.legend([handles_arr3[0]], [labels_arr3[0]],
                         labelspacing=0, borderpad=borderpad,
-                        handletextpad=handletextpad, loc= loc3,
-                        bbox_to_anchor=(1.03,-0.02),
+                        handletextpad=handletextpad, loc='upper right',
+                        bbox_to_anchor=(0.83, 1.02),
                         handlelength=1.4,
                         numpoints=1, scatterpoints=1,
                         frameon=False, framealpha=framealpha, edgecolor=edgecolor,
                         fontsize=fontsize_leg_tmp)
+                    legend35 = ax.legend(handles_arr3[1:], labels_arr3[1:],
+                        labelspacing=0, borderpad=borderpad,
+                        handletextpad=handletextpad, loc= loc3,
+                        bbox_to_anchor=(1.04,-0.05),
+                        handlelength=1.4,
+                        numpoints=1, scatterpoints=1,
+                        frameon=False, framealpha=framealpha, edgecolor=edgecolor,
+                        fontsize=fontsize_leg_tmp)
+                    # Hack to get alpha more to match
+                    for lh, alph in zip(legend3.legendHandles, [vline_alphas[0]]):
+                        if alph < 1.:
+                            alph *= 0.65
+                        lh.set_alpha(alph)
+                    for lh, alph in zip(legend35.legendHandles, vline_alphas[1:]):
+                        if alph < 1.:
+                            alph *= 0.65
+                        lh.set_alpha(alph)
+                    # Change label v alignment
+                    for t in legend35.get_texts():
+                        t.set_position((0.,2.))
                     ax.add_artist(legend3)
+                    ax.add_artist(legend35)
 
     if fileout is not None:
         plt.savefig(fileout, bbox_inches='tight', dpi=600)
@@ -1900,9 +1948,9 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
 
         xlims.append([0., 1.])
         if del_fDM:
-            ylims.append([-0.15, 0.05])
+            ylims.append([-0.24, 0.07])
         else:
-            ylims.append([0.84, 1.035])
+            ylims.append([0.77, 1.045])
 
     ######################################
     # Setup plot:
@@ -2001,6 +2049,32 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
                         vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
                         fdm_vsq[ll] = vcirc_halo**2/vcirc_tot**2
 
+                        if (mm == 0) & (bt == 0):
+                            menc_baryons = util_calcs.total_mass2D_direct(Reff_disk, total_mass=Mbaryon,
+                                                Reff=Reff_disk, n=1., q=1., i=0.)
+                            vcirc_baryons = plot_calcs.freeman_vcirc(Reff_disk, Mbaryon, Reff_disk)
+
+                            menc_tot = menc_baryons + menc_halo
+                            vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+                            fdm_menc_tmp = menc_halo/menc_tot
+                            fdm_vsq_tmp = vcirc_halo**2/vcirc_tot**2
+
+                            print("Freeman: fDMv/fDMm = {:0.4f}".format(fdm_vsq_tmp/fdm_menc_tmp))
+
+                            # # Do another limiting calc:
+                            # qprime = 0.001
+                            # sprof = core.DeprojSersicModel(total_mass=Mbaryon,
+                            #                                Reff=Reff_disk, n=n_disk, q=qprime)
+                            #
+                            # menc_baryons = sprof.enclosed_mass(Reff_disk)
+                            # vcirc_baryons = sprof.v_circ(Reff_disk)
+                            # menc_tot = menc_baryons + menc_halo
+                            # vcirc_tot = np.sqrt(vcirc_baryons**2 + vcirc_halo**2)
+                            # fdm_menc_tmp = menc_halo/menc_tot
+                            # fdm_vsq_tmp = vcirc_halo**2/vcirc_tot**2
+                            #
+                            # print("Oblate q={}: fDMv/fDMm = {:0.4f}".format(qprime, fdm_vsq_tmp/fdm_menc_tmp))
+
                     ######################
                     if invq_disk < 1:
                         zorder = -5.
@@ -2086,9 +2160,9 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
             xypos = (padx, pady)
             va = 'bottom'
             ha = 'left'
-            ann_str = r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})'+r'={:0.1f}$'.format(np.log10(Mbaryon))
+            ann_str = r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})'+r'={:0.2f}$'.format(np.log10(Mbaryon))
             ann_str += '\n'
-            ann_str += r'$\log_{10}(M_{\mathrm{halo}}/M_{\odot})'+r'={:0.1f}$'.format(np.log10(Mhalo))
+            ann_str += r'$\log_{10}(M_{\mathrm{halo}}/M_{\odot})'+r'={:0.2f}$'.format(np.log10(Mhalo))
             ann_str += '\n'
             ann_str += r'$\mathrm{conc}_{\mathrm{halo}}'+r'={:0.1f}$'.format(halo_conc)
             ax.annotate(ann_str, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
@@ -2184,7 +2258,7 @@ def plot_fdm_calibration(Mstar_arr=None, Mbaryon_arr=[10**10.5],
 def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
             q_disk_arr = [0.05, 0.1, 0.2, 0.25, 0.4, 0.6, 0.8, 1., 1.5, 2.],
             ReB_to_ReD_arr=[0.2, 0.5, 1.],
-            Mhalo=1.e12, halo_conc=4., Reff_disk=5.,
+            Mhalo=1.e12, halo_conc=4.,
             output_path=None, table_path=None, fileout=None,
             z=2., n_disk=1., n_bulge=4., invq_bulge=1., Reff_bulge=1.,
             rmin = 0., rmax=15., rstep=0.01, btstep = 0.025,
@@ -2214,9 +2288,6 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
             Default: 1.e12 Msun.
         halo_conc_arr: flat, optional
             Halo concentration. Default: 4.
-        Reff_disk: array_like, optional
-            Sersic projected 2D half-light (assumed half-mass) radius of disk component [kpc].
-            Default: 5. kpc
         n_disk: float, optional
             Sersic index of disk component. Default: n_disk = 1.
         Reff_bulge: float, optional
@@ -2224,6 +2295,10 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
             Default: 1kpc
         n_bulge:    Sersic index of bulge component. Default: n_bulge = 4.
         invq_bulge: Flattening of bulge componen. Default: invq_bulge = 1. (spherical)
+
+        ReB_to_ReD_arr: array_like, optional
+            Ratio of bulge to disk effective radii.
+            Default: [0.2, 0.5, 1.]
 
         fileout: str, optional
             Override the default filename and explicitly choose the output filename
@@ -2282,7 +2357,7 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
             lw_arr.append(1.)
             ls_arr.append('--')
             dashes_arr.append((dashlen[i-1], 5))
-        lblstr = r'$R_{\mathrm{e,B}}/R_{\mathrm{e,D}}='
+        lblstr = r'$R_{\mathrm{e,bulge}}/R_{\mathrm{e,disk}}='
         if reBtoreD % 1. == 0:
             lblstr += '{:0.0f}$'.format(reBtoreD)
         elif 10.*reBtoreD % 1. == 0:
@@ -2302,7 +2377,7 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
     ylims = [[0., 10.]]
     ylims = [None]
     if del_fDM:
-        ylims.append([-0.11,0.35])
+        ylims.append([-0.11,0.25])
     else:
         ylims.append(None)
 
@@ -2311,7 +2386,7 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
     ######################################
     # Setup plot:
     f = plt.figure()
-    scale = 4.
+    scale = 3.85 #4.
     n_cols = 2
     n_rows = 1
     fac = 1.
@@ -2526,9 +2601,9 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
                     va = 'top'
                     ha = 'left'
                 xypos = (padx, pady)
-                ann_str = r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})'+r'={:0.1f}$'.format(np.log10(Mbaryon))
+                ann_str = r'$\log_{10}(M_{\mathrm{bar}}/M_{\odot})'+r'={:0.2f}$'.format(np.log10(Mbaryon))
                 ann_str += '\n'
-                ann_str += r'$\log_{10}(M_{\mathrm{halo}}/M_{\odot})'+r'={:0.1f}$'.format(np.log10(Mhalo))
+                ann_str += r'$\log_{10}(M_{\mathrm{halo}}/M_{\odot})'+r'={:0.2f}$'.format(np.log10(Mhalo))
                 ann_str += '\n'
                 ann_str += r'$\mathrm{conc}_{\mathrm{halo}}'+r'={:0.1f}$'.format(halo_conc)
                 ax.annotate(ann_str, xy=xypos, xycoords='axes fraction', ha=ha, va=va,
@@ -2610,6 +2685,7 @@ def plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D(Mbaryon=10**10.5,
                         loc=loc2, bbox_to_anchor=bbox_to_anchor2,
                         numpoints=1, scatterpoints=1,
                         frameon=frameon, framealpha=framealpha, edgecolor=edgecolor,
+                        #handlelength=1.4,
                         fontsize=fontsize_leg_tmp)
                     ax.add_artist(legend2)
                     ax.set_zorder(1)
@@ -2727,9 +2803,6 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
     ylims = [[0.,1.], ylim_comp, [0.5,1.1], [-0.05,0.2]]
     types = ['fdm_vsq', 'fDM_comp',
              'rhalf3D_bary_to_Reff_disk', 'fDM_comp_rhalf3D_bary']
-    # ann_arr = [ r'$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}}) = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$',
-    #             r'$\displaystyle f_{\mathrm{DM}}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(<r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(<r=R_{\mathrm{e,disk}})}$',
-    #             None, None]
     ann_arr_n = [2, 1, 0, 0]
     ann_arr = [ [r'$\displaystyle f_{\mathrm{DM}}^v(R_{\mathrm{e,disk}})$', r'$\displaystyle = \frac{v_{\mathrm{circ,DM}}^2(R_{\mathrm{e,disk}})}{v_{\mathrm{circ,tot}}^2(R_{\mathrm{e,disk}})}$'],
                 r'$\displaystyle f_{\mathrm{DM}}^m(R_{\mathrm{e,disk}}) = \frac{M_{\mathrm{DM,sph}}(<r=R_{\mathrm{e,disk}})}{M_{\mathrm{tot,sph}}(<r=R_{\mathrm{e,disk}})}$',
@@ -3296,7 +3369,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
                 else:
                     ax.set_xticklabels([])
                 if ylabel is not None:
-                    ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=1) #2)
+                    ax.set_ylabel(ylabel, fontsize=fontsize_labels_sm-2, labelpad=1)
                 else:
                     ax.set_yticklabels([])
 
@@ -3479,7 +3552,7 @@ def plot_toy_impl_fDM_calibration_z_evol(lmstar_arr=None,
 # Figure 9
 
 def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
-            n_arr=[0.5, 1., 2., 4., 8.], show_literature=True):
+            n_arr=[0.5, 1., 2., 4., 8.], show_literature=True, print_values=False):
     """
     Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,
     over a range of Sersic index n.
@@ -3498,7 +3571,6 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
             Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4,, 8.]
         show_literature: bool, optional
             Whether to show inferred alpha values from some simulation literature work:
-                Wellons et al., 2020, MNRAS, 497, 4051-4065;
                 Kretschmer et al., 2021, MNRAS, 503, 5238-5253;
                 Dalcanton & Stilp, 2010, ApJ, 721, 547
         fileout: str, optional
@@ -3579,9 +3651,17 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
         #####
         # Kretschmer+21, Figure 4 alpha_rho (medians from data from M. Kretschmer)
         k21_fig4 = scaling_rel._kretschmer21_fig4_alpharho(path=output_path)
+        if print_values:
+            nser_50 = k21_fig4['n_sersic'][0]
+            nser_16 = nser_50 - k21_fig4['n_sersic_err_l68'][0]
+            nser_84 = k21_fig4['n_sersic_err_u68'][0] - nser_50
+            print("K21: n_sersic: median={:0.2f}, 16,84% range=[{:0.2f},{:0.2f}]".format(nser_50,
+                  nser_16, nser_84))
         lit_dict['K21_fig4_alpharho'] = {
-                              'RtoRe': k21_fig4['RtoRe'],
-                              'alpha': k21_fig4['alpha_rho'],
+                              'RtoRe': k21_fig4['RtoRe'].value,
+                              'alpha': k21_fig4['alpha_rho'].value,
+                              'alpha_err_l68': k21_fig4['alpha_rho_err_l68'].value,
+                              'alpha_err_u68': k21_fig4['alpha_rho_err_u68'].value,
                               'marker': 'o',
                               'ms': 25.,
                               'color': 'red',
@@ -3638,6 +3718,22 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
                     else:
                         lbl = None
                     if 'ls' in lit_dict[key].keys():
+                        if 'frac_uncertainty' in lit_dict[key].keys():
+                            if types[i] == 'alpha':
+                                ax.fill_between(lit_dict[key]['RtoRe'],
+                                        lit_dict[key]['alpha']*(1-lit_dict[key]['frac_uncertainty']),
+                                        lit_dict[key]['alpha']*(1+lit_dict[key]['frac_uncertainty']),
+                                        ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
+                                        lw=lit_dict[key].get('lw', 1.),
+                                        alpha=0.2, label=None, zorder=zorder_lit-10)
+                            elif types[i] == 'alpha_by_sg':
+                                ax.fill_between(lit_dict[key]['RtoRe'],
+                                        lit_dict[key]['alpha']/(3.36*lit_dict[key]['RtoRe'])*(1-lit_dict[key]['frac_uncertainty']),
+                                        lit_dict[key]['alpha']/(3.36*lit_dict[key]['RtoRe'])*(1+lit_dict[key]['frac_uncertainty']),
+                                        ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
+                                        lw=lit_dict[key].get('lw', 1.),
+                                        alpha=0.2, label=None, zorder=zorder_lit-10)
+
                         if types[i] == 'alpha':
                             ax.plot(lit_dict[key]['RtoRe'], lit_dict[key]['alpha'],
                                     ls=lit_dict[key]['ls'], color=lit_dict[key]['color'],
@@ -3650,6 +3746,26 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
                                     lw=lit_dict[key].get('lw', 1.),
                                     label=lbl, zorder=zorder_lit)
                     else:
+                        # -------
+                        # Show uncertainties:
+                        if 'alpha_err_l68' in lit_dict[key].keys():
+                                if types[i] == 'alpha':
+                                    ax.errorbar(lit_dict[key]['RtoRe'], lit_dict[key]['alpha'],
+                                            yerr = [lit_dict[key]['alpha_err_l68'],
+                                                    lit_dict[key]['alpha_err_u68']],
+                                            marker=None, ls='None', capsize=0.,
+                                            lw=1, color='lightgrey',
+                                            label=None, zorder=zorder_lit+1)
+                                elif types[i] == 'alpha_by_sg':
+                                    ax.errorbar(lit_dict[key]['RtoRe'],
+                                            lit_dict[key]['alpha']/(3.36*lit_dict[key]['RtoRe']),
+                                            yerr = [lit_dict[key]['alpha_err_l68']/(3.36*lit_dict[key]['RtoRe']),
+                                                    lit_dict[key]['alpha_err_u68']/(3.36*lit_dict[key]['RtoRe'])],
+                                            marker=None, ls='None', capsize=0.,
+                                            lw=1, color='lightgrey',
+                                            label=None, zorder=zorder_lit+1)
+                        # -------
+
                         if types[i] == 'alpha':
                             ax.scatter(lit_dict[key]['RtoRe'], lit_dict[key]['alpha'],
                                     marker=lit_dict[key]['marker'], color=lit_dict[key]['color'],
@@ -3766,11 +3882,9 @@ def plot_alpha_vs_R(fileout=None, output_path=None, table_path=None,
 # Figure 10
 
 def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_path=None,
-            sigma0_arr = [30., 60., 90.],
-            q_arr=[1., 0.2],
-            n_arr=[0.5, 1., 2., 4.],
-            show_sigmar_toy=False,
-            show_sigmar_toy_nosig0=False):
+            sigma0_arr = [30., 60., 90.], q_arr=[1., 0.2], n_arr=[0.5, 1., 2., 4.],
+            total_mass = np.power(10.,10.5), Reff=1.,
+            show_sigmar_toy=False, show_sigmar_toy_nosig0=False):
     """
     Plot pressure support using alpha=-dlnrho_g/dlnr derived for deprojected
     Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.
@@ -3792,6 +3906,12 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
             Range of intrinsic axis ratios to plot. Default: q_arr = [1., 0.2]
         n_arr: array_like, optional
             Range of Sersic indices to plot. Default: n_arr = [0.5, 1., 2., 4.]
+
+        total_mass: float, optional
+            Total mass of the Sersic component (Msun). Default: 10^10.5 Msun.
+        Reff: float, optional
+            Effective radius of the Sersic component (kpc). Default: 1 kpc
+
         fileout: str, optional
             Override the default filename and explicitly choose the output filename
             (must include full path).
@@ -3829,9 +3949,7 @@ def plot_AD_sersic_potential_alpha_vs_R(fileout=None, output_path=None, table_pa
 
     # Load files:
     delR = 0.001
-    Rarr = np.arange(xlim[0], xlim[1]+delR, delR)
-    Reff = 1.
-    total_mass = np.power(10.,10.5)
+    Rarr = np.arange(xlim[0], xlim[1]+delR, delR)*Reff
     xlim = [0., 3.]
     ks_dict = {}
     for q in q_arr:
@@ -4142,7 +4260,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             lw_arr_bt.append(1.)
             ls_arr_bt.append('--')
             dashes_arr_bt.append((dashlen[i-1], 5))
-        lblstr = r'$R_{\mathrm{e,B}}/R_{\mathrm{e,D}}='
+        lblstr = r'$R_{\mathrm{e,bulge}}/R_{\mathrm{e,disk}}='
         if reBtoreD % 1. == 0:
             lblstr += '{:0.0f}$'.format(reBtoreD)
         elif 10.*reBtoreD % 1. == 0:
@@ -4172,7 +4290,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             ls_arr_D2t.append('--')
             dashes_arr_D2t.append((dashlen[i-1], 5))
 
-        lblstr = r'$R_{\mathrm{e,D_2}}/R_{\mathrm{e,D}}='
+        lblstr = r'$R_{\mathrm{e,disk_2}}/R_{\mathrm{e,disk}}='
         if reD2toreD % 1. == 0:
             lblstr += '{:0.0f}$'.format(reD2toreD)
         elif 10.*reD2toreD % 1. == 0:
@@ -4235,7 +4353,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             ks_dict['D2t={}'.format(D2t)]['reD2toreD={}'.format(reD2toreD)]['label_reratio'] = labels_reratio_D2t[j]
 
     xlabel = r'$R/R_{\mathrm{e,disk}}$'
-    ylabels = [r'$\alpha_{\mathrm{tot,\ D+B}}(R)$', r'$\alpha_{\mathrm{tot,\ D+D_2}}(R)$']
+    ylabels = [r'$\alpha_{\mathrm{tot,\ disk+bulge}}(R)$', r'$\alpha_{\mathrm{tot,\ disk+disk_2}}(R)$']
     ylims = [[0., 10.], [0., 10.]]
     titles = [None]
     lw = 1.3
@@ -4348,18 +4466,18 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
 
         ########################################
         # Annotate Sersic indices:
-        ann_str = r'$n_D = '+r'{:0.0f}$'.format(nDisk)
-        ann_str2 = r'$n_B = '+r'{:0.0f}$'.format(nBulge)
-        xdelt = 0.2
+        ann_str = r'$n_{\mathrm{disk}} = '+r'{:0.0f}$'.format(nDisk)
+        ann_str2 = r'$n_{\mathrm{bulge}} = '+r'{:0.0f}$'.format(nBulge)
+        xdelt = 0.075
         ypos = 0.2275
         ydelt = 0.055
         xy = (1.-xdelt, ypos+ydelt)
         xy2 = (1.-xdelt, ypos)
         ax.annotate(ann_str, xy=xy,
-                va='bottom', ha='left', fontsize=fontsize_ann,
+                va='bottom', ha='right', fontsize=fontsize_ann,
                 xycoords='axes fraction', color=cmap_bt(0.+btextra))
         ax.annotate(ann_str2, xy=xy2,
-                va='bottom', ha='left', fontsize=fontsize_ann,
+                va='bottom', ha='right', fontsize=fontsize_ann,
                 xycoords='axes fraction', color=cmap_bt(0.9+btextra))
         ########################################
 
@@ -4411,7 +4529,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
 
         loc2 = 'lower right'
         bbox_to_anchor2 = (1., -0.025)
-        handlelength = 5.
+        handlelength = 4.1
         borderpad = 0.5
         legend2 = ax.legend(handles_arr2, labels_arr2,
             labelspacing=labelspacing, borderpad=borderpad,
@@ -4427,7 +4545,7 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
             labelspacing=labelspacing, borderpad=borderpad,
             handletextpad=handletextpad, frameon=frameon,
             loc=loc3, bbox_to_anchor=bbox_to_anchor3,
-            handlelength=2.2,
+            handlelength=2.4,
             numpoints=1, scatterpoints=1,fontsize=fontsize_leg_tmp,
             fancybox=fancybox,edgecolor=edgecolor, facecolor=facecolor,
             framealpha=framealpha)
@@ -4612,8 +4730,6 @@ def plot_composite_alpha_bulge_2disk_vs_r(fileout=None, output_path=None, table_
         plt.show()
 
     return None
-
-
 
 
 if __name__ == "__main__":
