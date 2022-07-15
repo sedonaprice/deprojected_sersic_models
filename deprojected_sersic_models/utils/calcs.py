@@ -295,7 +295,7 @@ def qobs_func(q=None, i=None):
     Returns
     -------
         qobs: float
-            qobs = sqrt(q^2 + (1-q^2)*cos(i))
+            qobs = sqrt(q^2 + (1-q^2)*cos(i)^2)
 
     """
     return np.sqrt(q**2 + (1-q**2)*np.cos(i*deg2rad)**2)

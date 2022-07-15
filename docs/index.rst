@@ -17,7 +17,7 @@ package and in the precomputed tables are given in `Price et al., 2022, accepted
 
 
 .. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price et al., 2022, accepted for publication in A&A: LINK_ADS
+.. _Price et al., 2022, accepted for publication in A&A: https://ui.adsabs.harvard.edu/abs/2022arXiv220706442P/abstract
 
 As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.

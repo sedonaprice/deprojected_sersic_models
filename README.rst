@@ -20,7 +20,7 @@ Further details about the calculations included in this package
 are described in `Price et al., 2022, accepted for publication in A&A`_.
 
 .. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price et al., 2022, accepted for publication in A&A: LINK_TO_ADS
+.. _Price et al., 2022, accepted for publication in A&A: https://ui.adsabs.harvard.edu/abs/2022arXiv220706442P/abstract
 
 Please see `the documentation`_ for this package for detailed information about installation,
 usage, and to `download`_ the set of pre-computed Sérsic profile tables.
@@ -64,10 +64,10 @@ Dependencies
 Acknowledgement
 ###############
 If you use this package or the precomputed profile tables in a publication,
-please cite Price et al., 2022, submitted (`ADS`_ | `arXiv`_).
+please cite Price et al., 2022, accepted for publication in A&A (`ADS`_ | `arXiv`_).
 
-.. _ADS: LINK_TO_ADS
-.. _arXiv: LINK_TO_ARXIV
+.. _ADS: https://ui.adsabs.harvard.edu/abs/2022arXiv220706442P/abstract
+.. _arXiv: https://arxiv.org/abs/2207.06442
 
 
 
