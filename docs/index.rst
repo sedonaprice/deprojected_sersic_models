@@ -13,11 +13,10 @@ for deprojected, flattened (and also elongated) Sérsic mass distributions.
 These calculations follow and extend the derivation of rotation curves for flattened Sérsic profiles
 presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
 Full details about the calculations in this
-package and in the precomputed tables are given in `Price et al., 2022, accepted for publication in A&A`_.
-
+package and in the precomputed tables are given in `Price et al., 2022, A&A 665 A159`_.
 
 .. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price et al., 2022, accepted for publication in A&A: https://ui.adsabs.harvard.edu/abs/2022arXiv220706442P/abstract
+.. _Price et al., 2022, A&A 665 A159: https://ui.adsabs.harvard.edu/abs/2022A%26A...665A.159P/abstract
 
 As these calculations require numerical integration, it is also possible to
 reload pre-computed profiles from tables and interpolate as needed.
