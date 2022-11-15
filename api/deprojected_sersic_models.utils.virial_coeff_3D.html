@@ -98,9 +98,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
-      <li>virial_coeff_3D</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">virial_coeff_3D</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/deprojected_sersic_models.utils.virial_coeff_3D.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -147,10 +147,10 @@ and the mass enclosed within a sphere of radius r=R.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius at which to evaluate virial coefficient [kpc]</p></li>
-<li><p><strong>m3D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Pre-calculated evaluation of Menc3D_sphere(R)
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius at which to evaluate virial coefficient [kpc]</p></li>
+<li><p><strong>m3D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Pre-calculated evaluation of Menc3D_sphere(R)
 (saves time to avoid recalculating Menc3D_sphere(R)) [Msun]</p></li>
-<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Pre-calculated evaluation of vcirc(R)
+<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Pre-calculated evaluation of vcirc(R)
 (saves time to avoid recalculating vcirc(R))  [km/s]</p></li>
 </ul>
 </dd>
@@ -158,7 +158,7 @@ and the mass enclosed within a sphere of radius r=R.</p>
 <dd class="field-even"><p><strong>k3D</strong> – k3D = Menc3D_sphere(R) * G / (vcirc(R)^2 * R)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -177,7 +177,7 @@ and the mass enclosed within a sphere of radius r=R.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 28 Sep 2022.
+      <span class="lastupdated">Last updated on 15 Nov 2022.
       </span></p>
   </div>
 

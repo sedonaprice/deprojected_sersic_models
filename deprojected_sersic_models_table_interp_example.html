@@ -89,8 +89,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Pre-calculated tables &amp; interpolation</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Pre-calculated tables &amp; interpolation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/deprojected_sersic_models_table_interp_example.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -210,10 +210,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -759,7 +760,7 @@ table_interp2 = deproj_sersic.interpolate_entire_table(R=R, total_mass=total_mas
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 28 Sep 2022.
+      <span class="lastupdated">Last updated on 15 Nov 2022.
       </span></p>
   </div>
 

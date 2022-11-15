@@ -95,9 +95,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
-      <li>DeprojSersicModel</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">DeprojSersicModel</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/deprojected_sersic_models.DeprojSersicModel.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -141,14 +141,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>total_mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total mass of the component [Msun]</p></li>
-<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Effective radius of Sersic profile [kpc]</p></li>
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sersic index</p></li>
-<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Intrinsic axis ratio of Sersic profile (c/a)</p></li>
-<li><p><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inclination of system [deg]</p></li>
-<li><p><strong>Upsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Mass-to-light ratio. Default: 1. (i.e., constant ratio)</p></li>
-<li><p><strong>invq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>derived</em>) – Flattening of Sersic profile; invq=1/q. (Derived)</p></li>
-<li><p><strong>Ie</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>derived</em>) – Normalization of Sersic intensity profile at kap = Reff. (Derived)</p></li>
+<li><p><strong>total_mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Total mass of the component [Msun]</p></li>
+<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Effective radius of Sersic profile [kpc]</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Sersic index</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Intrinsic axis ratio of Sersic profile (c/a)</p></li>
+<li><p><strong>i</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Inclination of system [deg]</p></li>
+<li><p><strong>Upsilon</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Mass-to-light ratio. Default: 1. (i.e., constant ratio)</p></li>
+<li><p><strong>invq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>derived</em>) – Flattening of Sersic profile; invq=1/q. (Derived)</p></li>
+<li><p><strong>Ie</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>derived</em>) – Normalization of Sersic intensity profile at kap = Reff. (Derived)</p></li>
 </ul>
 </dd>
 </dl>
@@ -202,13 +202,13 @@
 <p>See Eq. 2 of Price et al. 2022 (also Eq. 9 of Noordermeer 2008)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Distance at which to evaluate the circular velocity [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Distance at which to evaluate the circular velocity [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>rho_arR</strong> – Density profile at m [Msun / kpc^3]</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -221,13 +221,13 @@ in the midplane at radius <span class="math notranslate nohighlight">\(m=R\)</sp
 <p>See Eq. 17 of Price et al. 2022</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the log density profile slope [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the log density profile slope [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>dlnrho_dlnR_arR</strong> – Derivative of log density profile at r=m</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -240,13 +240,13 @@ at distance <span class="math notranslate nohighlight">\(m=R\)</span> of the dep
 <p>See Eq. 17 of Price et al. 2022</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the log density profile slope [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the log density profile slope [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>drho_dR_arR</strong> – Derivative of density profile at m=R</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -260,8 +260,8 @@ assuming a constant M/L ratio Upsilon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
-<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
+<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
 then add to the previous Menc(r-rdelt). Default: False</p></li>
 </ul>
 </dd>
@@ -269,7 +269,7 @@ then add to the previous Menc(r-rdelt). Default: False</p></li>
 <dd class="field-even"><p><strong>Menc3D_sphere</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -285,8 +285,8 @@ assuming a constant M/L ratio Upsilon.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
-<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
+<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
 then add to the previous Menc(r-rdelt). Default: False</p></li>
 </ul>
 </dd>
@@ -294,7 +294,7 @@ then add to the previous Menc(r-rdelt). Default: False</p></li>
 <dd class="field-even"><p><strong>Menc3D_ellip</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,11 +308,11 @@ and information about values at Reff or the 3D half mass radius.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius array, in kpc</p></li>
-<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius array, in kpc</p></li>
+<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
 then add to the previous Menc(r-rdelt).
 Default: Uses cumulative if n &gt;= 2.</p></li>
-<li><p><strong>add_reff_table_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Add select values at Reff to the table. Requires Reff to be in <code class="xref py py-obj docutils literal notranslate"><span class="pre">R</span></code>
+<li><p><strong>add_reff_table_values</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Add select values at Reff to the table. Requires Reff to be in <code class="xref py py-obj docutils literal notranslate"><span class="pre">R</span></code>
 Default: True</p></li>
 </ul>
 </dd>
@@ -320,7 +320,7 @@ Default: True</p></li>
 <dd class="field-even"><p><strong>table</strong> – Dictionary containing the various profiles &amp; values.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -333,13 +333,13 @@ Default: True</p></li>
 <p>See Graham &amp; Driver 2005.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>Menc2D_ellipse</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -351,13 +351,13 @@ Default: True</p></li>
 <p>See Price et al. 2002, Eq 3; Noordermeer 2008, Eq 11; Graham &amp; Driver 2005; etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine surface density distribution [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine surface density distribution [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>sigma_arR</strong> – Surface density of Sersic profile at R</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -369,13 +369,13 @@ Default: True</p></li>
 <p>See Eq. 5 of Price et al. 2022 (also Eq. 10 of Noordermeer 2008)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the circular velocity [kpc]</p>
+<dd class="field-odd"><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Midplane radius at which to evaluate the circular velocity [kpc]</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>vcirc</strong> – Circular velocity in the midplane at r [km/s]</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,10 +392,10 @@ and the mass enclosed within a sphere of radius R.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
-<li><p><strong>m3D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of Menc3D_sphere(R)
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
+<li><p><strong>m3D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of Menc3D_sphere(R)
 (saves time to avoid recalculating Menc3D_sphere(R)) [Msun]</p></li>
-<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of vcirc(R)
+<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of vcirc(R)
 (saves time to avoid recalculating vcirc(R))  [km/s]</p></li>
 </ul>
 </dd>
@@ -403,7 +403,7 @@ and the mass enclosed within a sphere of radius R.</p>
 <dd class="field-even"><p><strong>k3D</strong> – k3D = Menc3D_sphere(R) * G / (vcirc(R)^2 * R)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -419,8 +419,8 @@ and the mass enclosed within a sphere of radius R.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
-<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of vcirc(R)
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Major axis radius within which to determine total enclosed 2D projected mass [kpc]</p></li>
+<li><p><strong>vc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em><em>, </em><em>optional</em>) – Pre-calculated evaluation of vcirc(R)
 (saves time to avoid recalculating vcirc(R))  [km/s]</p></li>
 </ul>
 </dd>
@@ -428,7 +428,7 @@ and the mass enclosed within a sphere of radius R.</p>
 <dd class="field-even"><p><strong>ktot</strong> – ktot = Mtot * G / (vcirc(R)^2 * r)</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -449,7 +449,7 @@ and the mass enclosed within a sphere of radius R.</p>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 28 Sep 2022.
+      <span class="lastupdated">Last updated on 15 Nov 2022.
       </span></p>
   </div>
 

@@ -105,9 +105,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API</a> &raquo;</li>
-      <li>interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/deprojected_sersic_models.interpolate_sersic_profile_dlnrho_dlnR_two_component_nearest.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -155,26 +155,26 @@ then returns <code class="xref py py-obj docutils literal notranslate"><span cla
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius at which to interpolate profile [kpc]</p></li>
-<li><p><strong>mass_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total mass of the first component [Msun]    [Default: 10^11 Msun]</p></li>
-<li><p><strong>Reff_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Effective radius of the first component Sersic profile [kpc]</p></li>
-<li><p><strong>n_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sersic index of the first component.  [Default: 1.]</p></li>
-<li><p><strong>invq_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of the first component Sersic profile, invq = 1/q.
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius at which to interpolate profile [kpc]</p></li>
+<li><p><strong>mass_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Total mass of the first component [Msun]    [Default: 10^11 Msun]</p></li>
+<li><p><strong>Reff_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Effective radius of the first component Sersic profile [kpc]</p></li>
+<li><p><strong>n_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Sersic index of the first component.  [Default: 1.]</p></li>
+<li><p><strong>invq_comp1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of the first component Sersic profile, invq = 1/q.
 [Default: 5.]</p></li>
-<li><p><strong>mass_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total mass of the second component [Msun]    [Default: 0 Msun]</p></li>
-<li><p><strong>Reff_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Effective radius of the second component Sersic profile [kpc]. [Default: 1 kpc]</p></li>
-<li><p><strong>n_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sersic index of the second component. [Default: 4]</p></li>
-<li><p><strong>invq_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of the second component Sersic profile, invq = 1/q.
+<li><p><strong>mass_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Total mass of the second component [Msun]    [Default: 0 Msun]</p></li>
+<li><p><strong>Reff_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Effective radius of the second component Sersic profile [kpc]. [Default: 1 kpc]</p></li>
+<li><p><strong>n_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Sersic index of the second component. [Default: 4]</p></li>
+<li><p><strong>invq_comp2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of the second component Sersic profile, invq = 1/q.
 [Default: 1.]</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory containing the saved Sersic profile tables.
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory containing the saved Sersic profile tables.
 If not set, system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code> must be set.
 Default: system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code>, if specified.</p></li>
-<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, when combined with default naming convention:
+<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, when combined with default naming convention:
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits</span></code>.
 Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">deproj_sersic_model</span></code></p></li>
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Option to override the default filename convention and
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Option to override the default filename convention and
 instead directly specify the file location.</p></li>
-<li><p><strong>interp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Default profile interpolation within the table Rarr region.
+<li><p><strong>interp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Default profile interpolation within the table Rarr region.
 (Extrapolation is always linear). Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic</span></code></p></li>
 </ul>
 </dd>
@@ -182,7 +182,7 @@ instead directly specify the file location.</p></li>
 <dd class="field-even"><p><strong>dlnrho_dlnR_interp_nearest</strong></p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -201,7 +201,7 @@ instead directly specify the file location.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 28 Sep 2022.
+      <span class="lastupdated">Last updated on 15 Nov 2022.
       </span></p>
   </div>
 

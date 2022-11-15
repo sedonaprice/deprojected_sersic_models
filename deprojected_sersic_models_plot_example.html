@@ -85,8 +85,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Built-in plotting functions</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Built-in plotting functions</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/deprojected_sersic_models_plot_example.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -206,10 +206,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -598,7 +599,7 @@ deproj_sersic.plot.plot_profiles(tables,
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 28 Sep 2022.
+      <span class="lastupdated">Last updated on 15 Nov 2022.
       </span></p>
   </div>
 
