@@ -17,10 +17,10 @@ and projected enclosed mass.
 These calculations follow and extend the derivation of rotation curves for flattened
 Sérsic bulges presented by `Noordermeer, 2008, MNRAS, 385, 1359`_.
 Further details about the calculations included in this package
-are described in `Price et al., 2022, accepted for publication in A&A`_.
+are described in `Price et al., 2022, A&A 665 A159`_.
 
 .. _Noordermeer, 2008, MNRAS, 385, 1359: https://ui.adsabs.harvard.edu/abs/2008MNRAS.385.1359N/abstract
-.. _Price et al., 2022, accepted for publication in A&A: https://ui.adsabs.harvard.edu/abs/2022arXiv220706442P/abstract
+.. _Price et al., 2022, A&A 665 A159: https://ui.adsabs.harvard.edu/abs/2022A%26A...665A.159P/abstract
 
 Please see `the documentation`_ for this package for detailed information about installation,
 usage, and to `download`_ the set of pre-computed Sérsic profile tables.
