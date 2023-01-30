@@ -134,7 +134,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="check_for_inf"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.check_for_inf.html#deprojected_sersic_models.utils.check_for_inf">[docs]</a><span class="k">def</span> <span class="nf">check_for_inf</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check core table quantities for non-finite entries, to determine if numerical errors occured.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">status</span> <span class="o">=</span> <span class="mi">0</span>
@@ -167,7 +167,7 @@
 <span class="c1"># Calculation helper functions: General for mass distributions</span>
 
 <div class="viewcode-block" id="vcirc_spherical_symmetry"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.vcirc_spherical_symmetry.html#deprojected_sersic_models.utils.vcirc_spherical_symmetry">[docs]</a><span class="k">def</span> <span class="nf">vcirc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vcirc for a spherically symmetric mass distribution:</span>
 
 <span class="sd">    .. math::</span>
@@ -202,7 +202,7 @@
     <span class="k">return</span> <span class="n">vcirc</span></div>
 
 <div class="viewcode-block" id="menc_spherical_symmetry"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.menc_spherical_symmetry.html#deprojected_sersic_models.utils.menc_spherical_symmetry">[docs]</a><span class="k">def</span> <span class="nf">menc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vcirc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine Menc for a spherically symmetric mass distribution, given vcirc:</span>
 <span class="sd">        Menc(R) = vcirc(R)^2 * R / G</span>
 
@@ -231,7 +231,7 @@
 <span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
 
 <div class="viewcode-block" id="virial_coeff_tot"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_tot.html#deprojected_sersic_models.utils.virial_coeff_tot">[docs]</a><span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
 <span class="sd">    .. math::</span>
@@ -267,7 +267,7 @@
 
 
 <div class="viewcode-block" id="virial_coeff_3D"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_3D.html#deprojected_sersic_models.utils.virial_coeff_3D">[docs]</a><span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
 <span class="sd">    .. math::</span>
@@ -302,7 +302,7 @@
 <span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
 
 <div class="viewcode-block" id="find_rhalf3D_sphere"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.find_rhalf3D_sphere.html#deprojected_sersic_models.utils.find_rhalf3D_sphere">[docs]</a><span class="k">def</span> <span class="nf">find_rhalf3D_sphere</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc3D_sph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the radius corresponding to the sphere that</span>
 <span class="sd">    encloses half of the total mass for a Sersic profile of a given</span>
 <span class="sd">    intrinsic axis ratio, effective radius, and Sersic index.</span>
@@ -341,7 +341,7 @@
 <span class="c1"># Calculation helper functions: Seric profiles, mass distributions</span>
 
 <span class="k">def</span> <span class="nf">bn_func</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to calculate bn(n) for a Sersic profile</span>
 
 <span class="sd">    Parameters</span>
@@ -370,7 +370,7 @@
     <span class="k">return</span> <span class="n">scp_spec</span><span class="o">.</span><span class="n">gammaincinv</span><span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">qobs_func</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to calculate the observed axis ratio for an inclined system.</span>
 
 <span class="sd">    Parameters</span>
@@ -389,7 +389,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">q</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">deg2rad</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_Ie</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of Ie, normalization of the Sersic intensity profile at kap = Reff,</span>
 <span class="sd">    using the total mass (to infinity) and assuming a constant M/L ratio Upsilon.</span>
 
@@ -429,7 +429,7 @@
 
 
 <span class="k">def</span> <span class="nf">Ikap</span><span class="p">(</span><span class="n">kap</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Intensity(kappa) for a Sersic profile</span>
 
 <span class="sd">    Parameters</span>
@@ -458,7 +458,7 @@
     <span class="k">return</span> <span class="n">I</span>
 
 <span class="k">def</span> <span class="nf">dIdkap</span><span class="p">(</span><span class="n">kap</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Derivative d(Intensity(kappa))/dkappa for a Sersic profile</span>
 
 <span class="sd">    Parameters</span>
@@ -484,7 +484,7 @@
     <span class="k">return</span> <span class="n">dIdk</span>
 
 <span class="k">def</span> <span class="nf">rho_m_integrand</span><span class="p">(</span><span class="n">kap</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">Ie</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand dI/dkap * 1/sqrt(kap^2 - m^2) as part of</span>
 <span class="sd">    numerical integration to find rho(m)</span>
 
@@ -512,7 +512,7 @@
     <span class="k">return</span> <span class="n">integ</span>
 
 <span class="k">def</span> <span class="nf">rho_m</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">replace_asymptote</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of deprojected Sersic density profile at distance m.</span>
 
 <span class="sd">    Parameters</span>
@@ -558,7 +558,7 @@
 
 
 <span class="k">def</span> <span class="nf">vel_integrand</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand rho(m) * m^2 / sqrt(R^2 - (1-qint^2) * m^2) as part of numerical integration to find vcirc(R)</span>
 
 <span class="sd">    Parameters</span>
@@ -591,7 +591,7 @@
     <span class="k">return</span> <span class="n">integ</span>
 
 <span class="k">def</span> <span class="nf">vel_integral</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of integrand rho(m) * m^2 / sqrt(R^2 - (1-qint^2) * m^2) from m=0 to R,</span>
 <span class="sd">    as part of numerical integration to find vcirc(R)</span>
 
@@ -624,7 +624,7 @@
     <span class="k">return</span> <span class="n">intgrl</span>
 
 <span class="k">def</span> <span class="nf">total_mass3D_integrand_ellipsoid</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand m^2 * rho(m)  as part of numerical integration to find M_3D,ellipsoid(&lt;r=R)</span>
 
 <span class="sd">    Parameters</span>
@@ -657,7 +657,7 @@
 
 <span class="k">def</span> <span class="nf">total_mass3D_integral_ellipsoid</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
                                     <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of integrand m^2 * rho(m) from m=0 to R,</span>
 <span class="sd">    as part of numerical integration to find M_3D_ellipsoid(&lt;r=R)</span>
 
@@ -698,7 +698,7 @@
 
 
 <span class="k">def</span> <span class="nf">total_mass3D_integrand_sph_z</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand rho(sqrt(m^2 + (z/qintr)^2) [the arc of a circle with</span>
 <span class="sd">    cylindrical coords (m, z)] as part of numerical integration</span>
 <span class="sd">    to find mass enclosed in sphere.</span>
@@ -735,7 +735,7 @@
 
 <span class="k">def</span> <span class="nf">total_mass3D_integral_z</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span>
                             <span class="n">Rinner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of integrand 2 * rho(sqrt(m^2 + (z/qintr)^2) from z=0 to sqrt(R^2-m^2), [eg both pos and neg z]</span>
 <span class="sd">    as part of numerical integration to find mass enclosed in sphere</span>
 <span class="sd">    (or over the shell corresponding to Rinner...)</span>
@@ -799,7 +799,7 @@
     <span class="k">return</span> <span class="mf">2.</span><span class="o">*</span><span class="n">intgrl</span>
 
 <span class="k">def</span> <span class="nf">total_mass3D_integrand_r</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">Rinner</span><span class="p">,</span> <span class="n">Upsilon</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand m * [ Int_(z=0)^(sqrt(R^2-m^2)) dz * 2 * [rho(sqrt(m^2 + (z/qintr)^2)] ]</span>
 <span class="sd">    as part of numerical integration to find mass enclosed in sphere.</span>
 
@@ -837,7 +837,7 @@
 
 
 <span class="k">def</span> <span class="nf">total_mass3D_integral</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of integrand 2 * pi * m * [ Int_(z=0)^(sqrt(R^2-m^2)) dz * 2 * [rho(sqrt(m^2 + (z/qintr)^2)] ]</span>
 <span class="sd">    from m=Rinner to R, as part of numerical integration to find mass enclosed in sphere</span>
 <span class="sd">    (or over the shell corresponding to Rinner...)</span>
@@ -879,7 +879,7 @@
 
 
 <span class="k">def</span> <span class="nf">total_mass2D_direct</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Rinner</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the 2D projected mass enclosed within an ellipse,</span>
 <span class="sd">    assuming a constant M/L ratio Upsilon.</span>
 
@@ -934,7 +934,7 @@
 
 
 <span class="k">def</span> <span class="nf">lnrho_m</span><span class="p">(</span><span class="n">lnm</span><span class="p">,</span> <span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">Ie</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Log density profile, :math:`\ln\rho`</span>
 <span class="sd">    at distance :math:`m` of a deprojected Sersic mass distribution</span>
 <span class="sd">    with intrinsic axis ratio q.</span>
@@ -967,7 +967,7 @@
 
 
 <span class="k">def</span> <span class="nf">dlnrhom_dlnm_scipy_derivative</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,</span>
 <span class="sd">    at distance :math:`m` of a deprojected Sersic mass distribution</span>
 <span class="sd">    with intrinsic axis ratio q.</span>
@@ -1004,7 +1004,7 @@
 
 
 <span class="k">def</span> <span class="nf">drhom_dm_scipy_derivative</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Numerical evalutation of derivative of the density profile, :math:`d\rho/dm`,</span>
 <span class="sd">    at distance :math:`m` of a deprojected Sersic mass distribution</span>
 <span class="sd">    with intrinsic axis ratio q.</span>
@@ -1038,7 +1038,7 @@
     <span class="k">return</span> <span class="n">deriv</span>
 
 <span class="k">def</span> <span class="nf">drhoI_du_integrand</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">bn</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integrand for :math:`d\rho(m)/dm` -- as a function of x, u. Will integrate over x.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1054,7 +1054,7 @@
 
 
 <span class="k">def</span> <span class="nf">drhom_dm_leibniz</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of derivative :math:`d\rho(m)/dm` of deprojected Sersic density profile</span>
 <span class="sd">    at radius :math:`m`.</span>
 
@@ -1098,7 +1098,7 @@
 
 
 <span class="k">def</span> <span class="nf">dlnrhom_dlnm_leibniz</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,</span>
 <span class="sd">    at distance :math:`m` of a deprojected Sersic mass distribution</span>
 <span class="sd">    with intrinsic axis ratio q.</span>
@@ -1150,7 +1150,7 @@
 
 
 <span class="k">def</span> <span class="nf">drhom_dm_multimethod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of derivative :math:`d\rho(m)/dm` of deprojected Sersic density profile</span>
 <span class="sd">    at radius :math:`m`.</span>
 
@@ -1194,7 +1194,7 @@
 
 
 <span class="k">def</span> <span class="nf">dlnrhom_dlnm_multimethod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mf">1.e-5</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
-    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the slope of the density profile, :math:`d\ln\rho/d\ln{}m`,</span>
 <span class="sd">    at distance :math:`m` of a deprojected Sersic mass distribution</span>
 <span class="sd">    with intrinsic axis ratio q.</span>
@@ -1248,7 +1248,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 Nov 2022.
+      <span class="lastupdated">Last updated on 30 Jan 2023.
       </span></p>
   </div>
 

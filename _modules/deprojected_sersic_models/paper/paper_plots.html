@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="list_table1_values"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.paper.paper_plots.list_table1_values.html#deprojected_sersic_models.paper.paper_plots.list_table1_values">[docs]</a><span class="k">def</span> <span class="nf">list_table1_values</span><span class="p">(</span><span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">4.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.5</span><span class="p">],</span>
                        <span class="n">rfac_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.2</span><span class="o">/</span><span class="mf">1.678</span><span class="p">],</span> <span class="n">recalculate_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper to list ktot, k3D values for Table 1.</span>
 
 <span class="sd">    Prints values to output.</span>
@@ -276,7 +276,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="make_all_paper_plots"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.paper.paper_plots.make_all_paper_plots.html#deprojected_sersic_models.paper.paper_plots.make_all_paper_plots">[docs]</a><span class="k">def</span> <span class="nf">make_all_paper_plots</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper function to make all plots for the paper.</span>
 
 <span class="sd">    Saves plots in PDF format.</span>
@@ -371,7 +371,7 @@
 <span class="c1"># Figure 1</span>
 
 <span class="k">def</span> <span class="nf">plot_compare_mencl</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the fractional 3D spherical enclosed mass profile versus radius,</span>
 <span class="sd">    for a range of Sersic indices n (n=1..8) and intrinsic axis ratios q.</span>
 
@@ -587,7 +587,7 @@
 <span class="k">def</span> <span class="nf">plot_rhalf_3D_sersic_potential</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">q_arr_plotq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]),</span>
     <span class="n">n_arr_plotn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">])):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the ratio of the 3D half mass radius to</span>
 <span class="sd">    the 2D projected major axis effective radius (Reff),</span>
 <span class="sd">    for a range of Sersic indices n and range of intrinsic axis ratios q.</span>
@@ -862,7 +862,7 @@
 <span class="k">def</span> <span class="nf">plot_composite_menc_vcirc_profile_invert</span><span class="p">(</span><span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
             <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the enclosed mass and circular velocity profiles versus radius,</span>
 <span class="sd">    for a number of direct calculations and inverted assumptions</span>
 <span class="sd">    (applying the relation valid for spherically symmetric cases: v^2 = GM/r ).</span>
@@ -1248,7 +1248,7 @@
 
 <span class="k">def</span> <span class="nf">plot_virial_coeff</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the total and 3D virial coefficients at Reff, ktot(Reff) and k3D(Reff),</span>
 <span class="sd">    as a function of Sersic index n for a range of intrinsic axis ratios q.</span>
 
@@ -1444,7 +1444,7 @@
              <span class="n">ylim_lmenc</span><span class="o">=</span><span class="p">[</span><span class="mf">8.</span><span class="p">,</span> <span class="mf">12.</span><span class="p">],</span>
              <span class="n">ylim_lmenc_lograd</span><span class="o">=</span><span class="p">[</span><span class="mf">6.</span><span class="p">,</span><span class="mf">12.5</span><span class="p">],</span>
              <span class="n">ylim_vcirc</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">420.</span><span class="p">]):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot example enclosed mass and circular velocity profiles for</span>
 <span class="sd">    different mass components, over a variety of B/T ratios.</span>
 
@@ -1932,7 +1932,7 @@
             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
             <span class="n">del_fDM</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the calibration ratio between fDM(vcirc,Reff) / fDM(Menc,Reff)</span>
 
 <span class="sd">    Saves plot to PDF.</span>
@@ -2351,7 +2351,7 @@
             <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
             <span class="n">rmin</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">rmax</span><span class="o">=</span><span class="mf">15.</span><span class="p">,</span> <span class="n">rstep</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">btstep</span> <span class="o">=</span> <span class="mf">0.025</span><span class="p">,</span>
             <span class="n">del_fDM</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the calibration ratio between fDM(vcirc,Reff) / fDM(Menc,Reff), for a range of ReB/ReD</span>
 
 <span class="sd">    Saves plot to PDF.</span>
@@ -2797,7 +2797,7 @@
             <span class="n">save_dict_stack</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">overwrite_dict_stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">include_toy_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot &quot;typical&quot; change of difference between fDM calibrations</span>
 <span class="sd">    fDM(vcirc,Reff) / fDM(Menc,Reff) with redshift for SF, roughly MS galaxies,</span>
 <span class="sd">    for different stellar masses.</span>
@@ -3641,7 +3641,7 @@
 
 <span class="k">def</span> <span class="nf">plot_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">],</span> <span class="n">show_literature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_values</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,</span>
 <span class="sd">    over a range of Sersic index n.</span>
 <span class="sd">    Compare to self-gravitating exponential disk case (eg Burkert+10).</span>
@@ -3973,7 +3973,7 @@
             <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
             <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.5</span><span class="p">),</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
             <span class="n">show_sigmar_toy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_sigmar_toy_nosig0</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot pressure support using alpha=-dlnrho_g/dlnr derived for deprojected</span>
 <span class="sd">    Sersic distributions, over a range of Sersic index n and intrinsic axis ratios q.</span>
 <span class="sd">    Compare to self-gravitating exponential disk case (eg Burkert+10).</span>
@@ -4244,7 +4244,7 @@
             <span class="n">D2t_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.75</span><span class="p">,</span><span class="mf">1.</span><span class="p">],</span>
             <span class="n">ReD2_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>
             <span class="n">show_BT</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_D2T</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot composite alpha for bulge+disk over a range of B/T ratios and Rebulge/Redisk,</span>
 <span class="sd">    and a 2-disk system over a range of D2/T ratios and ReD2/ReD.</span>
 
@@ -4836,7 +4836,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 Nov 2022.
+      <span class="lastupdated">Last updated on 30 Jan 2023.
       </span></p>
   </div>
 
