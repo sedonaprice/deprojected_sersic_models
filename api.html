@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API &mdash; deprojected_sersic_models 1.1 documentation</title>
@@ -15,9 +15,6 @@
   <![endif]-->
   
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -33,15 +30,19 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> deprojected_sersic_models
-            <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            deprojected_sersic_models
+              <img src="_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
               <div class="version">
                 1.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -155,7 +156,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">API</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
@@ -166,41 +167,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="api">
+  <section id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this heading"></a></h1>
 <section id="module-deprojected_sersic_models">
 <span id="deprojected-sersic-models-package"></span><h2>deprojected_sersic_models Package<a class="headerlink" href="#module-deprojected_sersic_models" title="Permalink to this heading"></a></h2>
 <section id="functions">
 <h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.interpolate_entire_table.html#deprojected_sersic_models.interpolate_entire_table" title="deprojected_sersic_models.interpolate_entire_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_entire_table</span></code></a>([R, table, ...])</p></td>
 <td><p>Interpolate entire table, returning new profiles sampled at r.</p></td>
@@ -250,10 +223,6 @@
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel" title="deprojected_sersic_models.DeprojSersicModel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DeprojSersicModel</span></code></a>([total_mass, Reff, n, q, ...])</p></td>
 <td><p>Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).</p></td>
@@ -270,10 +239,6 @@
 <section id="id1">
 <h3>Functions<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.table_generation.calculate_sersic_profile_table.html#deprojected_sersic_models.table_generation.calculate_sersic_profile_table" title="deprojected_sersic_models.table_generation.calculate_sersic_profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_sersic_profile_table</span></code></a>([n, invq, ...])</p></td>
 <td><p>Calculate the Sersic profile table for a specific Sersic index n and inverse axis ratio invq.</p></td>
@@ -293,10 +258,6 @@
 <section id="id2">
 <h3>Functions<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.io.save_profile_table.html#deprojected_sersic_models.io.save_profile_table" title="deprojected_sersic_models.io.save_profile_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_profile_table</span></code></a>([table, path, ...])</p></td>
 <td><p>Save the table of Sersic profile values in a binary FITS table.</p></td>
@@ -313,10 +274,6 @@
 <section id="id3">
 <h3>Functions<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.utils.check_for_inf.html#deprojected_sersic_models.utils.check_for_inf" title="deprojected_sersic_models.utils.check_for_inf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_for_inf</span></code></a>([table])</p></td>
 <td><p>Check core table quantities for non-finite entries, to determine if numerical errors occured.</p></td>
@@ -345,10 +302,6 @@
 <section id="id4">
 <h3>Functions<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.plot.plot_density.html#deprojected_sersic_models.plot.plot_density" title="deprojected_sersic_models.plot.plot_density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_density</span></code></a>(sersic_profs[, r, rlim, rlog, ...])</p></td>
 <td><p>Function to show mass density profile(s) for the Sersic mass distribution(s).</p></td>
@@ -383,10 +336,6 @@
 <section id="id5">
 <h3>Functions<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/deprojected_sersic_models.paper.paper_plots.make_all_paper_plots.html#deprojected_sersic_models.paper.paper_plots.make_all_paper_plots" title="deprojected_sersic_models.paper.paper_plots.make_all_paper_plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_all_paper_plots</span></code></a>([output_path, table_path])</p></td>
 <td><p>Wrapper function to make all plots for the paper.</p></td>
@@ -412,7 +361,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 30 Jan 2023.
+      <span class="lastupdated">Last updated on 15 May 2023.
       </span></p>
   </div>
 
