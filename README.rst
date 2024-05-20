@@ -53,7 +53,7 @@ Usage
 
 
 Dependencies
-###########
+############
 * numpy
 * scipy
 * matplotlib
