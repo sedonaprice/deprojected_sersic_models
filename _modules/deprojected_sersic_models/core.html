@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.core &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
     <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=56dcb7b8"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -302,7 +306,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Ie</span>
 
 
-<div class="viewcode-block" id="DeprojSersicModel"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel">[docs]</a><span class="k">class</span> <span class="nc">DeprojSersicModel</span><span class="p">(</span><span class="n">_SersicDistBase</span><span class="p">):</span>
+<div class="viewcode-block" id="DeprojSersicModel">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel">[docs]</a>
+<span class="k">class</span> <span class="nc">DeprojSersicModel</span><span class="p">(</span><span class="n">_SersicDistBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).</span>
 
@@ -335,7 +341,9 @@
 
 
 
-<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass">[docs]</a>    <span class="k">def</span> <span class="nf">enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass">[docs]</a>
+    <span class="k">def</span> <span class="nf">enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enclosed 3D mass within a sphere of radius r=R,</span>
 <span class="sd">        assuming a constant M/L ratio Upsilon.</span>
@@ -402,7 +410,10 @@
         <span class="c1"># Return enclosed mass: fractional menc * total mass</span>
         <span class="k">return</span> <span class="n">menc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span></div>
 
-<div class="viewcode-block" id="DeprojSersicModel.v_circ"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.v_circ">[docs]</a>    <span class="k">def</span> <span class="nf">v_circ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.v_circ">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.v_circ">[docs]</a>
+    <span class="k">def</span> <span class="nf">v_circ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Circular velocity in the midplane of the deprojected Sersic mass distribution.</span>
 
@@ -444,7 +455,10 @@
 
 
 
-<div class="viewcode-block" id="DeprojSersicModel.density"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.density">[docs]</a>    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.density">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.density">[docs]</a>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Density profile at :math:`m=R` of the deprojected Sersic mass distribution.</span>
 
@@ -480,7 +494,10 @@
         <span class="k">return</span> <span class="n">rho_arr</span></div>
 
 
-<div class="viewcode-block" id="DeprojSersicModel.drho_dR"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.drho_dR">[docs]</a>    <span class="k">def</span> <span class="nf">drho_dR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.drho_dR">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.drho_dR">[docs]</a>
+    <span class="k">def</span> <span class="nf">drho_dR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derivative of the density profile, :math:`d\\rho/dR`,</span>
 <span class="sd">        at distance :math:`m=R` of the deprojected Sersic mass distribution.</span>
@@ -514,7 +531,10 @@
         <span class="k">return</span> <span class="n">drho_dR_arr</span></div>
 
 
-<div class="viewcode-block" id="DeprojSersicModel.dlnrho_dlnR"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.dlnrho_dlnR">[docs]</a>    <span class="k">def</span> <span class="nf">dlnrho_dlnR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.dlnrho_dlnR">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.dlnrho_dlnR">[docs]</a>
+    <span class="k">def</span> <span class="nf">dlnrho_dlnR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,</span>
 <span class="sd">        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.</span>
@@ -547,7 +567,10 @@
 
         <span class="k">return</span> <span class="n">dlnrho_dlnR_arr</span></div>
 
-<div class="viewcode-block" id="DeprojSersicModel.surface_density"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.surface_density">[docs]</a>    <span class="k">def</span> <span class="nf">surface_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.surface_density">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.surface_density">[docs]</a>
+    <span class="k">def</span> <span class="nf">surface_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Surface density distribution for a Sersic profile, assuming a M/L ratio Upsilon.</span>
 
@@ -566,7 +589,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Upsilon</span> <span class="o">*</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">Ikap</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Reff</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="n">Ie</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Ie</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DeprojSersicModel.projected_enclosed_mass"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.projected_enclosed_mass">[docs]</a>    <span class="k">def</span> <span class="nf">projected_enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.projected_enclosed_mass">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.projected_enclosed_mass">[docs]</a>
+    <span class="k">def</span> <span class="nf">projected_enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Projected 2D mass enclosed within an ellipse</span>
 <span class="sd">        (or elliptical shell), assuming a constant M/L ratio Upsilon.</span>
@@ -588,7 +614,10 @@
 
 
 
-<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass_ellipsoid"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass_ellipsoid">[docs]</a>    <span class="k">def</span> <span class="nf">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.enclosed_mass_ellipsoid">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass_ellipsoid">[docs]</a>
+    <span class="k">def</span> <span class="nf">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enclosed 3D mass within an ellpsoid of</span>
 <span class="sd">        major axis radius r and intrinsic axis ratio q</span>
@@ -647,7 +676,10 @@
         <span class="k">return</span> <span class="n">menc</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">total_mass</span></div>
 
 
-<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_tot"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_tot">[docs]</a>    <span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_tot">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_tot">[docs]</a>
+    <span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
@@ -681,7 +713,10 @@
 
 
 
-<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_3D"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_3D">[docs]</a>    <span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.virial_coeff_3D">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_3D">[docs]</a>
+    <span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The &quot;3D&quot; virial coefficient k3D, which satisfies</span>
 
@@ -721,7 +756,10 @@
         <span class="k">return</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">virial_coeff_3D</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="n">m3D</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="n">vc</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="DeprojSersicModel.profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.profile_table">[docs]</a>    <span class="k">def</span> <span class="nf">profile_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DeprojSersicModel.profile_table">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.profile_table">[docs]</a>
+    <span class="k">def</span> <span class="nf">profile_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a set of profiles as a dictionary, calculated over the specified radii.</span>
 <span class="sd">        Also includes constants for the specified Sersic profile parameters,</span>
@@ -806,7 +844,9 @@
                             <span class="bp">self</span><span class="o">.</span><span class="n">invq</span><span class="p">,</span> <span class="n">status</span><span class="p">))</span>
 
 
-        <span class="k">return</span> <span class="n">table</span></div></div>
+        <span class="k">return</span> <span class="n">table</span></div>
+</div>
+
 </pre></div>
 
            </div>
@@ -817,7 +857,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 May 2023.
+      <span class="lastupdated">Last updated on 20 May 2024.
       </span></p>
   </div>
 

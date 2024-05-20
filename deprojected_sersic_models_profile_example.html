@@ -1,23 +1,27 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calculating deprojected Sérsic profiles &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css" />
+
+  
     <link rel="shortcut icon" href="_static/sersicprof-red-thick-64.png"/>
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=56dcb7b8"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -97,7 +101,7 @@
            <div itemprop="articleBody">
              
   <section id="Calculating-deprojected-Sérsic-profiles">
-<h1>Calculating deprojected Sérsic profiles<a class="headerlink" href="#Calculating-deprojected-Sérsic-profiles" title="Permalink to this heading"></a></h1>
+<h1>Calculating deprojected Sérsic profiles<a class="headerlink" href="#Calculating-deprojected-Sérsic-profiles" title="Link to this heading"></a></h1>
 <p>The class <code class="docutils literal notranslate"><span class="pre">DeprojSersicModel</span></code> is used to compute profiles for the deprojected Sérsic mass distributions.</p>
 <p>First, we initialize an instance of <code class="docutils literal notranslate"><span class="pre">DeprojSersicModel</span></code>, and define a radius array.</p>
 <div class="nbinput nblast docutils container">
@@ -116,7 +120,7 @@ smodel = deproj_sersic.DeprojSersicModel(total_mass=1.e11, Reff=5., n=1., q=0.2)
 </div>
 </div>
 <section id="Individual-profiles">
-<h2>Individual profiles<a class="headerlink" href="#Individual-profiles" title="Permalink to this heading"></a></h2>
+<h2>Individual profiles<a class="headerlink" href="#Individual-profiles" title="Link to this heading"></a></h2>
 <p>A number of methods are available to compute the various profiles of this mass distribution.</p>
 <p><strong>Circular velocity</strong></p>
 <div class="nbinput docutils container">
@@ -263,7 +267,7 @@ deproj_sersic.plot.plot_profiles_single_type(table_gather, prof_name=&#39;projec
 </div>
 </section>
 <section id="Table-of-profiles">
-<h2>Table of profiles<a class="headerlink" href="#Table-of-profiles" title="Permalink to this heading"></a></h2>
+<h2>Table of profiles<a class="headerlink" href="#Table-of-profiles" title="Link to this heading"></a></h2>
 <p>Finally, the method <code class="docutils literal notranslate"><span class="pre">DeprojSersicModel.profile_table(R)</span></code> can be used to return a full set of profiles calculated over the radius array <span class="math notranslate nohighlight">\(r\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -300,7 +304,7 @@ deproj_sersic.plot.plot_profiles(table)
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 May 2023.
+      <span class="lastupdated">Last updated on 20 May 2024.
       </span></p>
   </div>
 

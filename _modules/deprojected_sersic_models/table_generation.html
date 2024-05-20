@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.table_generation &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
     <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=56dcb7b8"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -118,7 +122,9 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="calculate_sersic_profile_table"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.calculate_sersic_profile_table.html#deprojected_sersic_models.table_generation.calculate_sersic_profile_table">[docs]</a><span class="k">def</span> <span class="nf">calculate_sersic_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
+<div class="viewcode-block" id="calculate_sersic_profile_table">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.calculate_sersic_profile_table.html#deprojected_sersic_models.table_generation.calculate_sersic_profile_table">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_sersic_profile_table</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq</span><span class="o">=</span><span class="mf">5.</span><span class="p">,</span>
         <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">total_mass</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
         <span class="n">logR_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="n">logR_max</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
@@ -216,7 +222,10 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="wrapper_calculate_sersic_profile_tables"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables.html#deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables">[docs]</a><span class="k">def</span> <span class="nf">wrapper_calculate_sersic_profile_tables</span><span class="p">(</span><span class="n">n_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invq_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="wrapper_calculate_sersic_profile_tables">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables.html#deprojected_sersic_models.table_generation.wrapper_calculate_sersic_profile_tables">[docs]</a>
+<span class="k">def</span> <span class="nf">wrapper_calculate_sersic_profile_tables</span><span class="p">(</span><span class="n">n_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invq_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">total_mass</span><span class="o">=</span><span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
         <span class="n">logR_min</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.</span><span class="p">,</span> <span class="n">logR_max</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">nSteps</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
@@ -311,7 +320,10 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="wrapper_calculate_full_table_set"><a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set.html#deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set">[docs]</a><span class="k">def</span> <span class="nf">wrapper_calculate_full_table_set</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="wrapper_calculate_full_table_set">
+<a class="viewcode-back" href="../../api/deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set.html#deprojected_sersic_models.table_generation.wrapper_calculate_full_table_set">[docs]</a>
+<span class="k">def</span> <span class="nf">wrapper_calculate_full_table_set</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">filename_base</span><span class="o">=</span><span class="n">_sersic_profile_filename_base</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">f_log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">indChunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nChunk</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -398,6 +410,7 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="c1"># From the command line, call the wrapper to make full *default table set.</span>
     <span class="c1">#   Input args: output_path</span>
@@ -441,7 +454,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 May 2023.
+      <span class="lastupdated">Last updated on 20 May 2024.
       </span></p>
   </div>
 

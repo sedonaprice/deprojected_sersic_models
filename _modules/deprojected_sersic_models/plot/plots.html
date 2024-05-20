@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.plot.plots &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
     <link rel="shortcut icon" href="../../../_static/sersicprof-red-thick-64.png"/>
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=56dcb7b8"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -129,7 +133,9 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="plot_profiles"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles.html#deprojected_sersic_models.plot.plot_profiles">[docs]</a><span class="k">def</span> <span class="nf">plot_profiles</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+<div class="viewcode-block" id="plot_profiles">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles.html#deprojected_sersic_models.plot.plot_profiles">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_profiles</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
                   <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">prof_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -236,7 +242,10 @@
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="plot_profiles_single_type"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles_single_type.html#deprojected_sersic_models.plot.plot_profiles_single_type">[docs]</a><span class="k">def</span> <span class="nf">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_profiles_single_type">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_profiles_single_type.html#deprojected_sersic_models.plot.plot_profiles_single_type">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span>
                               <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                               <span class="n">plot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fig_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -398,7 +407,10 @@
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
-<div class="viewcode-block" id="plot_enclosed_mass"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_enclosed_mass.html#deprojected_sersic_models.plot.plot_enclosed_mass">[docs]</a><span class="k">def</span> <span class="nf">plot_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_enclosed_mass">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_enclosed_mass.html#deprojected_sersic_models.plot.plot_enclosed_mass">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to show enclosed mass profile(s) for the Sersic mass distribution(s).</span>
@@ -432,7 +444,10 @@
     <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;enclosed_mass&#39;</span><span class="p">,</span>
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="plot_vcirc"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_vcirc.html#deprojected_sersic_models.plot.plot_vcirc">[docs]</a><span class="k">def</span> <span class="nf">plot_vcirc</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_vcirc">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_vcirc.html#deprojected_sersic_models.plot.plot_vcirc">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_vcirc</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to show circular velocity profile(s) for the Sersic mass distribution(s).</span>
@@ -467,7 +482,10 @@
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="plot_density"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_density.html#deprojected_sersic_models.plot.plot_density">[docs]</a><span class="k">def</span> <span class="nf">plot_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_density">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_density.html#deprojected_sersic_models.plot.plot_density">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to show mass density profile(s) for the Sersic mass distribution(s).</span>
@@ -502,7 +520,10 @@
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="plot_dlnrho_dlnR"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_dlnrho_dlnR.html#deprojected_sersic_models.plot.plot_dlnrho_dlnR">[docs]</a><span class="k">def</span> <span class="nf">plot_dlnrho_dlnR</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_dlnrho_dlnR">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_dlnrho_dlnR.html#deprojected_sersic_models.plot.plot_dlnrho_dlnR">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_dlnrho_dlnR</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to show dlnrho/dlnr profile(s) for the Sersic mass distribution(s).</span>
@@ -536,7 +557,10 @@
     <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;dlnrho_dlnR&#39;</span><span class="p">,</span>
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="plot_surface_density"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_surface_density.html#deprojected_sersic_models.plot.plot_surface_density">[docs]</a><span class="k">def</span> <span class="nf">plot_surface_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="plot_surface_density">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_surface_density.html#deprojected_sersic_models.plot.plot_surface_density">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_surface_density</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span> <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to show surface density profile(s) for the Sersic mass distribution(s).</span>
@@ -571,7 +595,10 @@
     <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;surface_density&#39;</span><span class="p">,</span>
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="plot_projected_enclosed_mass"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_projected_enclosed_mass.html#deprojected_sersic_models.plot.plot_projected_enclosed_mass">[docs]</a><span class="k">def</span> <span class="nf">plot_projected_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
+
+<div class="viewcode-block" id="plot_projected_enclosed_mass">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.plot.plot_projected_enclosed_mass.html#deprojected_sersic_models.plot.plot_projected_enclosed_mass">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_projected_enclosed_mass</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">6.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">),</span>
                                  <span class="n">rlim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                  <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -606,6 +633,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">plot_profiles_single_type</span><span class="p">(</span><span class="n">sersic_profs</span><span class="p">,</span> <span class="n">prof_name</span><span class="o">=</span><span class="s1">&#39;projected_enclosed_mass&#39;</span><span class="p">,</span>
                               <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">rlim</span><span class="o">=</span><span class="n">rlim</span><span class="p">,</span> <span class="n">rlog</span><span class="o">=</span><span class="n">rlog</span><span class="p">,</span> <span class="n">ylog</span><span class="o">=</span><span class="n">ylog</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="n">fileout</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -616,7 +644,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 May 2023.
+      <span class="lastupdated">Last updated on 20 May 2024.
       </span></p>
   </div>
 

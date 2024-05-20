@@ -1,21 +1,25 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.utils.calcs &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
     <link rel="shortcut icon" href="../../../_static/sersicprof-red-thick-64.png"/>
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=56dcb7b8"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -134,7 +138,9 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
-<div class="viewcode-block" id="check_for_inf"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.check_for_inf.html#deprojected_sersic_models.utils.check_for_inf">[docs]</a><span class="k">def</span> <span class="nf">check_for_inf</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="check_for_inf">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.check_for_inf.html#deprojected_sersic_models.utils.check_for_inf">[docs]</a>
+<span class="k">def</span> <span class="nf">check_for_inf</span><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check core table quantities for non-finite entries, to determine if numerical errors occured.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -163,11 +169,14 @@
     <span class="k">return</span> <span class="n">status</span></div>
 
 
+
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Calculation helper functions: General for mass distributions</span>
 
-<div class="viewcode-block" id="vcirc_spherical_symmetry"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.vcirc_spherical_symmetry.html#deprojected_sersic_models.utils.vcirc_spherical_symmetry">[docs]</a><span class="k">def</span> <span class="nf">vcirc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="vcirc_spherical_symmetry">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.vcirc_spherical_symmetry.html#deprojected_sersic_models.utils.vcirc_spherical_symmetry">[docs]</a>
+<span class="k">def</span> <span class="nf">vcirc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vcirc for a spherically symmetric mass distribution:</span>
 
@@ -202,7 +211,10 @@
 
     <span class="k">return</span> <span class="n">vcirc</span></div>
 
-<div class="viewcode-block" id="menc_spherical_symmetry"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.menc_spherical_symmetry.html#deprojected_sersic_models.utils.menc_spherical_symmetry">[docs]</a><span class="k">def</span> <span class="nf">menc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vcirc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="menc_spherical_symmetry">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.menc_spherical_symmetry.html#deprojected_sersic_models.utils.menc_spherical_symmetry">[docs]</a>
+<span class="k">def</span> <span class="nf">menc_spherical_symmetry</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vcirc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine Menc for a spherically symmetric mass distribution, given vcirc:</span>
 <span class="sd">        Menc(R) = vcirc(R)^2 * R / G</span>
@@ -229,9 +241,12 @@
 
 
 
+
 <span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
 
-<div class="viewcode-block" id="virial_coeff_tot"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_tot.html#deprojected_sersic_models.utils.virial_coeff_tot">[docs]</a><span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="virial_coeff_tot">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_tot.html#deprojected_sersic_models.utils.virial_coeff_tot">[docs]</a>
+<span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
@@ -267,7 +282,10 @@
     <span class="k">return</span> <span class="n">ktot</span></div>
 
 
-<div class="viewcode-block" id="virial_coeff_3D"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_3D.html#deprojected_sersic_models.utils.virial_coeff_3D">[docs]</a><span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="virial_coeff_3D">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.virial_coeff_3D.html#deprojected_sersic_models.utils.virial_coeff_3D">[docs]</a>
+<span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
@@ -300,9 +318,12 @@
     <span class="k">return</span> <span class="n">k3D</span></div>
 
 
+
 <span class="c1"># +++++++++++++++++++++++++++++++++++++++++++++++++</span>
 
-<div class="viewcode-block" id="find_rhalf3D_sphere"><a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.find_rhalf3D_sphere.html#deprojected_sersic_models.utils.find_rhalf3D_sphere">[docs]</a><span class="k">def</span> <span class="nf">find_rhalf3D_sphere</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc3D_sph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find_rhalf3D_sphere">
+<a class="viewcode-back" href="../../../api/deprojected_sersic_models.utils.find_rhalf3D_sphere.html#deprojected_sersic_models.utils.find_rhalf3D_sphere">[docs]</a>
+<span class="k">def</span> <span class="nf">find_rhalf3D_sphere</span><span class="p">(</span><span class="n">R</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">menc3D_sph</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Evalutation of the radius corresponding to the sphere that</span>
 <span class="sd">    encloses half of the total mass for a Sersic profile of a given</span>
@@ -333,6 +354,7 @@
     <span class="n">rhalf_sph</span> <span class="o">=</span> <span class="n">R_interp</span><span class="p">(</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">total_mass</span> <span class="p">)</span>
     <span class="c1"># Coerce it into returning a constant:</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">rhalf_sph</span><span class="p">)</span></div>
+
 
 
 
@@ -1249,7 +1271,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 15 May 2023.
+      <span class="lastupdated">Last updated on 20 May 2024.
       </span></p>
   </div>
 
