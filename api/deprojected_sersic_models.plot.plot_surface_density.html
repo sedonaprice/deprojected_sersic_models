@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -5,23 +7,19 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>plot_surface_density &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -41,9 +39,6 @@
             deprojected_sersic_models
               <img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                1.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -131,9 +126,9 @@ in favor of the table radii <code class="xref py py-obj docutils literal notrans
 Default: np.arange(0., 6., 1.)</p></li>
 <li><p><strong>rlim</strong> (<em>array_like</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – If set, spefcify r plot bounds.
 Default: None (default bounds)</p></li>
-<li><p><strong>rlog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of radius instead of linear. Default: True</p></li>
-<li><p><strong>ylog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of profile instead of linear. Default: True</p></li>
-<li><p><strong>fileout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Filename for saving file. If set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, figure is returned to display.
+<li><p><strong>rlog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of radius instead of linear. Default: True</p></li>
+<li><p><strong>ylog</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to plot log of profile instead of linear. Default: True</p></li>
+<li><p><strong>fileout</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Filename for saving file. If set to <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>, figure is returned to display.
 Default: None</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib Axes instance</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Target plot axis. If not set, assumes only this panel is to be plot and displayed,
 and a new axis is created.
@@ -157,7 +152,7 @@ Default: None</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 20 May 2024.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 

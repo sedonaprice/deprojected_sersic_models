@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -5,23 +7,19 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>wrapper_calculate_full_table_set &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -41,9 +39,6 @@
             deprojected_sersic_models
               <img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                1.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -119,20 +114,20 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Path to directory where the Sersic profile table will be saved.
+<li><p><strong>output_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to directory where the Sersic profile table will be saved.
 If not set, system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code> must be set.
 Default: system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code>, if specified.</p></li>
-<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, for the default naming convention:
+<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, for the default naming convention:
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;filename_base&gt;_nX.X_invqX.XX.fits</span></code>.
 Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">deproj_sersic_model</span></code></p></li>
-<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to overwrite the FITS file, if a previous version exists.
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Option to overwrite the FITS file, if a previous version exists.
 Default: False (will throw an error if the file already exists).</p></li>
-<li><p><strong>f_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Filename of log file, to save information output while
+<li><p><strong>f_log</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Filename of log file, to save information output while
 calculation is in progress. Default: None</p></li>
-<li><p><strong>indChunk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Index of chunk to run. Default: None (only one chunk)</p></li>
-<li><p><strong>nChunk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Total number of chunks. Default: None (only one chunk)</p></li>
-<li><p><strong>invqstart</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Where to start with invq array. Default: None (start at beginning)</p></li>
-<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
+<li><p><strong>indChunk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Index of chunk to run. Default: None (only one chunk)</p></li>
+<li><p><strong>nChunk</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Total number of chunks. Default: None (only one chunk)</p></li>
+<li><p><strong>invqstart</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Where to start with invq array. Default: None (start at beginning)</p></li>
+<li><p><strong>cumulative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Shortcut option to only calculate the next annulus,
 then add to the previous Menc(r-rdelt).
 Default: Uses cumulative if n &gt;= 2.</p></li>
 </ul>
@@ -154,7 +149,7 @@ Default: Uses cumulative if n &gt;= 2.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 20 May 2024.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 

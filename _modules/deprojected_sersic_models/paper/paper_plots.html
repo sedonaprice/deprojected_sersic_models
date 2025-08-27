@@ -1,26 +1,24 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.paper.paper_plots &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../../../_static/sersicprof-red-thick-64.png"/>
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=56dcb7b8"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=56dcb7b8"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -38,9 +36,6 @@
             deprojected_sersic_models
               <img src="../../../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                1.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -98,29 +93,29 @@
 <span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
 <span class="c1">##################################################################################</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">import</span> <span class="nn">dill</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dill</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pickle</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">scipy.interpolate</span> <span class="k">as</span> <span class="nn">scp_interp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scp_interp</span>
 
-<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="kn">import</span> <span class="n">ascii</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">ascii</span>
 
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="k">as</span> <span class="nn">gridspec</span>
-<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">FixedLocator</span><span class="p">,</span> <span class="n">FixedFormatter</span>
-<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="k">as</span> <span class="nn">cm</span>
-<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>
-<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.gridspec</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gridspec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleLocator</span><span class="p">,</span> <span class="n">FixedLocator</span><span class="p">,</span> <span class="n">FixedFormatter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.cm</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
 
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models</span> <span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">table_generation</span>
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models.utils</span> <span class="kn">import</span> <span class="n">calcs</span> <span class="k">as</span> <span class="n">util_calcs</span>
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models.paper</span> <span class="kn">import</span> <span class="n">plot_calcs</span>
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models.paper</span> <span class="kn">import</span> <span class="n">scaling_rel</span>
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models.utils</span> <span class="kn">import</span> <span class="n">interp_profiles</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">table_generation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calcs</span> <span class="k">as</span> <span class="n">util_calcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models.paper</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_calcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models.paper</span><span class="w"> </span><span class="kn">import</span> <span class="n">scaling_rel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp_profiles</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;make_all_paper_plots&#39;</span><span class="p">,</span> <span class="s1">&#39;list_table1_values&#39;</span> <span class="p">]</span>
 
@@ -169,7 +164,7 @@
 
 <div class="viewcode-block" id="list_table1_values">
 <a class="viewcode-back" href="../../../api/deprojected_sersic_models.paper.paper_plots.list_table1_values.html#deprojected_sersic_models.paper.paper_plots.list_table1_values">[docs]</a>
-<span class="k">def</span> <span class="nf">list_table1_values</span><span class="p">(</span><span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">4.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.5</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_table1_values</span><span class="p">(</span><span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">4.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">1.5</span><span class="p">],</span>
                        <span class="n">rfac_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.2</span><span class="o">/</span><span class="mf">1.678</span><span class="p">],</span> <span class="n">recalculate_all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper to list ktot, k3D values for Table 1.</span>
@@ -285,7 +280,7 @@
 
 <div class="viewcode-block" id="make_all_paper_plots">
 <a class="viewcode-back" href="../../../api/deprojected_sersic_models.paper.paper_plots.make_all_paper_plots.html#deprojected_sersic_models.paper.paper_plots.make_all_paper_plots">[docs]</a>
-<span class="k">def</span> <span class="nf">make_all_paper_plots</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_all_paper_plots</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wrapper function to make all plots for the paper.</span>
 
@@ -381,7 +376,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 1</span>
 
-<span class="k">def</span> <span class="nf">plot_compare_mencl</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_compare_mencl</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the fractional 3D spherical enclosed mass profile versus radius,</span>
 <span class="sd">    for a range of Sersic indices n (n=1..8) and intrinsic axis ratios q.</span>
@@ -595,7 +590,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 2</span>
 
-<span class="k">def</span> <span class="nf">plot_rhalf_3D_sersic_potential</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_rhalf_3D_sersic_potential</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">q_arr_plotq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]),</span>
     <span class="n">n_arr_plotn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">])):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -870,7 +865,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 3</span>
 
-<span class="k">def</span> <span class="nf">plot_composite_menc_vcirc_profile_invert</span><span class="p">(</span><span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_composite_menc_vcirc_profile_invert</span><span class="p">(</span><span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
             <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">5.e10</span><span class="p">,</span> <span class="n">Reff</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span>
             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1257,7 +1252,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 4</span>
 
-<span class="k">def</span> <span class="nf">plot_virial_coeff</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_virial_coeff</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot the total and 3D virial coefficients at Reff, ktot(Reff) and k3D(Reff),</span>
@@ -1443,7 +1438,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 5</span>
 
-<span class="k">def</span> <span class="nf">plot_example_galaxy_mencl_vcirc</span><span class="p">(</span><span class="n">bt_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_example_galaxy_mencl_vcirc</span><span class="p">(</span><span class="n">bt_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
              <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">z</span><span class="o">=</span><span class="mf">2.</span><span class="p">,</span> <span class="n">Mbaryon</span><span class="o">=</span><span class="mf">6.6e10</span><span class="p">,</span>
              <span class="n">Reff_disk</span><span class="o">=</span><span class="mf">3.4</span><span class="p">,</span> <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">invq_disk</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
@@ -1936,7 +1931,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 6</span>
 
-<span class="k">def</span> <span class="nf">plot_fdm_calibration</span><span class="p">(</span><span class="n">Mstar_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Mbaryon_arr</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_fdm_calibration</span><span class="p">(</span><span class="n">Mstar_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Mbaryon_arr</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">],</span>
             <span class="n">q_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
             <span class="n">Mhalo_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.e12</span><span class="p">],</span> <span class="n">halo_conc_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">4.</span><span class="p">],</span>
             <span class="n">Reff_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">5.</span><span class="p">],</span>
@@ -2354,7 +2349,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 7</span>
 
-<span class="k">def</span> <span class="nf">plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D</span><span class="p">(</span><span class="n">Mbaryon</span><span class="o">=</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_rhalf3DReD_fdm_calibration_ReB_ReD_rhalf3D</span><span class="p">(</span><span class="n">Mbaryon</span><span class="o">=</span><span class="mi">10</span><span class="o">**</span><span class="mf">10.5</span><span class="p">,</span>
             <span class="n">q_disk_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">],</span>
             <span class="n">ReB_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
             <span class="n">Mhalo</span><span class="o">=</span><span class="mf">1.e12</span><span class="p">,</span> <span class="n">halo_conc</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
@@ -2800,7 +2795,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 8</span>
 
-<span class="k">def</span> <span class="nf">plot_toy_impl_fDM_calibration_z_evol</span><span class="p">(</span><span class="n">lmstar_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_toy_impl_fDM_calibration_z_evol</span><span class="p">(</span><span class="n">lmstar_arr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path_alt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">n_disk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n_bulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span> <span class="n">invq_bulge</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
@@ -3650,7 +3645,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 9</span>
 
-<span class="k">def</span> <span class="nf">plot_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="mf">8.</span><span class="p">],</span> <span class="n">show_literature</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_values</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot alpha=-dlnrho_g/dlnr derived for deprojected Sersic distribution,</span>
@@ -3980,7 +3975,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 10</span>
 
-<span class="k">def</span> <span class="nf">plot_AD_sersic_potential_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_AD_sersic_potential_alpha_vs_R</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">sigma0_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">30.</span><span class="p">,</span> <span class="mf">60.</span><span class="p">,</span> <span class="mf">90.</span><span class="p">],</span> <span class="n">q_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="n">n_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">],</span>
             <span class="n">total_mass</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span><span class="mf">10.5</span><span class="p">),</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
             <span class="n">show_sigmar_toy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_sigmar_toy_nosig0</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -4247,7 +4242,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># Figure 11</span>
 
-<span class="k">def</span> <span class="nf">plot_composite_alpha_bulge_2disk_vs_r</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_composite_alpha_bulge_2disk_vs_r</span><span class="p">(</span><span class="n">fileout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">nDisk</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">nBulge</span><span class="o">=</span><span class="mf">4.</span><span class="p">,</span>
             <span class="n">bt_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.25</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.75</span><span class="p">,</span><span class="mf">1.</span><span class="p">],</span>
             <span class="n">ReB_to_ReD_arr</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
@@ -4847,7 +4842,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 20 May 2024.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 

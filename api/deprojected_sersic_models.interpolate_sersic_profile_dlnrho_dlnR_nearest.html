@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
@@ -5,23 +7,19 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>interpolate_sersic_profile_dlnrho_dlnR_nearest &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../_static/sersicprof-red-thick-64.png"/>
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
-        <script src="../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=56dcb7b8"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -41,9 +39,6 @@
             deprojected_sersic_models
               <img src="../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                1.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -135,19 +130,19 @@ then calls <a class="reference internal" href="deprojected_sersic_models.interpo
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius at which to interpolate profile [kpc]</p></li>
-<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Effective radius of Sersic profile [kpc]</p></li>
-<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Sersic index</p></li>
-<li><p><strong>invq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q.</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory containing the saved Sersic profile tables.
+<li><p><strong>R</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em> or </em><em>array_like</em>) – Radius at which to interpolate profile [kpc]</p></li>
+<li><p><strong>Reff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Effective radius of Sersic profile [kpc]</p></li>
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Sersic index</p></li>
+<li><p><strong>invq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Inverse of the intrinsic axis ratio of Sersic profile, invq = 1/q.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Path to directory containing the saved Sersic profile tables.
 If not set, system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code> must be set.
 Default: system variable <code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPROJECTED_SERSIC_MODELS_DATADIR</span></code>, if specified.</p></li>
-<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, when combined with default naming convention:
+<li><p><strong>filename_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Base filename to use, when combined with default naming convention:
 <code class="xref py py-obj docutils literal notranslate"><span class="pre">&lt;path&gt;/&lt;filename_base&gt;_nX.X_invqX.XX.fits</span></code>.
 Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">deproj_sersic_model</span></code></p></li>
-<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Option to override the default filename convention and
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Option to override the default filename convention and
 instead directly specify the file location.</p></li>
-<li><p><strong>interp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Default profile interpolation within the table Rarr region.
+<li><p><strong>interp_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Default profile interpolation within the table Rarr region.
 (Extrapolation is always linear). Default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic</span></code></p></li>
 </ul>
 </dd>
@@ -155,7 +150,7 @@ instead directly specify the file location.</p></li>
 <dd class="field-even"><p><strong>dlnrho_dlnR_interp_nearest</strong></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)">float</a> or array_like</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a> or array_like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -174,7 +169,7 @@ instead directly specify the file location.</p></li>
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 20 May 2024.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 

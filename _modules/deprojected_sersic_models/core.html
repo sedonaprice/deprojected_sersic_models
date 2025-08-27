@@ -1,26 +1,24 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>deprojected_sersic_models.core &mdash; deprojected_sersic_models 1.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
   
     <link rel="shortcut icon" href="../../_static/sersicprof-red-thick-64.png"/>
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=56dcb7b8"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=56dcb7b8"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -38,9 +36,6 @@
             deprojected_sersic_models
               <img src="../../_static/logo_white.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                1.1
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -98,16 +93,16 @@
 <span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst                  #</span>
 <span class="c1">##################################################################################</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
                         <span class="n">unicode_literals</span><span class="p">)</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">astropy.constants</span> <span class="k">as</span> <span class="nn">apy_con</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.constants</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">apy_con</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">deprojected_sersic_models.utils</span> <span class="kn">import</span> <span class="n">calcs</span> <span class="k">as</span> <span class="n">util_calcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">deprojected_sersic_models.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calcs</span> <span class="k">as</span> <span class="n">util_calcs</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s1">&#39;DeprojSersicModel&#39;</span> <span class="p">]</span>
 
@@ -123,7 +118,7 @@
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 <span class="c1"># ----------------------------------------------------------------------------------------------------</span>
 
-<span class="k">class</span> <span class="nc">_SersicDistBase</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_SersicDistBase</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class that specifies a Sersic distribution.</span>
 
@@ -150,7 +145,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span>    <span class="o">=</span> <span class="n">total_mass</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span>          <span class="o">=</span> <span class="n">Reff</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>             <span class="o">=</span> <span class="n">n</span>
@@ -160,21 +155,21 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_set_derived</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_derived</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Set derived quantities from the basic Sersic profile quantities &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_invq</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_qobs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_bn</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_Ie</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_set_invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Set invq from intrinsic axis ratio q &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_invq</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span>
 
-    <span class="k">def</span> <span class="nf">_set_qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to calculate the observed axis ratio for an inclined system.</span>
 <span class="sd">        Uses intrinsic axis ratio `q` and inclination `i`.</span>
@@ -185,7 +180,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_qobs</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">qobs_func</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">_set_bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to set bn(n) for a Sersic profile.</span>
 
@@ -198,7 +193,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_bn</span> <span class="o">=</span> <span class="n">util_calcs</span><span class="o">.</span><span class="n">bn_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_set_Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evalutation of Ie, normalization of the Sersic intensity profile at kap = Reff,</span>
 <span class="sd">        using the total mass (to infinity) and assuming a constant M/L ratio Upsilon.</span>
@@ -214,11 +209,11 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span>
 
     <span class="nd">@total_mass</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Total mass must be positive!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_total_mass</span> <span class="o">=</span> <span class="n">value</span>
@@ -227,11 +222,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span>
 
     <span class="nd">@Reff</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Reff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Reff must be positive!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Reff</span> <span class="o">=</span> <span class="n">value</span>
@@ -240,11 +235,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span>
 
     <span class="nd">@n</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sersic index n must be positive!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_n</span> <span class="o">=</span> <span class="n">value</span>
@@ -253,11 +248,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span>
 
     <span class="nd">@q</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Intrinsic axis ratio q must be positive!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_q</span> <span class="o">=</span> <span class="n">value</span>
@@ -266,22 +261,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_i</span>
 
     <span class="nd">@i</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_i</span> <span class="o">=</span> <span class="n">value</span>
 
         <span class="c1"># Reset derived values</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Upsilon</span>
 
     <span class="nd">@Upsilon</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Upsilon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mass-to-light ratio Upsilon must be positive!&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Upsilon</span> <span class="o">=</span> <span class="n">value</span>
@@ -290,25 +285,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_derived</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">invq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_invq</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qobs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qobs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bn</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Ie</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Ie</span>
 
 
 <div class="viewcode-block" id="DeprojSersicModel">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel">[docs]</a>
-<span class="k">class</span> <span class="nc">DeprojSersicModel</span><span class="p">(</span><span class="n">_SersicDistBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeprojSersicModel</span><span class="p">(</span><span class="n">_SersicDistBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Deprojected Sersic mass distribution, with arbitrary flattening (or elongation).</span>
 
@@ -335,7 +330,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mf">90.</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DeprojSersicModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">total_mass</span><span class="o">=</span><span class="n">total_mass</span><span class="p">,</span> <span class="n">Reff</span><span class="o">=</span><span class="n">Reff</span><span class="p">,</span>
                                                <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">Upsilon</span><span class="o">=</span><span class="n">Upsilon</span><span class="p">)</span>
 
@@ -343,7 +338,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.enclosed_mass">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass">[docs]</a>
-    <span class="k">def</span> <span class="nf">enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enclosed 3D mass within a sphere of radius r=R,</span>
 <span class="sd">        assuming a constant M/L ratio Upsilon.</span>
@@ -413,7 +408,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.v_circ">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.v_circ">[docs]</a>
-    <span class="k">def</span> <span class="nf">v_circ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">v_circ</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Circular velocity in the midplane of the deprojected Sersic mass distribution.</span>
 
@@ -458,7 +453,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.density">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.density">[docs]</a>
-    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Density profile at :math:`m=R` of the deprojected Sersic mass distribution.</span>
 
@@ -497,7 +492,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.drho_dR">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.drho_dR">[docs]</a>
-    <span class="k">def</span> <span class="nf">drho_dR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drho_dR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derivative of the density profile, :math:`d\\rho/dR`,</span>
 <span class="sd">        at distance :math:`m=R` of the deprojected Sersic mass distribution.</span>
@@ -534,7 +529,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.dlnrho_dlnR">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.dlnrho_dlnR">[docs]</a>
-    <span class="k">def</span> <span class="nf">dlnrho_dlnR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dlnrho_dlnR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Slope of the log density profile, :math:`d\\ln\\rho/d\\ln{}R`,</span>
 <span class="sd">        in the midplane at radius :math:`m=R` of the deprojected Sersic mass distribution.</span>
@@ -570,7 +565,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.surface_density">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.surface_density">[docs]</a>
-    <span class="k">def</span> <span class="nf">surface_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface_density</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Surface density distribution for a Sersic profile, assuming a M/L ratio Upsilon.</span>
 
@@ -592,7 +587,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.projected_enclosed_mass">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.projected_enclosed_mass">[docs]</a>
-    <span class="k">def</span> <span class="nf">projected_enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">projected_enclosed_mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Projected 2D mass enclosed within an ellipse</span>
 <span class="sd">        (or elliptical shell), assuming a constant M/L ratio Upsilon.</span>
@@ -617,7 +612,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.enclosed_mass_ellipsoid">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.enclosed_mass_ellipsoid">[docs]</a>
-    <span class="k">def</span> <span class="nf">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enclosed_mass_ellipsoid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enclosed 3D mass within an ellpsoid of</span>
 <span class="sd">        major axis radius r and intrinsic axis ratio q</span>
@@ -679,7 +674,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.virial_coeff_tot">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_tot">[docs]</a>
-    <span class="k">def</span> <span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">virial_coeff_tot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The &quot;total&quot; virial coefficient ktot, which satisfies</span>
 
@@ -716,7 +711,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.virial_coeff_3D">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.virial_coeff_3D">[docs]</a>
-    <span class="k">def</span> <span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">virial_coeff_3D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">m3D</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">vc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The &quot;3D&quot; virial coefficient k3D, which satisfies</span>
 
@@ -759,7 +754,7 @@
 
 <div class="viewcode-block" id="DeprojSersicModel.profile_table">
 <a class="viewcode-back" href="../../api/deprojected_sersic_models.DeprojSersicModel.html#deprojected_sersic_models.DeprojSersicModel.profile_table">[docs]</a>
-    <span class="k">def</span> <span class="nf">profile_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">profile_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">cumulative</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_reff_table_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a set of profiles as a dictionary, calculated over the specified radii.</span>
 <span class="sd">        Also includes constants for the specified Sersic profile parameters,</span>
@@ -857,7 +852,7 @@
 
   <div role="contentinfo">
     <p>&#169; Copyright 2018-2022, Sedona Price.
-      <span class="lastupdated">Last updated on 20 May 2024.
+      <span class="lastupdated">Last updated on 27 Aug 2025.
       </span></p>
   </div>
 
