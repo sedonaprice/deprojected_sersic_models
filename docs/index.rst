@@ -25,6 +25,20 @@ Tables for a wide range of Sérsic index :math:`n` and intrinsic axis ratio :mat
 are available for :ref:`download<downloads>`.
 
 
+.. note::
+    There is a typo in Equation 8 of `Price et al. 2022`_, where the inner integrand upper 
+    limit should be :math:`\sqrt{R^2 - \tilde{R}^2}` (with no :math:`q_0` term).
+
+    This typo does not affect any presented calculations or plots in the paper 
+    or the code in this package. (The code was implemented with the correct 
+    integrand limit).
+
+    *Thanks to Lola Danhaive for finding this mistake!*
+
+.. _Price et al. 2022: https://ui.adsabs.harvard.edu/abs/2022A%26A...665A.159P/abstract
+
+
+
 .. _quick_start:
 
 Quickstart
